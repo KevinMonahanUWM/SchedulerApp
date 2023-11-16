@@ -19,12 +19,11 @@ Work Norms:
 1. Time commitment required by each group member:
 Time commitment is a difficult thing to determine seeing one member may be able to
 complete the same job in a less amount of time. The goal is to complete the job. If one
-member is taking a substantial amount of time more than the others, it will be examined
+member is has not finished their task by the time we meet for a Scrumm Meeting, it will be examined
 by the group as to whether his work load should be decreased.
 2. Dealing with different work habits:
 The work habits of any particular member will not be an issue as long as the member
-communicates progress, produces quality work, and the work is done by the dates
-established by the group. If the member does not meet these standards, procedures to deal
+communicates progress, produces work that follows TDD and the solid principles, and the work is done by the dates established by the group. If the member does not meet these standards, procedures to deal
 with that member are further detailed in the ground rules.
 Ground Rules:
 Meetings:
@@ -37,6 +36,7 @@ place through the group discord. It is understood that if a meeting takes too lo
 may have to leave for classes or work obligations. This type of situation will not
 constitute and offense.
 2. Missing a meeting:
+If someone is missing a meeting they must let people know at least one day before the meeting.
 An occasional missing of a meeting can be accepted. If however an individual repeatedly
 misses a meeting without good cause, some disciplinary action may have to be taken.
 Acceptable justification of a missed meeting includes, but is not limited to: injury, illness,
@@ -154,17 +154,20 @@ any member. This report will be sent out with the meeting notes every week so ea
 member knows where they stand.
 3. Minor Group Offence:
 A minor group offence can occur for breaking indicated statutes of the charter.
+These include: missing a meeting, not following the prinicples of TDD and SOLID development.
 A record of the minor offence will be recorded by the group assigned note taker.
 4. Major Group Offence:
 A major group offence can occur by breaking indicated statutes of the charter, or for
-accumulation of 3 or more minor offences. The group member is on probation and
+accumulation of 3 or more minor offences.
+Major Offences include: not doing any tasks, not communicating with the group, and being rude people
+in the group.
+The group member is on probation and
 his probation status is to be clearly documented by email including a detailed description
 of his offence. The group member may return to regular status upon a
 group consensus. If the group member commits another offence constituted as either
 minor or major, he will become a candidate for punishment and dismissal.
 5. Punishment and Dismissal:
-A group member committing enough (6)minor and (2)major offences. They will be referred to punishment and
-dismissal and will be given over to review by the TA and governing bodies (the Rock).
+A group member committing enough (6)minor and (2)major offences. They will be referred to punishment and dismissal and will be given over to review by the TA and governing bodies (the Rock).
 An email describing the offences leading up to punishment and dismissal will be
 displayed along with testimonies from at least 2 other group members and a log of
 offenses. If available, the offending members work will be confiscated and termed as
