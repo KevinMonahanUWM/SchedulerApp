@@ -23,16 +23,29 @@ class Section(models.Model):
     credits = models.IntegerField()
 
 
+# noinspection DuplicatedCode
 class TA(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     sections = models.ManyToManyField(Section)
 
 
+# noinspection DuplicatedCode
+class TAToSection(models.Model):
+    ta = models.ForeignKey(TA, on_delete=models.CASCADE, null=True)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True)
+
+
+# noinspection DuplicatedCode
 class Instructor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     sections = models.ManyToManyField(Section)
 
 
+# noinspection DuplicatedCode
+class InstructorToSection(models.Model):
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, null=True)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True)
+
+
 class Administrator(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-
