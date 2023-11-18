@@ -26,7 +26,6 @@ class Section(models.Model):
 # noinspection DuplicatedCode
 class TA(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    sections = models.ManyToManyField(Section)
 
 
 # noinspection DuplicatedCode
@@ -38,7 +37,6 @@ class TAToSection(models.Model):
 # noinspection DuplicatedCode
 class Instructor(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    sections = models.ManyToManyField(Section)
 
 
 # noinspection DuplicatedCode
