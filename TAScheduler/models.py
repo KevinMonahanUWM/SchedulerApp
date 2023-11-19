@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
@@ -10,6 +11,30 @@ class User(models.Model):
     phone_number = models.IntegerField()
 
 
+# noinspection DuplicatedCode
+class TA(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    grader_status = models.BooleanField()
+    max_assignments = models.IntegerField(
+        default=6,
+        validators=[
+            MaxValueValidator(6),
+            MinValueValidator(0)
+        ]
+    )
+
+
+class Instructor(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    max_assignments = models.IntegerField(
+        default=6,
+        validators=[
+            MaxValueValidator(6),
+            MinValueValidator(0)
+        ]
+    )
+
+
 class Course(models.Model):
     course_id = models.IntegerField()
     semester = models.CharField(max_length=11)
@@ -17,6 +42,8 @@ class Course(models.Model):
 
 class Section(models.Model):
     section_id = models.IntegerField()
+    ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL, null=True)
+    instructor = models.ForeignKey(Instructor, unique=True, on_delete=models.SET_NULL, null=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
     location = models.CharField(max_length=30)
     meeting_time = models.DateTimeField()
@@ -24,25 +51,14 @@ class Section(models.Model):
 
 
 # noinspection DuplicatedCode
-class TA(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-
-
-# noinspection DuplicatedCode
-class TAToSection(models.Model):
+class TAToCourse(models.Model):
     ta = models.ForeignKey(TA, on_delete=models.CASCADE, null=True)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
 
 
-# noinspection DuplicatedCode
-class Instructor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-
-
-# noinspection DuplicatedCode
-class InstructorToSection(models.Model):
+class InstructorToCourse(models.Model):
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, null=True)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
 
 
 class Administrator(models.Model):
