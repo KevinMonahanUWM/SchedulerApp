@@ -1,3 +1,78 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-# Create your models here.
+
+class User(models.Model):
+    email_address = models.CharField(max_length=90)  # This is also the username
+    password = models.CharField(max_length=30)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    home_address = models.CharField(max_length=90)
+    phone_number = models.IntegerField()
+
+
+# noinspection DuplicatedCode
+class TA(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    grader_status = models.BooleanField()
+    max_assignments = models.IntegerField(
+        default=6,
+        validators=[
+            MaxValueValidator(6),
+            MinValueValidator(0)
+        ]
+    )
+
+
+class Instructor(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    max_assignments = models.IntegerField(
+        default=6,
+        validators=[
+            MaxValueValidator(6),
+            MinValueValidator(0)
+        ]
+    )
+
+
+class Course(models.Model):
+    course_id = models.IntegerField()
+    semester = models.CharField(max_length=11)
+    name = models.CharField(max_length=100)
+    description = models.CharField(max_length=1000)
+    num_of_sections = models.IntegerField()
+    modality = models.CharField(max_length=100)
+    credits = models.IntegerField(default=0)
+
+
+class Section(models.Model):
+    section_id = models.IntegerField()
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False)
+    location = models.CharField(max_length=30)
+    meeting_time = models.DateTimeField()
+
+
+class Lab(models.Model):
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
+    ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL, null=True)
+
+
+class Lecture(models.Model):
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
+    instructor = models.ForeignKey(Instructor, unique=True, on_delete=models.SET_NULL, null=True)
+    ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL,
+                           null=True)  # Graders would be assigned to lecture
+
+
+class TAToCourse(models.Model):
+    ta = models.ForeignKey(TA, on_delete=models.CASCADE, null=False)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False)
+
+
+class InstructorToCourse(models.Model):
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, null=False)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False)
+
+
+class Administrator(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
