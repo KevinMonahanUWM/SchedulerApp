@@ -30,3 +30,5 @@ urlpatterns = [
     path('home/managecourse/edit', EditCourse.as_view()),
     path('home/managecourse/addinstructor', AddInstructorToCourse.as_view())
 ]
+
+
