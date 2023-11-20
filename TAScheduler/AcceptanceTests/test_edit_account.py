@@ -5,7 +5,7 @@ class SuccessfulEdit(TestCase):
     pass
 
 
-class InvalidFormating(TestCase):
+class InvalidFormatting(TestCase):
     pass
 
 
