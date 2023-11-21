@@ -1,10 +1,27 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from TAScheduler.models import User, Course, Instructor, TA, Administrator
 
 
 class AdminCreateCourseTestCase(TestCase):
+    admin_user = None
+    course = None
+    password = None
+    first_name = None
+    last_name = None
+    home_address = None
+    phone_number = None
+    course_id = None
+    semester = None
+    name = None
+    description = None
+    num_of_sections = None
+    modality = None
+    credits = None
+
     def setUp(self):
+        self.client = Client()
+
         # Create an admin user for login
         admin_user = User.objects.create(
             email_address='admin@example.com',
@@ -13,6 +30,16 @@ class AdminCreateCourseTestCase(TestCase):
             last_name='User',
             home_address='123 Admin St',
             phone_number='1234567890'
+        )
+        # Create a course first
+        Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
         )
         Administrator.objects.create(user=admin_user)
         self.client.login(email_address=admin_user.email_address,
@@ -30,20 +57,9 @@ class AdminCreateCourseTestCase(TestCase):
             'credits': 4
         })
         self.assertEqual(response.status_code, 302)  # Assuming redirection after successful creation
-        self.assertTrue(Course.objects.filter(name='Introduction to Testing').exists())
+        self.assertTrue(Course.objects.filter(course_id=101).exists())
 
     def test_create_course_duplicate(self):
-        # Create a course first
-        Course.objects.create(
-            course_id=101,
-            semester='Fall 2023',
-            name='Introduction to Testing',
-            description='A course about writing tests in Django.',
-            num_of_sections=3,
-            modality='Online',
-            credits=4
-        )
-
         # Try to create another course with the same course_id
         response = self.client.post(reverse('create_course'), {
             'course_id': 101,

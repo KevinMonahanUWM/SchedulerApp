@@ -1,15 +1,25 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from TAScheduler.models import Course, Section, User, TA, InstructorToCourse
 
+email_address = None
+password = None
+course_id = None
+name = None
+semester = None
+num_of_sections = None
+modality = None
+
+
 class AdminDeleteCourseTestCase(TestCase):
     def setUp(self):
+        self.client = Client()
         # Create an admin user and course for testing
         self.admin_user = User.objects.create(email_address='admin@example.com', password='password')
-        self.course = Course.objects.create(course_id=1, name='Test Course', semester='Fall', num_of_sections=1, modality='Online', credits=3)
+        self.course = Course.objects.create(course_id=1, name='Test Course', semester='Fall', num_of_sections=1,
+                                            modality='Online', credits=3)
 
     def test_delete_course_success(self):
-
         self.client.login(email_address=self.admin_user.email_address, password='password')
 
         # Attempt to delete the course
@@ -26,3 +36,4 @@ class AdminDeleteCourseTestCase(TestCase):
         # Attempt to access the delete course page
         response = self.client.get(reverse('delete_course'))
         self.assertIn('No Courses to Delete', response.content.decode())
+        self.assertEqual(response.context["message"], "Successfully deleted course")

@@ -1,9 +1,19 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from TAScheduler.models import Course, User, Administrator
 
+email_address = None
+password = None
+course_id = None
+name = None
+semester = None
+num_of_sections = None
+modality = None
+
+
 class AdminEditCourseTestCase(TestCase):
     def setUp(self):
+        self.client = Client()
         # Create a course for editing
         self.course = Course.objects.create(
             course_id=101,
