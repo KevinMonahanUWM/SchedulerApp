@@ -171,5 +171,5 @@ class NonexistantCourse(TestCase):
         self.assertEquals(oldNumSecs, newNumSecs,
                           msg="adding bad host couse ID'ed lecture shouldn't have incremented number of secs")
 
-# 3] repeat 1] for lab
+# 3] repeat 1] for lab#
 # 4] repeat 2] for lab
