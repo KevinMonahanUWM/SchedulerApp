@@ -17,7 +17,7 @@ class AdminEditCourseTestCase(TestCase):
         # Create an admin user and log them in
         admin_user = User.objects.create(email_address='admin@example.com', password='password')
         Administrator.objects.create(user=admin_user)
-        self.client.login(email_address=admin_user.email_address, password='password')  # Update as per your login logic
+        self.client.login(email_address=admin_user.email_address, password='password')
 
     def test_edit_course_success(self):
         # Admin logs in and edits a course successfully
@@ -31,7 +31,7 @@ class AdminEditCourseTestCase(TestCase):
             'credits': 4
         }
         response = self.client.post(reverse('edit_course', args=[self.course.pk]), updated_data)
-        self.assertRedirects(response, reverse('manage_courses'))
+        self.assertRedirects(response, reverse('course_management'))
 
         self.course.refresh_from_db()
         self.assertEqual(self.course.semester, updated_data['semester'])
@@ -60,7 +60,7 @@ class AdminEditCourseTestCase(TestCase):
     def test_discard_course_changes(self):
         # Admin attempts to make changes but then discards them
         original_name = self.course.name
-        response = self.client.post(reverse('discard_course_edit', args=[self.course.pk]))
-        self.assertRedirects(response, reverse('manage_courses'))
+        response = self.client.post(reverse('course_edit', args=[self.course.pk]))
+        self.assertRedirects(response, reverse('course_management'))
         self.course.refresh_from_db()
         self.assertEqual(self.course.name, original_name)

@@ -8,7 +8,7 @@ class AdminCreateCourseTestCase(TestCase):
         # Create an admin user for login
         admin_user = User.objects.create(
             email_address='admin@example.com',
-            password='adminpassword',  # Note: In real tests, use hashed passwords and proper authentication
+            password='adminpassword',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
