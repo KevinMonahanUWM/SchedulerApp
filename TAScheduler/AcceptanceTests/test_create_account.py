@@ -91,7 +91,7 @@ class InvalidFormatting(TestCase):
                      "home_address", "3400 N Maryland Ave", "phone_number", 4, "role", "TA"}
 
     # TODO need to make tests work with sessions but I am unsure of how to start that
-    def test_one_input(self):
-        resp = self.user.post("/home/manageaccount/create", {"role", "TA"})
+    def test_bad_phone(self):
+        resp = self.user.post("/home/manageaccount/create", self.info)
         self.assertEquals(resp.context["message"], "Invalid Phone Number",
                           "You created an account with an incorrect phone number")
