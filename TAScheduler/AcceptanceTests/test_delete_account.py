@@ -27,6 +27,10 @@ class SuccessfulDelete(TestCase):
 
 
 class NoUsers(TestCase):
+    user = None
+
+    def setUp(self):
+        self.user = Client()
 
     def test_no_users(self):
         resp = self.user.get("/home/manageaccount/delete")
