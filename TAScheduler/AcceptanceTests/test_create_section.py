@@ -162,7 +162,7 @@ class NonexistantCourse(TestCase):
         resp = self.client.post("home/managesection/edit", data=self.badCrsIDLecInfo)
         self.assertEquals(resp.context["message"], "BAD HOST COURSE ID: COURSE DOES NOT EXIST",
                           msg="can't instantiate lecture already existing")
-
+#
     # 2] No DB Change: # of secs same ("adding" lec)
     def test_NoDBChangeNoExistCourse(self):
         oldNumSecs = Section.objects.count()

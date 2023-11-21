@@ -23,7 +23,7 @@ class SuccessDelete(TestCase):
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
             self.secList = self.secList.append(testSection)
-#
+##
     # 1] Section not found in the section list
     def test_correctDelete(self):
         resp = self.client.post("home/managesection/delete", data={"section": self.secList[0]})
