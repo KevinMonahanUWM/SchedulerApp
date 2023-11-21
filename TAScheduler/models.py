@@ -64,9 +64,9 @@ class Lecture(models.Model):
                            null=True)  # Graders would be assigned to lecture
 
 
-class TAToSection(models.Model):
+class TAToCourse(models.Model):
     ta = models.ForeignKey(TA, on_delete=models.CASCADE, null=False)
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False)
 
 
 class InstructorToCourse(models.Model):
