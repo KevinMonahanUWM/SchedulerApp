@@ -1,10 +1,18 @@
 from django.test import TestCase, Client
-from django.contrib.auth.models import User
+from TAScheduler.models import User
+
 class LogoutTest(TestCase):
     client = None
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(username='testuser', password='12345')
+        self.user = User.objects.create(
+            email_address='testuser@example.com',
+            password='12345',
+            first_name="Test",
+            last_name="User",
+            home_address="123 Test Street",
+            phone_number=1234567890
+        )
         self.client.login(username='testuser', password='12345')
 
     def test_logout(self):

@@ -5,7 +5,14 @@ class SuccessfulLogin(TestCase):
     client = None
     def setUp(self):
         self.client = Client()
-        User.objects.create_user(email_address="user@example.com", password="password")
+        self.user = User.objects.create(
+            email_address='testuser@example.com',
+            password='12345',
+            first_name="Test",
+            last_name="User",
+            home_address="123 Test Street",
+            phone_number=1234567890
+        )
 
     def test_login_with_valid_credentials(self):
         response = self.client.post('/', {'email': 'user@example.com', 'password': 'password'})
@@ -13,7 +20,14 @@ class SuccessfulLogin(TestCase):
 class InvalidLoginIncorrectPassword(TestCase):
     def setUp(self):
         self.client = Client()
-        User.objects.create_user(email_address="user@example.com", password="password")
+        self.user = User.objects.create(
+            email_address='testuser@example.com',
+            password='12345',
+            first_name="Test",
+            last_name="User",
+            home_address="123 Test Street",
+            phone_number=1234567890
+        )
     def test_login_with_incorrect_password(self):
         response = self.client.post('/', {'email': 'user@example.com', 'password': 'wrongpassword'})
         self.assertFormError(response, 'form', None, 'Invalid username or password')  # Assuming this error is shown
