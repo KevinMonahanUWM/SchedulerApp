@@ -19,7 +19,7 @@ class SuccessfulDelete(TestCase):
         self.tempUser = User(email_address="test@uwm.edu", password="pass", first_name="test", last_name="ignore",
                     home_address="3400 N Maryland Ave", phone_number=4142292222)
         self.tempUser.save()
-        TA(user=self.tempUser).save()
+        TA(user=self.tempUser, grader_status=False).save()
 
     def test_correct_delete(self):
         self.user.post("/home/manageaccount/delete", {"selection", self.tempUser})
