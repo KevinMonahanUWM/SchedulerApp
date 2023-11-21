@@ -1,0 +1,28 @@
+Acceptance Test for Admin Edit Course
+
+
+
+Scenario: Admin successfully edits an existing course
+Given the admin is logged in to the system
+And the admin has navigated to the “Edit Course” form
+And there is at least one existing course
+When the admin selects a course to edit
+And the admin clicks the “edit course” button
+Then the admin should be redirected to the course's information editing page
+When the admin enters a valid course name, description, and selects a semester
+And the admin clicks “save changes”
+Then a confirmation message “Course successfully updated” should be displayed
+And the updated course information should reflect these changes immediately on the user interface
+
+Scenario: Admin enters invalid inputs while editing a course
+Given the admin is on the “Edit Course” page
+When the admin enters invalid inputs for the course fields
+And the admin clicks "Save Changes"
+Then an error message should be displayed
+And the "Edit Course" page should be redisplayed with the original information
+
+Scenario: Admin discards changes made to a course
+Given the admin is on the “Edit Course” page
+When the admin clicks "Discard Changes"
+Then the original course information should be restored
+And the "Edit Course" page should be redisplayed
