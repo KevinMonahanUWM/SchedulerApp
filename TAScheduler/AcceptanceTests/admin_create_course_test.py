@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.urls import reverse
-from .models import User, Course, Instructor, TA, Administrator
+from TAScheduler.models import User, Course, Instructor, TA, Administrator
 
 
 class AdminCreateCourseTestCase(TestCase):
