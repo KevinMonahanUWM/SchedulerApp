@@ -8,7 +8,7 @@ class InstructorToCourseTests(TestCase):
     instructor = None
     course = None
     instrToCourse = None
-
+#
     def setUp(self):
         self.user = User.objects.create(email_address="instructor@class.com", password="password", first_name="first",
                                         last_name="last", home_address="there", phone_number=1234567890)
