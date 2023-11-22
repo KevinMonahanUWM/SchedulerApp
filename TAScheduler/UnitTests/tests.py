@@ -6,7 +6,7 @@ import unittest
 # Kiran = #9,#10,#11 (Total = 15)
 # Joe = #12,#13 (Total = 8)
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
-# Feel free to make suggestions on discord (add/remove/edit methods)!
+# Feel free to make suggestions on discord (add/remove/edit methods)!.
 ### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
 class TestUserLogin(unittest.TestCase): #Alec
     pass
