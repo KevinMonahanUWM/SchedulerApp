@@ -30,6 +30,9 @@ class TestUserGetRole(unittest.TestCase):  # Alec
     pass
 
 
+class TestAdminInit(unittest.TestCase):
+    pass
+
 class TestAdminCreateCourse(unittest.TestCase):  # Alec
     pass
 
@@ -73,6 +76,8 @@ class TestAdminCourseInstrAsgmt(unittest.TestCase):  # Kevin
 class TestAdminCourseTAAsgmt(unittest.TestCase):  # Kevin
     pass
 
+class TestTAInit(unittest.TestCase):
+    pass
 
 class TestTAHasMaxAsgmts(unittest.TestCase):  # Kiran
     pass
@@ -105,6 +110,9 @@ class TestTAGetTALecAsgmts(unittest.TestCase):  # Kiran
 class TestTAGetGraderStatus(unittest.TestCase):  # Kiran
     pass
 
+class TestInstrutorInit(unittest.TestCase):
+    pass
+
 
 class TestInstructorHasMaxAsgmts(unittest.TestCase):  # Kiran
     pass
@@ -131,6 +139,9 @@ class TestInstructorLecTAAsmgt(unittest.TestCase):
 
 
 class TestInstructorLabTAAsmgt(unittest.TestCase):
+    pass
+
+class TestCourseInit(unittest.TestCase):
     pass
 
 
@@ -174,6 +185,9 @@ class TestSectionGetParentCourse(unittest.TestCase):  # Joe
     pass
 
 
+class TestLabInit(unittest.TestCase):
+    pass
+
 class TestLabGetLabTAAsgmt(unittest.TestCase):  # Joe
     pass
 
@@ -185,6 +199,9 @@ class TestLabAddTA(unittest.TestCase):  # Joe
 class TestLabRemoveTA(unittest.TestCase):  # Joe
     pass
 
+
+class TestLectureInit(unittest.TestCase):
+    pass
 
 class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
     pass
