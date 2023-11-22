@@ -208,6 +208,9 @@ class SectionObj(abc.ABC):
 
 class LectureObj(SectionObj):
 
+    def __init__(self):
+        pass
+
     def getID(self):
         pass
 
@@ -234,6 +237,9 @@ class LectureObj(SectionObj):
 
 
 class LabObj(SectionObj):
+
+    def __init__(self):
+        pass
 
     def getID(self):
         pass
