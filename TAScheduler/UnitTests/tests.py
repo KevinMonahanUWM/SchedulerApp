@@ -38,7 +38,7 @@ class TestAdminEditAccount(unittest.TestCase): #Kevin
     pass
 class TestAdminCourseInstrAsgmt(unittest.TestCase): #Kevin
     pass
-class TestAdminLabTAAsgmt(unittest.TestCase): #Kevin
+class TestAdminCourseTAAsgmt(unittest.TestCase): #Kevin
     pass
 class TestTAHasMaxAsgmts(unittest.TestCase): #Kiran
     pass
@@ -46,7 +46,13 @@ class TestTAAssignTACourse(unittest.TestCase): #Kiran
     pass
 class TestTAGetTACrseAsgmts(unittest.TestCase):#Kiran
     pass
+class TestAssignTALab(unittest.TestCase):
+    pass
 class TestTAGetTALabAsgmts(unittest.TestCase): #Kiran
+    pass
+class TestAssignTALec(unittest.TestCase):
+    pass
+class TestTAGetTALecAsgmts(unittest.TestCase): #Kiran
     pass
 class TestTAGetGraderStatus(unittest.TestCase): #Kiran
     pass
@@ -55,6 +61,14 @@ class TestInstructorHasMaxAsgmts(unittest.TestCase): #Kiran
 class TestInstructorAssignInstrCourse(unittest.TestCase): #Kiran
     pass
 class TestInstructorGetInstrCrseAsgmts(unittest.TestCase): #Kiran
+    pass
+class TestInstructorAssignInstrLec(unittest.TestCase): #Kiran
+    pass
+class TestInstructorGetInstrLecAsgmts(unittest.TestCase): #Kiran
+    pass
+class TestInstructorLecTAAsmgt(unittest.TestCase):
+    pass
+class TestInstructorLabTAAsmgt(unittest.TestCase):
     pass
 class TestCourseAddInstructor(unittest.TestCase): #Randall
     pass
@@ -88,6 +102,13 @@ class TestLectureAddInstructor(unittest.TestCase): #Joe
     pass
 class TestLectureRemoveInstructor(unittest.TestCase): #Joe
     pass
+class TestLectureGetLecTAAsgmt(unittest.TestCase): #Joe
+    pass
+class TestLectureAddTA(unittest.TestCase): #Joe
+    pass
+class TestLectureRemoveTA(unittest.TestCase): #Joe
+    pass
+
 
 
 
