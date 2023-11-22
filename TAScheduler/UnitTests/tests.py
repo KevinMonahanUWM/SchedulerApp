@@ -1,7 +1,7 @@
 from django.test import TestCase
 
-from TAScheduler.models import Course, User
-from TAScheduler.views_methods import CourseObj, AdminObj
+from TAScheduler.models import Course, User, TA
+from TAScheduler.views_methods import CourseObj, AdminObj, TAObj
 
 
 # PBI Assignments ...
@@ -84,7 +84,7 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
 
     def test_successful_delete(self):
         self.admin.removeCourse(self.tempCourse)
-        self.assertNotIn(Course.objects, self.hold_course, "Did not remove course from ")
+        self.assertNotIn(Course.objects, self.hold_course, "Did not remove course from the database")
 
     def test_delete_null_course(self):
         Course.delete(self.hold_course)
@@ -97,7 +97,45 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
 
 
 class TestAdminRemoveAccount(TestCase):  # Kevin
-    pass
+    tempTA = None
+    admin = None
+    hold_user = None
+
+    def setUp(self):
+        self.hold_user = User.objects.create(
+                email_address='kev@example.com',
+                password='kevpassword',
+                first_name='Kevin',
+                last_name='User',
+                home_address='123 Kevin St',
+                phone_number='1234667890'
+        )
+        temp_ta = TA.objects.create(user=self.hold_user, grader_status=False)
+        self.tempTA = TAObj(temp_ta)
+        temp = User.objects.create(
+            email_address='admin@example.com',
+            password='adminpassword',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number='1234567890'
+        )
+        hold_admin = Admin(user=temp)
+        hold_admin.save()
+        self.admin = AdminObj(hold_admin)
+
+    def test_successful_delete(self):
+        self.admin.removeCourse(self.tempTA)
+        self.assertNotIn(User.objects, self.hold_user, "Did not remove user from the database")
+
+    def test_delete_null_user(self):
+        User.delete(self.hold_user)
+        with self.assertRaises(RuntimeError, msg="Tried to delete a non-existent user"):
+            self.admin.removeCourse(self.tempTA)
+
+    def test_delete_non_user(self):
+        with self.assertRaises(TypeError, msg="Tried to delete not a user"):
+            self.admin.removeCourse(11)
 
 
 class TestAdminRemoveSection(TestCase):  # Kevin
