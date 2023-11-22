@@ -189,7 +189,40 @@ class TestAdminRemoveSection(TestCase):  # Kevin
 
 
 class TestAdminEditCourse(TestCase):  # Kevin
-    pass
+    tempCourse = None
+    admin = None
+    new_info = None
+
+    def setUp(self):
+        hold_course = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
+        )
+        self.tempCourse = CourseObj(hold_course)
+        hold_user = User(
+            email_address='admin@example.com',
+            password='adminpassword',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number='1234567890'
+        )
+        hold_user.save()
+        hold_admin = Administrator(user=hold_user)
+        hold_admin.save()
+        self.admin = AdminObj(hold_admin)
+        new_info = {"course id", 103,
+                    "semester", "Spring 2024",
+                    "name", "Intro to Units",
+                    "description", "Unit testing at its finest",
+                    "num of sections", 4,
+                    "modality", "",
+                    "credits", 3}
 
 
 class TestAdminEditSection(TestCase):  # Kevin
