@@ -1,5 +1,8 @@
 import unittest
 
+from TAScheduler.models import Course
+from TAScheduler.views_methods import CourseObj
+
 
 # PBI Assignments ...
 # Alec = #1,#2 (Total = 6)
@@ -43,7 +46,20 @@ class TestAdminCreateSection(unittest.TestCase):  # Alec
 
 
 class TestAdminRemoveCourse(unittest.TestCase):  # Kevin
-    pass
+    tempCourse = None
+
+    def setUp(self):
+        hold_course = Course(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
+        )
+        hold_course.save()
+        self.tempCourse = CourseObj(hold_course)
 
 
 class TestAdminRemoveAccount(unittest.TestCase):  # Kevin
