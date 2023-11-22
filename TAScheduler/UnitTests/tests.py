@@ -2,7 +2,7 @@ import datetime
 
 from django.test import TestCase
 
-from TAScheduler.models import Course, User, TA, Section, Lab
+from TAScheduler.models import Course, User, TA, Section, Lab, Administrator
 from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj
 
 
@@ -51,10 +51,6 @@ class TestAdminCreateSection(TestCase):  # Alec
     pass
 
 
-class Admin:
-    pass
-
-
 class TestAdminRemoveCourse(TestCase):  # Kevin
     tempCourse = None
     admin = None
@@ -80,7 +76,7 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
             phone_number='1234567890'
         )
         hold_user.save()
-        hold_admin = Admin(user=hold_user)
+        hold_admin = Administrator(user=hold_user)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
 
@@ -122,7 +118,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
             home_address='123 Admin St',
             phone_number='1234567890'
         )
-        hold_admin = Admin(user=temp)
+        hold_admin = Administrator(user=temp)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
 
@@ -174,7 +170,7 @@ class TestAdminRemoveSection(TestCase):  # Kevin
             home_address='123 Admin St',
             phone_number='1234567890'
         )
-        hold_admin = Admin(user=temp)
+        hold_admin = Administrator(user=temp)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
 
