@@ -1,7 +1,7 @@
 import abc
 
 
-class User(abc.ABC):
+class UserObj(abc.ABC):
 
     @abc.abstractmethod
     def login(self, username, password):
@@ -24,7 +24,7 @@ class User(abc.ABC):
         pass
 
 
-class Admin(User):
+class AdminObj(UserObj):
 
     def __init__(self):
         pass
@@ -78,7 +78,7 @@ class Admin(User):
         pass
 
 
-class TA(User):
+class TAObj(UserObj):
 
     def __init__(self):
         pass
@@ -123,7 +123,7 @@ class TA(User):
         pass
 
 
-class Instructor(User):
+class InstructorObj(UserObj):
 
     def __init__(self):
         pass
@@ -165,7 +165,7 @@ class Instructor(User):
         pass
 
 
-class Course:
+class CourseObj:
 
     def __init__(self):
         pass
@@ -195,7 +195,7 @@ class Course:
         pass
 
 
-class Section(abc.ABC):
+class SectionObj(abc.ABC):
 
     @abc.abstractmethod
     def getID(self):
@@ -206,7 +206,7 @@ class Section(abc.ABC):
         pass
 
 
-class Lecture(Section):
+class LectureObj(SectionObj):
 
     def getID(self):
         pass
@@ -233,7 +233,7 @@ class Lecture(Section):
         pass
 
 
-class Lab(Section):
+class LabObj(SectionObj):
 
     def getID(self):
         pass

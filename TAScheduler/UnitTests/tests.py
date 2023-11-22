@@ -1,4 +1,6 @@
 import unittest
+
+
 # PBI Assignments ...
 # Alec = #1,#2 (Total = 6)
 # Kevin = #3,#4,#5 (Total = 4)
@@ -8,111 +10,201 @@ import unittest
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
 ### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
-class TestUserLogin(unittest.TestCase): #Alec
+class TestUserLogin(unittest.TestCase):  # Alec
     pass
-class TestUserGetID(unittest.TestCase): #Alec
+
+
+class TestUserGetID(unittest.TestCase):  # Alec
     pass
-class TestUserGetPassword(unittest.TestCase): #Alec
+
+
+class TestUserGetPassword(unittest.TestCase):  # Alec
     pass
-class TestUserGetName(unittest.TestCase): #Alec
+
+
+class TestUserGetName(unittest.TestCase):  # Alec
     pass
-class TestUserGetRole(unittest.TestCase): #Alec
+
+
+class TestUserGetRole(unittest.TestCase):  # Alec
     pass
-class TestAdminCreateCourse(unittest.TestCase): #Alec
+
+
+class TestAdminCreateCourse(unittest.TestCase):  # Alec
     pass
-class TestAdminCreateUser(unittest.TestCase): #Alec
+
+
+class TestAdminCreateUser(unittest.TestCase):  # Alec
     pass
-class TestAdminCreateSection(unittest.TestCase): #Alec
+
+
+class TestAdminCreateSection(unittest.TestCase):  # Alec
     pass
-class TestAdminRemoveCourse(unittest.TestCase): #Kevin
+
+
+class TestAdminRemoveCourse(unittest.TestCase):  # Kevin
     pass
-class TestAdminRemoveAccount(unittest.TestCase): #Kevin
+
+
+class TestAdminRemoveAccount(unittest.TestCase):  # Kevin
     pass
-class TestAdminRemoveSection(unittest.TestCase): #Kevin
+
+
+class TestAdminRemoveSection(unittest.TestCase):  # Kevin
     pass
-class TestAdminEditCourse(unittest.TestCase): #Kevin
+
+
+class TestAdminEditCourse(unittest.TestCase):  # Kevin
     pass
-class TestAdminEditSection(unittest.TestCase): #Kevin
+
+
+class TestAdminEditSection(unittest.TestCase):  # Kevin
     pass
-class TestAdminEditAccount(unittest.TestCase): #Kevin
+
+
+class TestAdminEditAccount(unittest.TestCase):  # Kevin
     pass
-class TestAdminCourseInstrAsgmt(unittest.TestCase): #Kevin
+
+
+class TestAdminCourseInstrAsgmt(unittest.TestCase):  # Kevin
     pass
-class TestAdminCourseTAAsgmt(unittest.TestCase): #Kevin
+
+
+class TestAdminCourseTAAsgmt(unittest.TestCase):  # Kevin
     pass
-class TestTAHasMaxAsgmts(unittest.TestCase): #Kiran
+
+
+class TestTAHasMaxAsgmts(unittest.TestCase):  # Kiran
     pass
-class TestTAAssignTACourse(unittest.TestCase): #Kiran
+
+
+class TestTAAssignTACourse(unittest.TestCase):  # Kiran
     pass
-class TestTAGetTACrseAsgmts(unittest.TestCase):#Kiran
+
+
+class TestTAGetTACrseAsgmts(unittest.TestCase):  # Kiran
     pass
+
+
 class TestAssignTALab(unittest.TestCase):
     pass
-class TestTAGetTALabAsgmts(unittest.TestCase): #Kiran
+
+
+class TestTAGetTALabAsgmts(unittest.TestCase):  # Kiran
     pass
+
+
 class TestAssignTALec(unittest.TestCase):
     pass
-class TestTAGetTALecAsgmts(unittest.TestCase): #Kiran
+
+
+class TestTAGetTALecAsgmts(unittest.TestCase):  # Kiran
     pass
-class TestTAGetGraderStatus(unittest.TestCase): #Kiran
+
+
+class TestTAGetGraderStatus(unittest.TestCase):  # Kiran
     pass
-class TestInstructorHasMaxAsgmts(unittest.TestCase): #Kiran
+
+
+class TestInstructorHasMaxAsgmts(unittest.TestCase):  # Kiran
     pass
-class TestInstructorAssignInstrCourse(unittest.TestCase): #Kiran
+
+
+class TestInstructorAssignInstrCourse(unittest.TestCase):  # Kiran
     pass
-class TestInstructorGetInstrCrseAsgmts(unittest.TestCase): #Kiran
+
+
+class TestInstructorGetInstrCrseAsgmts(unittest.TestCase):  # Kiran
     pass
-class TestInstructorAssignInstrLec(unittest.TestCase): #Kiran
+
+
+class TestInstructorAssignInstrLec(unittest.TestCase):  # Kiran
     pass
-class TestInstructorGetInstrLecAsgmts(unittest.TestCase): #Kiran
+
+
+class TestInstructorGetInstrLecAsgmts(unittest.TestCase):  # Kiran
     pass
+
+
 class TestInstructorLecTAAsmgt(unittest.TestCase):
     pass
+
+
 class TestInstructorLabTAAsmgt(unittest.TestCase):
     pass
-class TestCourseAddInstructor(unittest.TestCase): #Randall
-    pass
-class TestCourseAddTA(unittest.TestCase): #Randall
-    pass
-class TestCourseRemoveAssignment(unittest.TestCase): #Randall
-    pass
-class TestCourseRemoveCourse(unittest.TestCase): #Randall
-    pass
-class TestCourseEditCourseInfo(unittest.TestCase): #Randall
-    pass
-class TestCourseGetAsgmtsForCrse(unittest.TestCase): #Randall
-    pass
-class TestCourseGetSectionsForCrse(unittest.TestCase): #Randall
-    pass
-class TestCourseGetCrseInfo(unittest.TestCase): #Randall
-    pass
-class TestSectionGetID(unittest.TestCase): #Joe
-    pass
-class TestSectionGetParentCourse(unittest.TestCase): #Joe
-    pass
-class TestLabGetLabTAAsgmt(unittest.TestCase): #Joe
-    pass
-class TestLabAddTA(unittest.TestCase): #Joe
-    pass
-class TestLabRemoveTA(unittest.TestCase): #Joe
-    pass
-class TestLectureGetLecInstrAsgmt(unittest.TestCase): #Joe
-    pass
-class TestLectureAddInstructor(unittest.TestCase): #Joe
-    pass
-class TestLectureRemoveInstructor(unittest.TestCase): #Joe
-    pass
-class TestLectureGetLecTAAsgmt(unittest.TestCase): #Joe
-    pass
-class TestLectureAddTA(unittest.TestCase): #Joe
-    pass
-class TestLectureRemoveTA(unittest.TestCase): #Joe
+
+
+class TestCourseAddInstructor(unittest.TestCase):  # Randall
     pass
 
 
+class TestCourseAddTA(unittest.TestCase):  # Randall
+    pass
 
 
+class TestCourseRemoveAssignment(unittest.TestCase):  # Randall
+    pass
 
 
+class TestCourseRemoveCourse(unittest.TestCase):  # Randall
+    pass
 
 
+class TestCourseEditCourseInfo(unittest.TestCase):  # Randall
+    pass
+
+
+class TestCourseGetAsgmtsForCrse(unittest.TestCase):  # Randall
+    pass
+
+
+class TestCourseGetSectionsForCrse(unittest.TestCase):  # Randall
+    pass
+
+
+class TestCourseGetCrseInfo(unittest.TestCase):  # Randall
+    pass
+
+
+class TestSectionGetID(unittest.TestCase):  # Joe
+    pass
+
+
+class TestSectionGetParentCourse(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLabGetLabTAAsgmt(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLabAddTA(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLabRemoveTA(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLectureAddInstructor(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLectureAddTA(unittest.TestCase):  # Joe
+    pass
+
+
+class TestLectureRemoveTA(unittest.TestCase):  # Joe
+    pass
