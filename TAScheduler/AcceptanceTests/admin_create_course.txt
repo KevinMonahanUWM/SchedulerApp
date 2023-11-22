@@ -1,0 +1,20 @@
+Acceptance Test for Admin Create Course
+
+Scenario: Admin successfully creates a new course
+Given the admin is logged in to the system
+And the admin has navigated to the “Create Course” form
+When the admin enters a unique course number and fills in all required fields
+And the admin clicks the “confirm course creation” button
+Then the new course should be added to the system
+And the admin should be redirected to the schedule of classes page
+And the new course should be displayed on the schedule of classes for all users
+And a confirmation message “Course successfully created” should be displayed
+
+Scenario: Admin attempts to create a course with a duplicate course number
+Given the admin is logged in to the system
+And the admin has navigated to the “Create Course” form
+When the admin enters a course number that already exists
+And the admin clicks the “confirm course creation” button
+Then no new course should be added to the system
+And a warning message “A course with this number already exists” should be displayed
+And the admin should remain on the “Create Course” page to adjust the course number
