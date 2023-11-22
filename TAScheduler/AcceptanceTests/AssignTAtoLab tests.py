@@ -1,120 +1,146 @@
-import datetime
-
-from django.test import TestCase
+from django.test import TestCase, Client
 
 from TAScheduler.models import User, TA, Course, TAToCourse
 
 
-#
-class SuccessfulAssignment(TestCase):
+class SuccessfulCreation(TestCase):
     user = None
     ta = None
     course = None
-    tatocourse = None
+    TAToCourse = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        self.user = User.objects.create(email_address="ta@class.com", password="password", first_name="first",
-                                        last_name="last", home_address="there", phone_number=1234567890)
+        self.user = Client()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
 
-        self.ta = TA.objects.create(user=self.user)
+        self.ta = TA.objects.create(user=temp)
+        self.ta.save()
 
-        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="test",
-                                            description="test", num_of_sections=2, modality="online", credits=1)
+        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
+                                            num_of_sections=3, modality="online", credits=3)
+        self.course.save()
 
-        self.tatocourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
+        self.TAToCourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
+        self.TAToCourse.save()
 
     def test_creation(self):
-        temp = TAToCourse.objects.create(ta=self.ta, course=self.course)
-        self.assertIsNotNone(temp, "TAToCourse does not make anything")
-        self.assertEqual(temp.course, self.course, "TAToCourse does not make correct course")
-        self.assertEqual(temp.ta, self.ta, "TAToCourse does not make correct TA")
+        # I think that TA to course would also be in course management which is why URL is such
+
+        self.user.post("/home/managecourse/addta", {"selection", self.ta}, follow=True)
+        response = self.user.post("/home/managecourse/addta/course-select", {"selection", self.course},
+                                  follow=True)
+        self.assertEquals(self.ta, User.objects.get(self.ta), "TA to course link was not made")
+        self.assertRedirects(response, '/home/managecourse/addta/course-select/success')
 
 
 class NoTA(TestCase):
     user = None
-    ta = None
-    course = None
-    tatocourse = None
 
     def setUp(self):
-        self.user = User.objects.create(email_address="ta@class.com", password="password", first_name="first",
-                                        last_name="last", home_address="there", phone_number=1234567890)
-
-        self.ta = TA.objects.create(user=self.user)
-
-        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="test",
-                                            description="test", num_of_sections=2, modality="online", credits=1)
-
-        self.tatocourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
+        self.user = Client()
 
     def test_no_ta(self):
-        temp = TAToCourse.objects.create(ta=self.ta)
-        self.assertIsNone(temp.ta, "TAToCourse makes TA with no input")
+        response = self.user.get("/home/managecourse/addta")
+        self.assertEquals(response.context["message"], "No existing TA's to assign")
 
 
 class NoCourse(TestCase):
     user = None
     ta = None
-    course = None
-    tatocourse = None
 
     def setUp(self):
-        self.user = User.objects.create(email_address="ta@class.com", password="password", first_name="first",
-                                        last_name="last", home_address="there", phone_number=1234567890)
+        self.user = Client()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
 
-        self.ta = TA.objects.create(user=self.user)
-
-        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="test",
-                                            description="test", num_of_sections=2, modality="online", credits=1)
-
-        self.tatocourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
+        self.ta = TA.objects.create(user=temp)
+        self.ta.save()
 
     def test_no_course(self):
-        temp = TAToCourse.objects.create(course=self.course)
-        self.assertIsNone(temp.course, "TAToCourse makes course with no input")
+        response = self.user.post("/home/managecourse/addta", {"selection", self.ta}, follow=True)
+        self.assertEquals(response.context["message"], "No existing courses to assign")
 
 
-class TaDelete(TestCase):
+class TANoRoom(TestCase):
     user = None
     ta = None
-    course = None
-    tatocourse = None
 
     def setUp(self):
-        self.user = User.objects.create(email_address="ta@class.com", password="password", first_name="first",
-                                        last_name="last", home_address="there", phone_number=1234567890)
+        self.user = Client()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
 
-        self.ta = TA.objects.create(user=self.user)
+        self.ta = TA.objects.create(user=temp)
+        self.ta.save()
 
-        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="test",
-                                            description="test", num_of_sections=2, modality="online", credits=1)
-
-        self.tatocourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
-
-    def test_ta_deletion(self):
-        temp = TAToCourse.objects.create(ta=self.ta, course=self.course)
-        self.ta.delete()
-        self.assertIsNone(temp, "TAToCourse link should have deleted when TA was deleted")
+    def test_ta_no_room(self):
+        resp = self.user.post("/home/managecourse/addta", {"selection", self.ta}, follow=True)
+        self.assertEquals(resp.context["message"], "TA has max assignments",
+                          "Cannot assign courses when TA is at max")
 
 
-class CourseDelete(TestCase):
+class SuccessfulTransfer(TestCase):
     user = None
     ta = None
-    course = None
-    tatocourse = None
 
     def setUp(self):
-        self.user = User.objects.create(email_address="ta@class.com", password="password", first_name="first",
-                                        last_name="last", home_address="there", phone_number=1234567890)
+        self.user = Client()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
 
-        self.ta = TA.objects.create(user=self.user)
+        self.ta = TA.objects.create(user=temp)
+        self.ta.save()
 
-        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="test",
-                                            description="test", num_of_sections=2, modality="online", credits=1)
+    def test_ta_to_next(self):
+        resp = self.user.post("/home/managecourse/addta", {"selection", self.ta}, follow=True)
+        self.assertEquals(resp.context["ta"], self.ta, "TA not transferred over properly")
 
-        self.tatocourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
+    """                             I don't think this needs this but just in case, also I just thought that it probably
+     doesn't after I finished it
+class CourseHasTA(TestCase):
+    user = None
+    ta = None
+    ta2 = None
+    course = None
+    taToCourse = None
 
-    def test_course_deletion(self):
-        temp = TAToCourse.objects.create(ta=self.ta, course=self.course)
-        self.course.delete()
-        self.assertIsNone(temp, "TAToCourse link should have deleted when course was deleted")
+    def setUp(self):
+        self.user = Client()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
+
+        temp2 = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp2.save()
+
+        self.ta = TA.objects.create(user=temp)
+        self.ta.save()
+
+        self.ta2 = TA.objects.create(user=temp2)
+        self.ta2.save()
+
+        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
+                                            num_of_sections=3, modality="online", credits=3)
+        self.course.save()
+
+        self.TAToCourse = TAToCourse.objects.create(ta=self.ta, course=self.course)
+        self.TAToCourse.save()
+
+    def test_course_full(self):
+        self.user.post("/home/managecourse/addta", {"selection", self.ta}, follow=True)
+        response = self.user.post("/home/managecourse/addta/course-select", {"selection", self.course},
+                                  follow=True)
+
+        self.user.post("/home/managecourse/addta", {"selection", self.ta2}, follow=True)
+        response2 = self.user.post("/home/managecourse/addta/course-select", {"selection", self.course},
+                                  follow=True)
+
+        self.assertEquals(response.context["message"], "Course already has TA assigned", "TA assigned to full course")
+    """
