@@ -26,7 +26,7 @@ class UserObj(abc.ABC):
 
 class AdminObj(UserObj):
 
-    def __init__(self):
+    def __init__(self, admin_info):
         pass
 
     def getUsername(self):
@@ -80,7 +80,7 @@ class AdminObj(UserObj):
 
 class TAObj(UserObj):
 
-    def __init__(self):
+    def __init__(self, ta_info):
         pass
 
     def login(self, username, password):
@@ -125,7 +125,7 @@ class TAObj(UserObj):
 
 class InstructorObj(UserObj):
 
-    def __init__(self):
+    def __init__(self, instr_info):
         pass
 
     def login(self, username, password):
@@ -167,7 +167,7 @@ class InstructorObj(UserObj):
 
 class CourseObj:
 
-    def __init__(self):
+    def __init__(self, course_info):
         pass
 
     def addInstructor(self, active_instr):
@@ -208,7 +208,7 @@ class SectionObj(abc.ABC):
 
 class LectureObj(SectionObj):
 
-    def __init__(self):
+    def __init__(self, lec_info):
         pass
 
     def getID(self):
@@ -238,7 +238,7 @@ class LectureObj(SectionObj):
 
 class LabObj(SectionObj):
 
-    def __init__(self):
+    def __init__(self, lab_info):
         pass
 
     def getID(self):
