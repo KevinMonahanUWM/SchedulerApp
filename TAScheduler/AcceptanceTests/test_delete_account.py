@@ -25,6 +25,11 @@ class SuccessfulDelete(TestCase):
         self.user.post("/home/manageaccount/delete", {"selection", self.tempUser})
         self.assertNotIn(self.tempUser, User.objects, "Did not successfully delete user")
 
+    def test_correct_delete(self):
+        resp = self.user.post("/home/manageaccount/delete", {"selection", self.tempUser})
+        self.assertEquals(resp.context["message"], "Successfully deleted account",
+                          "Success message should have displayed")
+
 
 class NoUsers(TestCase):
     user = None

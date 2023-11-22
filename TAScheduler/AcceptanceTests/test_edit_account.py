@@ -52,6 +52,11 @@ class InvalidFormatting(TestCase):
                                                                                              "value that does not "
                                                                                              "match standard format")
 
+    def test_formatting_error_ensure_no_change(self):
+        self.user.post("/home/manageaccount/edit", {"User", self.tempUser}, follow=True)
+        resp = self.user.post("/home/manageaccount/edit", {"phone_number", 414})
+        self.assertIn(self.tempUser, User.objects, "User was changed when it should still be the same")
+
 
 class DiscardChanges(TestCase):
     user = None
