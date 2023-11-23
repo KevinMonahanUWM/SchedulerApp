@@ -2,7 +2,7 @@ import datetime
 
 from django.test import TestCase
 
-from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, InstructorToCourse, TAToCourse
+from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, InstructorToCourse, TAToCourse, Instructor
 from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj
 
 
@@ -175,14 +175,17 @@ class TestCourseAddInstructor(TestCase):  # Randall
             home_address='123 Instructor St',
             phone_number='1234567891'
         )
-        self.instructor = InstructorObj(self.instructor_user)
+        self.instructor_model = Instructor.objects.create(
+            user=self.instructor_user)  # Create an Instructor model instance
+        self.instructor = InstructorObj(self.instructor_model)  # Wrap it with InstructorObj
 
     def test_add_instructor(self):
         self.tempCourse.addInstructor(self.instructor)
         # Check if the instructor was added to the course
 
         instructor_to_course_exists = InstructorToCourse.objects.filter(
-            instructor=self.instructor, course=self.course
+            instructor=self.instructor_model,  # Use the Instructor model instance
+            course=self.hold_course
         ).exists()
         self.assertTrue(instructor_to_course_exists, "Instructor was not added to the course")
 
@@ -290,7 +293,8 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
         self.assertEqual(self.hold_course.name, self.new_info["name"], "Course name was not updated")
         self.assertEqual(self.hold_course.description, self.new_info["description"],
                          "Course description was not updated")
-        self.assertEqual(self.hold_course.num_of_sections, self.new_info["num_of_sections"], "Course section was not updated")
+        self.assertEqual(self.hold_course.num_of_sections, self.new_info["num_of_sections"],
+                         "Course section was not updated")
         self.assertEqual(self.hold_course.modality, self.new_info["modality"], "Course modality was not updated")
         self.assertEqual(self.hold_course.credits, self.new_info["credits"], "Course credits was not updated")
 
