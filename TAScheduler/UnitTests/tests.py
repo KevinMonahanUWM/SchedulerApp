@@ -1,7 +1,7 @@
 import datetime
 from django.test import TestCase
 from TAScheduler.models import Course, User, TA, Section, Lab, Administrator
-from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj
+from TAScheduler.views_methods import UserObj, CourseObj, AdminObj, TAObj, LabObj
 
 # PBI Assignments ...
 # Alec = #1,#2 (Total = 6)
@@ -12,9 +12,9 @@ from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
 ### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
-class TestUserLogin(TestCase):  # Alec
+class TestUserLogin(TestCase): # Alec
     def setUp(self):
-        self.user = User.objects.create(
+        user_info = User.objects.create(
             email_address="test@example.com",
             password="password123",
             first_name="Test",
@@ -22,34 +22,33 @@ class TestUserLogin(TestCase):  # Alec
             home_address="123 Street",
             phone_number=1234567890
         )
+        self.userObj = UserObj(user_info)
 
     def test_login_valid_credentials(self):
-        result = self.user.login("test@example.com", "password123")
+        result = self.userObj.login("test@example.com", "password123")
         self.assertTrue(result)
 
     def test_login_invalid_credentials(self):
-        result = self.user.login("test@example.com", "wrongpassword")
+        result = self.userObj.login("test@example.com", "wrongpassword")
         self.assertFalse(result)
-
-
-class TestUserGetID(TestCase):  # Alec
+class TestUserGetID(TestCase): # Alec
     def setUp(self):
-        self.user = User.objects.create(
+        user_info = User.objects.create(
             email_address="test@example.com",
-            password="password123",  # Hashing the password
+            password="password123",
             first_name="Test",
             last_name="User",
             home_address="123 Street",
             phone_number=1234567890
         )
+        self.userObj = UserObj(user_info)
+
     def test_get_id(self):
-        user_id = self.user.getID()
+        user_id = self.userObj.getUsername()
         self.assertEqual(user_id, "test@example.com")
-
-
-class TestUserGetPassword(TestCase):
+class TestUserGetPassword(TestCase): # Alec
     def setUp(self):
-        self.user = User.objects.create(
+        user_info = User.objects.create(
             email_address="testuser@example.com",
             password="password123",
             first_name="Test",
@@ -57,12 +56,13 @@ class TestUserGetPassword(TestCase):
             home_address="123 Street",
             phone_number=1234567890
         )
+        self.userObj = UserObj(user_info)
+
     def test_get_password(self):
-        self.assertEqual(self.user.get_password(), "password123")
-
-class TestUserGetName(TestCase):
+        self.assertEqual(self.userObj.getPassword(), "password123")
+class TestUserGetName(TestCase): # Alec
     def setUp(self):
-        self.user = User.objects.create(
+        user_info = User.objects.create(
             email_address="testuser@example.com",
             password="password123",
             first_name="Test",
@@ -70,14 +70,12 @@ class TestUserGetName(TestCase):
             home_address="123 Street",
             phone_number=1234567890
         )
-
+        self.userObj = UserObj(user_info)
     def test_get_name(self):
-        self.assertEqual(self.user.get_name(), "Test User")
-
-
-class TestUserGetRole(TestCase):
+        self.assertEqual(self.userObj.getName(), "Test User")
+class TestUserGetRole(TestCase): # Alec
     def setUp(self):
-        self.user = User.objects.create(
+        user_info = User.objects.create(
             email_address="testuser@example.com",
             password="password123",
             first_name="Test",
@@ -85,13 +83,12 @@ class TestUserGetRole(TestCase):
             home_address="123 Street",
             phone_number=1234567890
         )
-
+        self.userObj = UserObj(user_info)
     def test_get_role(self):
-        self.assertEqual(self.user.get_role(), "user") #what should this be?
-
-class TestAdminInit(TestCase):
+        self.assertEqual(self.userObj.getRole(), "user")  # Replace "user" with the actual role name if different
+class TestAdminInit(TestCase): # Alec
     def setUp(self):
-        self.admin_user = User.objects.create(
+        admin_user_info = User.objects.create(
             email_address="admin@example.com",
             password="adminpass",
             first_name="Admin",
@@ -99,16 +96,22 @@ class TestAdminInit(TestCase):
             home_address="123 Admin Street",
             phone_number=1234567890
         )
-        self.admin = Administrator.objects.create(user=self.admin_user)
-
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
     def test_admin_init(self):
-        self.assertEqual(self.admin.user.email_address, "admin@example.com")
-
-class TestAdminCreateCourse(TestCase):
+        self.assertEqual(self.adminObj.user.email_address, "admin@example.com")
+class TestAdminCreateCourse(TestCase): # Alec
     def setUp(self):
-        self.admin = Administrator.objects.create(
-            user=User.objects.create(email_address="admin@example.com")
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
         )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
 
     def test_create_course(self):
         course_info = {
@@ -120,17 +123,21 @@ class TestAdminCreateCourse(TestCase):
             'modality': 'Online',
             'credits': 4
         }
-        created_course = self.admin.create_course(**course_info)
+        created_course = self.adminObj.createCourse(course_info)
         self.assertIsNotNone(created_course)
         self.assertEqual(created_course.name, 'Intro to Testing')
-
-
-
-class TestAdminCreateUser(TestCase):
+class TestAdminCreateUser(TestCase): # Alec
     def setUp(self):
-        self.admin = Administrator.objects.create(
-            user=User.objects.create(email_address="admin@example.com")
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
         )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
 
     def test_create_user(self):
         user_info = {
@@ -141,17 +148,22 @@ class TestAdminCreateUser(TestCase):
             'home_address': '123 New Street',
             'phone_number': 9876543210
         }
-        created_user = self.admin.create_user(**user_info)
+        created_user = self.adminObj.createUser(user_info)
         self.assertIsNotNone(created_user)
         self.assertEqual(created_user.email_address, 'newuser@example.com')
-
-
-
-class TestAdminCreateSection(TestCase):
+class TestAdminCreateSection(TestCase): # Alec
     def setUp(self):
-        self.admin = Administrator.objects.create(
-            user=User.objects.create(email_address="admin@example.com")
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpassword",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
         )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
+
         self.course = Course.objects.create(
             course_id=101,
             semester='Fall 2023',
@@ -169,10 +181,9 @@ class TestAdminCreateSection(TestCase):
             'location': 'Room 101',
             'meeting_time': datetime.datetime.now()
         }
-        created_section = self.admin.create_section(**section_info)
+        created_section = self.adminObj.createSection(section_info)
         self.assertIsNotNone(created_section)
         self.assertEqual(created_section.section_id, 201)
-
 
 class TestAdminRemoveCourse(TestCase):  # Kevin
     pass
