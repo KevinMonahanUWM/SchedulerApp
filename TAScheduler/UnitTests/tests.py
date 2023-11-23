@@ -1,12 +1,11 @@
+import datetime
+
 from django.test import TestCase
 
+from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, Instructor, InstructorToCourse, TAToCourse
+from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj
 
-# PBI Assignments ...
-# Alec = #1,#2 (Total = 6)
-# Kevin = #3,#4,#5 (Total = 4)
-# Randall = #6,#7,#8 (Total = 12)
-# Kiran = #9,#10,#11 (Total = 15)
-# Joe = #12,#13 (Total = 8)
+
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
 ### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
@@ -32,6 +31,7 @@ class TestUserGetRole(TestCase):  # Alec
 
 class TestAdminInit(TestCase):
     pass
+
 
 class TestAdminCreateCourse(TestCase):  # Alec
     pass
@@ -76,152 +76,61 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
 class TestAdminCourseTAAsgmt(TestCase):  # Kevin
     pass
 
-class TestTAInit(TestCase):
+
+class TestTAInit(TestCase):  # Kevin
     pass
 
+
+# I ORIGINALLY INTERPRETTED:
+# "instructor max assignments" as max "course" assignments for an instructor &
+# "ta max assignments" as max "lab" assignments for a TA ... I think it might be better to just make it "max course assignments" for both?
 class TestTAHasMaxAsgmts(TestCase):  # Kiran
-    pass
+    taDB = None
+    courseDB = None
+    user = None  # for admin
+    taObj = None
+    adminObj = None  # for deleting course
+
+    def setUp(self):
+        self.user = User.objects.create(
+            email_address='TA@example.com',
+            password='TApassword',
+            first_name='TA',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number='1234567890'
+        )
+        self.taDB = TA.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
+        self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
+        tempUserForAdmin = User(email_address="admin@example.com")
+        tempAdmin = Administrator(user=tempUserForAdmin)
+        self.adminObj = AdminObj(tempAdmin)
+
+        self.courseDB = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
+        )
+
+    # 1] TA w/ 1 course assignment
+    def test_1Crse1MaxCap(self):
+        TAToCourse.objects.create(ta=self.taDB, course=self.courseDB)  # assigning TA to course using db?
+        self.assertEquals(self.taObj.hasMaxAsgmts(), True,
+                          msg="TA has 1 max assignments & assigned 1 course: @ max cap")
+
+    # 2] TA w/ 0 course assignment
+    def test_0Crse1MaxCap(self):
+        self.assertEquals(self.taObj.hasMaxAsgmts(), False,
+                          msg="TA has 1 max assignments & not assigned 1 course: not @ max cap")
+
+    # 3] TA w/ max cap -> no max assign
+    def test_origMaxCapToNoAsgn(self):
+        TAToCourse.objects.create(ta=self.taDB, course=self.courseDB)
+        self.adminObj.removeCourse(CourseObj(self.courseDB))  # removing course should also remove this TA's assignment
+        self.assertEquals(self.taObj.hasMaxAsgmts(), False,
+                          msg="TA originally w/ assignment, removed, shouldn't be at max cap")
 
-
-class TestTAAssignTACourse(TestCase):  # Kiran
-    pass
-
-
-class TestTAGetTACrseAsgmts(TestCase):  # Kiran
-    pass
-
-
-class TestAssignTALab(TestCase):
-    pass
-
-
-class TestTAGetTALabAsgmts(TestCase):  # Kiran
-    pass
-
-
-class TestAssignTALec(TestCase):
-    pass
-
-
-class TestTAGetTALecAsgmts(TestCase):  # Kiran
-    pass
-
-
-class TestTAGetGraderStatus(TestCase):  # Kiran
-    pass
-
-class TestInstrutorInit(TestCase):
-    pass
-
-
-class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
-    pass
-
-
-class TestInstructorAssignInstrCourse(TestCase):  # Kiran
-    pass
-
-
-class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
-    pass
-
-
-class TestInstructorAssignInstrLec(TestCase):  # Kiran
-    pass
-
-
-class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
-    pass
-
-
-class TestInstructorLecTAAsmgt(TestCase):
-    pass
-
-
-class TestInstructorLabTAAsmgt(TestCase):
-    pass
-
-class TestCourseInit(TestCase):
-    pass
-
-
-class TestCourseAddInstructor(TestCase):  # Randall
-    pass
-
-
-class TestCourseAddTA(TestCase):  # Randall
-    pass
-
-
-class TestCourseRemoveAssignment(TestCase):  # Randall
-    pass
-
-
-class TestCourseRemoveCourse(TestCase):  # Randall
-    pass
-
-
-class TestCourseEditCourseInfo(TestCase):  # Randall
-    pass
-
-
-class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
-    pass
-
-
-class TestCourseGetSectionsForCrse(TestCase):  # Randall
-    pass
-
-
-class TestCourseGetCrseInfo(TestCase):  # Randall
-    pass
-
-
-class TestSectionGetID(TestCase):  # Joe
-    pass
-
-
-class TestSectionGetParentCourse(TestCase):  # Joe
-    pass
-
-
-class TestLabInit(TestCase):
-    pass
-
-class TestLabGetLabTAAsgmt(TestCase):  # Joe
-    pass
-
-
-class TestLabAddTA(TestCase):  # Joe
-    pass
-
-
-class TestLabRemoveTA(TestCase):  # Joe
-    pass
-
-
-class TestLectureInit(TestCase):
-    pass
-
-class TestLectureGetLecInstrAsgmt(TestCase):  # Joe
-    pass
-
-
-class TestLectureAddInstructor(TestCase):  # Joe
-    pass
-
-
-class TestLectureRemoveInstructor(TestCase):  # Joe
-    pass
-
-
-class TestLectureGetLecTAAsgmt(TestCase):  # Joe
-    pass
-
-
-class TestLectureAddTA(TestCase):  # Joe
-    pass
-
-
-class TestLectureRemoveTA(TestCase):  # Joe
-    pass
