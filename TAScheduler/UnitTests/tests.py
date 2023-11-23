@@ -3,8 +3,8 @@ import datetime
 
 from django.test import TestCase
 
-from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, Instructor, InstructorToCourse
-from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, SectionObj, InstructorObj, LectureObj
+from TAScheduler.models import Course, User, TA, Section, Lab, Instructor, Lecture
+from TAScheduler.views_methods import LabObj, SectionObj, LectureObj
 
 
 # PBI Assignments ...
@@ -15,7 +15,7 @@ from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, Sectio
 # Joe = #12,#13 (Total = 8)
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
-### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
+# Remember: These methods were made before any coding (I was guessing) so it's likely they should be changed.
 class TestUserLogin(TestCase):  # Alec
     pass
 
@@ -38,7 +38,8 @@ class TestUserGetRole(TestCase):  # Alec
 
 class TestAdminInit(TestCase):
     pass
-  
+
+
 class TestAdminCreateCourse(TestCase):  # Alec
     pass
 
@@ -82,8 +83,10 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
 class TestAdminCourseTAAsgmt(TestCase):  # Kevin
     pass
 
+
 class TestTAInit(TestCase):
     pass
+
 
 class TestTAHasMaxAsgmts(TestCase):  # Kiran
     pass
@@ -116,6 +119,7 @@ class TestTAGetTALecAsgmts(TestCase):  # Kiran
 class TestTAGetGraderStatus(TestCase):  # Kiran
     pass
 
+
 class TestInstrutorInit(TestCase):
     pass
 
@@ -146,8 +150,8 @@ class TestInstructorLecTAAsmgt(TestCase):
 
 class TestInstructorLabTAAsmgt(TestCase):
     pass
-  
-  
+
+
 class TestCourseInit(TestCase):
     pass
 
@@ -184,13 +188,11 @@ class TestCourseGetCrseInfo(TestCase):  # Randall
     pass
 
 
-
-class TestSectionGetID(unittest.TestCase):  # Joe
+class TestSectionGetID(TestCase):  # Joe
     section = None
-    course = None
 
     def setUp(self):
-        self.course = Course.objects.create(
+        tmpcourse = Course.objects.create(
             course_id=100,
             semester="fall 2023",
             name="testCourse",
@@ -199,16 +201,16 @@ class TestSectionGetID(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        self.course.save()
+        tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
-            course=self.course,
+            course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
-        self.section = SectionObj(hold_section)
+        tmpsection.save()
+        self.section = SectionObj(tmpsection)
 
     def test_get_id(self):
         self.assertEquals(self.section.getID(), 1011, "getID() did not retrieve correct section_id")
@@ -216,10 +218,11 @@ class TestSectionGetID(unittest.TestCase):  # Joe
     # Maybe test for section_id = None, but I don't think section can be made without
 
 
-class TestSectionGetParentCourse(unittest.TestCase):  # Joe
+class TestSectionGetParentCourse(TestCase):  # Joe
     section = None
     course = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
         self.course = Course.objects.create(
             course_id=100,
@@ -232,27 +235,43 @@ class TestSectionGetParentCourse(unittest.TestCase):  # Joe
         )
         self.course.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=self.course,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
-        self.section = SectionObj(hold_section)
+        tmpsection.save()
+        self.section = SectionObj(tmpsection)
 
     def test_get_parent_course(self):
         self.assertEquals(self.section.getParentCourse(), self.course,
                           "getParentCourse() did not retrieve correct course")
 
 
-class TestLabInit(unittest.TestCase):
-    section = None
-    course = None
+class TestLabInit(TestCase):
     lab = None
+    info = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        self.course = Course.objects.create(
+        tempuser = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
+
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
+
+        tmpcourse = Course.objects.create(
             course_id=100,
             semester="fall 2023",
             name="testCourse",
@@ -261,27 +280,37 @@ class TestLabInit(unittest.TestCase):
             modality="online",
             credits=3
         )
-        self.course.save()
+        tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
-            course=self.course,
+            course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        self.section = SectionObj(hold_section)
-        self.lab = LabObj(self.section)
+        tmplab = Lab.objects.create(
+            section=tmpsection,
+            ta=tmpta
+        )
+
+        self.info = {
+            "ta", tmpta,
+            "section", tmpsection
+        }
+
+        self.lab = LabObj(tmplab)
 
     def test_lab_make(self):
-        self.assertIsNotNone(self.lab.__init__(), "__init__ failed in making Lab")
+        self.assertIsNotNone(self.lab.__init__(self.info), "__init__ failed in making Lab")
 
 
-class TestLabGetLabTAAsgmt(unittest.TestCase):  # Joe
+class TestLabGetLabTAAsgmt(TestCase):  # Joe
     lab = None
     ta = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -294,40 +323,65 @@ class TestLabGetLabTAAsgmt(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
-        hold_section_lab = SectionObj(hold_section)
-        self.lab = LabObj(hold_section_lab)
+        tmpsection.save()
+
+        self.lab = Lab.objects.create(
+            section=tmpsection
+        )
+        self.lab.save()
 
     def test_get_ta(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
+        temp = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
         temp.save()
-
         self.ta = TA.objects.create(user=temp)
         self.ta.save()
 
-        self.assertEquals(self.ta, self.lab.getLabTAAsgmt(), "getLabTAAsgmt() does not retrieve ta")
+        self.lab.ta = self.ta
+        self.lab.save()
+
+        self.labObj = LabObj(self.lab)  # Form lab after adding TA manually
+
+        self.assertEquals(self.ta, self.labObj.getLabTAAsgmt(), "getLabTAAsgmt() does not retrieve correct ta")
 
     def test_no_ta(self):
-        self.assertIsNone(self.lab.getLabTAAsgmt(), "getLabTAAsgmt() finds something with no TA")
+        self.labObj = LabObj(self.lab)  # Form lab with no TA
+
+        self.assertIsNone(self.labObj.getLabTAAsgmt(), "getLabTAAsgmt() finds something with no TA")
 
 
-class TestLabAddTA(unittest.TestCase):  # Joe
+class TestLabAddTA(TestCase):  # Joe
     lab = None
     ta = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.ta = TA.objects.create(user=temp)
+        self.ta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
         self.ta.save()
 
         tmpcourse = Course.objects.create(
@@ -341,25 +395,24 @@ class TestLabAddTA(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
-        hold_section_lab = SectionObj(hold_section)
-        self.lab = LabObj(hold_section_lab)
+        tmpsection.save()
+
+        tmplab = Lab.objects.create(
+            section=tmpsection,
+        )
+
+        self.lab = LabObj(tmplab)
 
     def test_add_ta(self):
-        temp2 = User(email_address="test2@test.com", password="password2", first_name="first2", last_name="last2",
-                     home_address="Your mom's house", phone_number=1234567890)
-        temp2.save()
-
-        tempta = TA.objects.create(user=temp2)
-        tempta.save()
-        self.lab.addTA(tempta)
-        self.assertIn(tempta, self.lab, "addTA() does not add TA")  # Can't write tests without container
+        self.lab.addTA(self.ta)
+        self.assertEquals(self.ta, self.lab.getLabTAAsgmt(),
+                          "addTA() does not add TA to lab")
 
     def test_full(self):
         temp2 = User(email_address="test2@test.com", password="password2", first_name="first2", last_name="last2",
@@ -373,17 +426,26 @@ class TestLabAddTA(unittest.TestCase):  # Joe
             self.lab.addTA(self.ta)
 
 
-class TestLabRemoveTA(unittest.TestCase):  # Joe
+class TestLabRemoveTA(TestCase):  # Joe
     lab = None
     ta = None
 
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.ta = TA.objects.create(user=temp)
-        self.ta.save()
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -396,28 +458,69 @@ class TestLabRemoveTA(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
-        hold_section_lab = SectionObj(hold_section)
-        self.lab = LabObj(hold_section_lab)
+        tmpsection.save()
+
+        tmplab = Lab.objects.create(
+            section=tmpsection,
+            ta=tmpta
+        )
+
+        self.lab = LabObj(tmplab)
 
     def test_remove(self):
         self.lab.removeTA()
-        self.assertNotIn(self.ta, self.lab, "removeTA() does not remove TA")  # Can't write tests without container
+        self.assertIsNone(self.lab.getLabTAAsgmt(), "removeTA() does not remove TA from lab")
+
+    def test_remove_none(self):
+        self.lab.removeTA()
+        with self.assertRaises(RuntimeError, msg="Tried to remove TA when none in lab"):
+            self.lab.removeTA()
 
 
-class TestLectureInit(unittest.TestCase):
-    section = None
-    course = None
+class TestLectureInit(TestCase):
+    info = None
     lecture = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        self.course = Course.objects.create(
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
+
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
+
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
+
+        tmpcourse = Course.objects.create(
             course_id=100,
             semester="fall 2023",
             name="testCourse",
@@ -426,21 +529,32 @@ class TestLectureInit(unittest.TestCase):
             modality="online",
             credits=3
         )
-        self.course.save()
+        tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
-            course=self.course,
+            course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=tmpta,
+            instructor=tmpinstructor
+        )
+
+        self.info = {
+            "ta", tmpta,
+            "section", tmpsection,
+            "instructor", tmpinstructor
+        }
+
+        self.lecture = LectureObj(tmplec)
 
     def test_lecture_make(self):
-        self.assertIsNotNone(self.lecture.__init__(), "__init__ failed in making Lecture")
+        self.assertIsNotNone(self.lecture.__init__(self.info), "__init__ failed in making Lecture")
 
 
 class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
@@ -448,13 +562,21 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
     lecture = None
 
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-
-        self.instructor = Instructor.objects.create(user=temp)
-        self.instructor.save()
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -467,37 +589,62 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=tmpta,
+        )
+
+        self.lecture = LectureObj(tmplec)
 
     def test_get_instructor(self):
-        self.assertEquals(self.instructor, self.lecture.getLecInstrAsmgt(), "getLecInstrAsmgt() does not return correct")
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
+        self.assertEquals(self.instructor, self.lecture.getLecInstrAsmgt(),
+                          "getLecInstrAsmgt() does not return correct")
 
     def test_get_but_none(self):
-        with self.assertRaises(RuntimeError, msg="Tried to retrieve from none"):
-            self.lecture.getLecInstrAsmgt()
-
+        self.assertIsNone(self.lecture.getLecInstrAsmgt(), "getLecInstrAsmgt() Retrieved instructor when none exists")
 
 
 class TestLectureAddInstructor(unittest.TestCase):  # Joe
-    instructor = None
     lecture = None
 
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.instructor = Instructor.objects.create(user=temp)
-        self.instructor.save()
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -510,34 +657,99 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=tmpta,
+        )
+
+        self.info = {
+            "ta", tmpta,
+            "section", tmpsection,
+        }
+
+        self.lecture = LectureObj(tmplec)
 
     def test_add_but_full(self):
-        self.lecture.addInstr(self.instructor)
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
+        self.lecture.addInstr(tmpinstructor)
+        with self.assertRaises(RuntimeError, msg="Tried to add Instructor to full lecture"):
+            self.lecture.addInstr(tmpinstructor)
+
     def test_add(self):
-        self.lecture.addInstr(self.instructor)
-        self.assertIsNotNone(self.lecture.getLecInstrAsmgt(), "getLecInstrAsmgt() Did not add instructor")
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        self.lecture.addInstr(tmpinstructor)
+        self.assertEquals(self.lecture.getLecInstrAsmgt(), tmpinstructor, "getLecInstrAsmgt() Did not add"
+                                                                          " instructor to lecture")
+
 
 class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
     instructor = None
     lecture = None
 
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.instructor = Instructor.objects.create(user=temp)
-        self.instructor.save()
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
+
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -550,34 +762,68 @@ class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=tmpta,
+            instructor=tmpinstructor
+        )
+
+        self.lecture = LectureObj(tmplec)
 
     def test_none_to_remove(self):
-        with self.assertRaises(RuntimeError, msg="removeInstr() Tried to remove from none"):
+        self.lecture.removeInstr()
+        with self.assertRaises(RuntimeError, msg="removeInstr() Tried to remove from lecture with no instructor"):
             self.lecture.removeInstr()
+
     def test_remove(self):
         self.lecture.removeInstr()
-        self.assertIsNone(self.lecture.getLecInstrAsmgt(), "removeInstr() did not remove")
+        self.assertIsNone(self.lecture.getLecInstrAsmgt(), "removeInstr() did not remove from lecture")
+
+
 class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
     ta = None
     lecture = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.ta = TA.objects.create(user=temp)
+        self.ta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
         self.ta.save()
+
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -590,36 +836,68 @@ class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=self.ta,
+            instructor=tmpinstructor
+        )
+
+        self.lecture = LectureObj(tmplec)
 
     def test_get_ta_assignment(self):
-        self.assertEquals(self.ta, self.lecture.getLectureTAAsgmt(),
-                          "getLectureTAAsgmt() does not return correct")
+        self.assertEquals(self.lecture.getLectureTAAsgmt(), self.ta, "getLectureTAAsgmt() Retrieved incorrect TA"
+                                                                     " from lecture")
+
     def test_get_no_ta_assignment(self):
-        with self.assertRaises(RuntimeError, msg="getLectureTAAsgmt() Tried to retrieve from none"):
-            self.lecture.getLectureTAAsgmt()
+        self.lecture.removeTA()
+        self.assertIsNone(self.lecture.getLectureTAAsgmt(), "getLectureTAAsgmt() retrieved a TA from lecture when"
+                                                            " none exists")
 
 
 class TestLectureAddTA(unittest.TestCase):  # Joe
     ta = None
     lecture = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.ta = TA.objects.create(user=temp)
+        self.ta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
         self.ta.save()
+
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -632,35 +910,67 @@ class TestLectureAddTA(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=self.ta,
+            instructor=tmpinstructor
+        )
+
+        self.lecture = LectureObj(tmplec)
 
     def test_add(self):
         self.lecture.addTA(self.ta)
+        self.assertEquals(self.lecture.getLectureTAAsgmt(), self.ta, "addTA() did not add correct TA to lecture")
+
     def test_add_but_full(self):
         self.lecture.addTA(self.ta)
-        self.assertIsNotNone(self.lecture.getLectureTAAsgmt(), "getLectureTAAsgmt() Did not add instructor")
+        with self.assertRaises(RuntimeError, msg="addTA() Tried to add to full lecture"):
+            self.lecture.addTA(self.ta)
 
 
 class TestLectureRemoveTA(unittest.TestCase):  # Joe
-    ta = None
     lecture = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        tempuser = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser.save()
 
-        self.ta = TA.objects.create(user=temp)
-        self.ta.save()
+        tmpta = TA.objects.create(
+            user=tempuser,
+            grader_status=True
+        )
+        tmpta.save()
+
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        tempuser2.save()
+
+        tmpinstructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -673,19 +983,33 @@ class TestLectureRemoveTA(unittest.TestCase):  # Joe
         )
         tmpcourse.save()
 
-        hold_section = Section.objects.create(
+        tmpsection = Section.objects.create(
             section_id=1011,
             course=tmpcourse,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        hold_section.save()
+        tmpsection.save()
 
-        tempsection = SectionObj(hold_section)
-        self.lecture = LectureObj(tempsection)
+        tmplec = Lecture.objects.create(
+            section=tmpsection,
+            ta=tmpta,
+            instructor=tmpinstructor
+        )
+
+        self.info = {
+            "ta", tmpta,
+            "section", tmpsection,
+            "instructor", tmpinstructor
+        }
+
+        self.lecture = LectureObj(tmplec)
+
     def test_none_to_remove(self):
-        with self.assertRaises(RuntimeError, msg="removeTA() Tried to remove from none"):
+        self.lecture.removeTA()
+        with self.assertRaises(RuntimeError, msg="removeTA() Tried to remove from none from lecture"):
             self.lecture.removeTA()
+
     def test_remove(self):
         self.lecture.removeTA()
-        self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove")
+        self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
