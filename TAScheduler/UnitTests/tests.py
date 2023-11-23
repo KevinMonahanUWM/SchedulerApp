@@ -16,143 +16,139 @@ from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, Sectio
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
 ### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
-class TestUserLogin(unittest.TestCase):  # Alec
+class TestUserLogin(TestCase):  # Alec
     pass
 
 
-class TestUserGetID(unittest.TestCase):  # Alec
+class TestUserGetID(TestCase):  # Alec
     pass
 
 
-class TestUserGetPassword(unittest.TestCase):  # Alec
+class TestUserGetPassword(TestCase):  # Alec
     pass
 
 
-class TestUserGetName(unittest.TestCase):  # Alec
+class TestUserGetName(TestCase):  # Alec
     pass
 
 
-class TestUserGetRole(unittest.TestCase):  # Alec
+class TestUserGetRole(TestCase):  # Alec
     pass
 
 
-class TestAdminInit(unittest.TestCase):
+class TestAdminInit(TestCase):
+    pass
+  
+class TestAdminCreateCourse(TestCase):  # Alec
     pass
 
 
-class TestAdminCreateCourse(unittest.TestCase):  # Alec
+class TestAdminCreateUser(TestCase):  # Alec
     pass
 
 
-class TestAdminCreateUser(unittest.TestCase):  # Alec
+class TestAdminCreateSection(TestCase):  # Alec
     pass
 
 
-class TestAdminCreateSection(unittest.TestCase):  # Alec
+class TestAdminRemoveCourse(TestCase):  # Kevin
     pass
 
 
-class TestAdminRemoveCourse(unittest.TestCase):  # Kevin
+class TestAdminRemoveAccount(TestCase):  # Kevin
     pass
 
 
-class TestAdminRemoveAccount(unittest.TestCase):  # Kevin
+class TestAdminRemoveSection(TestCase):  # Kevin
     pass
 
 
-class TestAdminRemoveSection(unittest.TestCase):  # Kevin
+class TestAdminEditCourse(TestCase):  # Kevin
     pass
 
 
-class TestAdminEditCourse(unittest.TestCase):  # Kevin
+class TestAdminEditSection(TestCase):  # Kevin
     pass
 
 
-class TestAdminEditSection(unittest.TestCase):  # Kevin
+class TestAdminEditAccount(TestCase):  # Kevin
     pass
 
 
-class TestAdminEditAccount(unittest.TestCase):  # Kevin
+class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
     pass
 
 
-class TestAdminCourseInstrAsgmt(unittest.TestCase):  # Kevin
+class TestAdminCourseTAAsgmt(TestCase):  # Kevin
+    pass
+
+class TestTAInit(TestCase):
+    pass
+
+class TestTAHasMaxAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestAdminCourseTAAsgmt(unittest.TestCase):  # Kevin
+class TestTAAssignTACourse(TestCase):  # Kiran
     pass
 
 
-class TestTAInit(unittest.TestCase):
+class TestTAGetTACrseAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestTAHasMaxAsgmts(unittest.TestCase):  # Kiran
+class TestAssignTALab(TestCase):
     pass
 
 
-class TestTAAssignTACourse(unittest.TestCase):  # Kiran
+class TestTAGetTALabAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestTAGetTACrseAsgmts(unittest.TestCase):  # Kiran
+class TestAssignTALec(TestCase):
     pass
 
 
-class TestAssignTALab(unittest.TestCase):
+class TestTAGetTALecAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestTAGetTALabAsgmts(unittest.TestCase):  # Kiran
+class TestTAGetGraderStatus(TestCase):  # Kiran
+    pass
+
+class TestInstrutorInit(TestCase):
     pass
 
 
-class TestAssignTALec(unittest.TestCase):
+class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestTAGetTALecAsgmts(unittest.TestCase):  # Kiran
+class TestInstructorAssignInstrCourse(TestCase):  # Kiran
     pass
 
 
-class TestTAGetGraderStatus(unittest.TestCase):  # Kiran
+class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestInstrutorInit(unittest.TestCase):
+class TestInstructorAssignInstrLec(TestCase):  # Kiran
     pass
 
 
-class TestInstructorHasMaxAsgmts(unittest.TestCase):  # Kiran
+class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
     pass
 
 
-class TestInstructorAssignInstrCourse(unittest.TestCase):  # Kiran
+class TestInstructorLecTAAsmgt(TestCase):
     pass
 
 
-class TestInstructorGetInstrCrseAsgmts(unittest.TestCase):  # Kiran
+class TestInstructorLabTAAsmgt(TestCase):
     pass
-
-
-class TestInstructorAssignInstrLec(unittest.TestCase):  # Kiran
-    pass
-
-
-class TestInstructorGetInstrLecAsgmts(unittest.TestCase):  # Kiran
-    pass
-
-
-class TestInstructorLecTAAsmgt(unittest.TestCase):
-    pass
-
-
-class TestInstructorLabTAAsmgt(unittest.TestCase):
-    pass
-
-
-class TestCourseInit(unittest.TestCase):
+  
+  
+class TestCourseInit(TestCase):
     pass
 
 
@@ -160,32 +156,33 @@ class TestCourseAddInstructor(TestCase):  # Randall
     pass
 
 
-class TestCourseAddTA(unittest.TestCase):  # Randall
+class TestCourseAddTA(TestCase):  # Randall
     pass
 
 
-class TestCourseRemoveAssignment(unittest.TestCase):  # Randall
+class TestCourseRemoveAssignment(TestCase):  # Randall
     pass
 
 
-class TestCourseRemoveCourse(unittest.TestCase):  # Randall
+class TestCourseRemoveCourse(TestCase):  # Randall
     pass
 
 
-class TestCourseEditCourseInfo(unittest.TestCase):  # Randall
+class TestCourseEditCourseInfo(TestCase):  # Randall
     pass
 
 
-class TestCourseGetAsgmtsForCrse(unittest.TestCase):  # Randall
+class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
     pass
 
 
-class TestCourseGetSectionsForCrse(unittest.TestCase):  # Randall
+class TestCourseGetSectionsForCrse(TestCase):  # Randall
     pass
 
 
-class TestCourseGetCrseInfo(unittest.TestCase):  # Randall
+class TestCourseGetCrseInfo(TestCase):  # Randall
     pass
+
 
 
 class TestSectionGetID(unittest.TestCase):  # Joe
@@ -454,6 +451,7 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()
+
 
         self.instructor = Instructor.objects.create(user=temp)
         self.instructor.save()
