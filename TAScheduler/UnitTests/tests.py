@@ -168,7 +168,7 @@ class TestTAAssignTACourse(TestCase):  # Kiran
     # 1] Success TA->Course
     def test_ExistCourse(self):
         self.taObj.assignTACourse(self.courseDBList[0])
-        self.assertIn(self.courseDBList[0], TAToCourse.objects.filter(course=self.taDB).course
+        self.assertIn(self.courseDBList[0], TAToCourse.objects.filter(course=self.courseDBList[0], ta=self.taDB).course
                       , "Should have linked course and TA together")
 
     # 2] Adding Course not existing in DB
@@ -412,8 +412,90 @@ class TestTAGetTALabAsgmts(TestCase):  # Kiran
         self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="added then removed lab, should be 0")
 
 
-class TestAssignTALec(TestCase):
-    pass
+class TestAssignTALec(TestCase): # Kiran
+    taDB = None
+    courseDBList = list()  # just for section
+    sectionDBList = list()  # just for lec
+    lecDBList = list()
+    user = None  # for TA
+    taObj = None
+
+    def setUp(self):
+        self.user = User.objects.create(
+            email_address='TA@example.com',
+            password='TApassword',
+            first_name='TA',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number='1234567890'
+        )
+        self.taDB = TA.objects.create(user=self.user, max_assignments=2)  # max 2 assignment!
+        self.taObj = TAObj(self.taDB)  # creating TA object using TA in database
+
+        for i in [1, 2, 3]:  # courses
+            self.courseDBList.append(Course.objects.create(
+                course_id=100 + i,
+                semester='Fall 2023',
+                name='Introduction to Testing',
+                description='A course about writing tests in Django.',
+                num_of_sections=3,
+                modality='Online',
+                credits=4
+            ))
+        for i in [1, 2, 3]:  # section
+            self.sectionDBList.append(Section.objects.create(
+                section_id=100 + i,
+                course=self.courseDBList[i],
+                location="location" + str(i),
+                meeting_time="mt" + str(i)
+            ))
+        for i in [1, 2, 3]:  # lec
+            self.lecDBList.append(Lecture.objects.create(section_id=self.sectionDBList[i])) # HOPEFULLY FINE W/O FIELDS?
+
+    # 1] Success TA->Lec
+    def test_ExistLLec(self):
+        self.taObj.assignTALecture(self.lecDBList[0])
+        self.assertIn(self.taObj, Lecture.objects.get(ta=self.taDB).ta
+                      , "Should have linked lec and TA together")
+
+    # 2] Adding Lec not existing in DB
+    def test_NotExistLec(self):
+        tempLec = Lecture(section=self.sectionDBList[0])  # created, not saved to db
+        with self.assertRaises(ValueError, msg="can't send in non existing lecture, i.e., lecture obj"):
+            self.taObj.assignTALecture(tempLec)
+
+    # 3] Adding duplicate lec: (don't know why this would happen but might as well test it :P)
+    def test_duplicateLec(self):
+        self.taObj.assignTALecture(self.lecDBList[0])
+        with self.assertRaises(ValueError,
+                               msg="violated integrity of database, can't assign a TA the same lec twice"):
+            self.taObj.assignTALecture(self.lecDBList[0])
+
+    # 4] Adding TA to Lab @ max cap
+    def test_OverCap(self):
+        self.taObj.assignTALecture(self.lecDBList[0])
+        self.taObj.assignTALecture(self.lecDBList[1])
+        with self.assertRaises(ValueError,
+                               msg="can't assign courses when already reaches the max TA assignments"):
+            self.taObj.assignTALecture(self.lecDBList[2])
+
+    # 5] Trying to add a non-lec
+    def test_NonLab(self):
+        invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
+
+        for invalid_input in invalid_inputs:
+            with self.subTest(
+                    invalid_input=invalid_input):  # if 1 subtest test runs, it will continue running through loop
+                with self.assertRaises(ValueError, msg="Shouldn't be allowed to assign TA to non-course"):
+                    self.taObj.assignTALecture(invalid_input)
+
+    # 6] Assigning lec TA w/ grader status
+    def test_GraderStatus(self):
+        tempUser = User.objects.create(email_address='grader@gmail.com')  # HOPEFULLY DON'T NEED ALL FIELDS?
+        tempTa = TA.objects.create(user=tempUser, max_assignments=2, grader_status=True)  # new TA in db W/ GraderStatus
+        self.taObj = TAObj(tempTa)
+        with self.assertRaises(RuntimeError, msg="TA can't assign to lec when grader"):
+            self.taObj.assignTALab(self.lecDBList[0])
 
 
 class TestTAGetTALecAsgmts(TestCase):  # Kiran
@@ -514,8 +596,35 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
         self.assertEquals(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
 
 
-class TestInstrutorInit(TestCase):
-    pass
+class TestInstructorInit(TestCase):
+    instructorDB = None
+    user = None
+    instrObj = None
+
+    def setUp(self):
+        self.user = User.objects.create(
+            email_address='admin@example.com',
+            password='adminpassword',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number='1234567890'
+        )
+        self.instructorDB = Instructor.objects.create(user=self.user)
+
+    def test_bad_input(self):
+        with self.assertRaises(TypeError, msg='instructor that was passed is not a valid TA'):
+            self.instrObj = InstructorObj(11) #SHOULD THIS BE "self." or make it a local variable?
+
+    def test_null_Instructor(self):
+        User.delete(self.user)
+        with self.assertRaises(TypeError, msg='instructor that was passed does not exist'):
+            self.instrObj = InstructorObj(self.instructorDB)
+
+    def test_success(self):
+        self.instrObj = InstructorObj(self.instructorDB)
+        self.assertEqual(self.instrObj.databaseReference, self.instructorDB,
+                         msg="insrtuctor object should be saved in the database reference")
 
 
 class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
@@ -602,7 +711,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
     # 1] Success instructore->Course
     def test_ExistCourse(self):
         self.instrObj.assignInstrCourse(self.courseDBList[0])
-        self.assertIn(self.courseDBList[0], InstructorToCourse.objects.filter(course=self.instrDB).course
+        self.assertIn(self.courseDBList[0], InstructorToCourse.objects.filter(course=self.courseDBList[0], instructor=self.instrDB).course
                       , "Should have linked course and instructor together")
 
     # 2] Adding Course not existing in DB
@@ -832,11 +941,12 @@ class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
         self.assertEquals(self.instrObj.getInstrLecAsgmts(), 0, msg="added then removed lecture, should be 0")
 
 
-class TestInstructorLecTAAsmgt(TestCase):
+#don't think this is needed for our sprint 1?
+class TestInstructorLecTAAsmgt(TestCase): #is this an instructor assigning a TA to a lecture?
     pass
 
-
-class TestInstructorLabTAAsmgt(TestCase):
+#don't think this is needed for our sprint 1?
+class TestInstructorLabTAAsmgt(TestCase): #is this an instructor assigning a TA to a lab?
     pass
 
 

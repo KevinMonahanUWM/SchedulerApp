@@ -124,6 +124,7 @@ class TAObj(UserObj):
 
 
 class InstructorObj(UserObj):
+    databaseReference = None
 
     def __init__(self, instr_info):
         pass
