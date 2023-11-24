@@ -1,5 +1,7 @@
 import abc
 
+from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab
+
 
 class UserObj(abc.ABC):
 
@@ -25,9 +27,14 @@ class UserObj(abc.ABC):
 
 
 class AdminObj(UserObj):
+    admin_database = None
 
     def __init__(self, admin_info):
-        pass
+        if type(admin_info) is not Administrator:
+            TypeError("Data passed to init method is not a member of the Administrator database class")
+        elif User.objects.get(email_address=admin_info.user.email_address) is not admin_info.user:
+            TypeError("The administrator object does not exist in the database")
+        self.admin_database = admin_info
 
     def getUsername(self):
         pass
@@ -79,9 +86,14 @@ class AdminObj(UserObj):
 
 
 class TAObj(UserObj):
+    ta_database = None
 
     def __init__(self, ta_info):
-        pass
+        if type(ta_info) is not TA:
+            TypeError("Data passed to init method is not a member of the TA database class")
+        elif User.objects.get(email_address=ta_info.user.email_address) is not ta_info.user:
+            TypeError("The ta object does not exist in the database")
+        self.ta_database = ta_info
 
     def login(self, username, password):
         pass
@@ -124,9 +136,14 @@ class TAObj(UserObj):
 
 
 class InstructorObj(UserObj):
+    instr_database = None
 
     def __init__(self, instr_info):
-        pass
+        if type(instr_info) is not Instructor:
+            TypeError("Data passed to init method is not a member of the Instructor database class")
+        elif User.objects.get(email_address=instr_info.user.email_address) is not instr_info.user:
+            TypeError("The instructor object does not exist in the database")
+        self.instr_database = instr_info
 
     def login(self, username, password):
         pass
@@ -166,9 +183,14 @@ class InstructorObj(UserObj):
 
 
 class CourseObj:
+    course_database = None
 
     def __init__(self, course_info):
-        pass
+        if type(course_info) is not Course:
+            TypeError("Data passed to init method is not a member of the course database class")
+        elif Course.objects.get(course_id=course_info.course_id) is not course_info:
+            TypeError("The course object does not exist in the database")
+        self.course_database = course_info
 
     def addInstructor(self, active_instr):
         pass
@@ -207,9 +229,14 @@ class SectionObj(abc.ABC):
 
 
 class LectureObj(SectionObj):
+    lecture_database = None
 
-    def __init__(self, lec_info):
-        pass
+    def __init__(self, lecture_info):
+        if type(lecture_info) is not Lecture:
+            TypeError("Data passed to init method is not a member of the lecture database class")
+        elif Section.objects.get(section_id=lecture_info.section.section_id) is not lecture_info.section:
+            TypeError("The lecture object does not exist in the database")
+        self.lecture_database = lecture_info
 
     def getID(self):
         pass
@@ -237,9 +264,14 @@ class LectureObj(SectionObj):
 
 
 class LabObj(SectionObj):
+    lab_database = None
 
     def __init__(self, lab_info):
-        pass
+        if type(lab_info) is not Lab:
+            TypeError("Data passed to init method is not a member of the lab database class")
+        elif Section.objects.get(section_id=lab_info.section.section_id) is not lab_info.section:
+            TypeError("The lab object does not exist in the database")
+        self.lab_database = lab_info
 
     def getID(self):
         pass
