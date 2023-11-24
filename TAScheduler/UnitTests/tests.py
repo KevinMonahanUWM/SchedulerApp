@@ -303,7 +303,7 @@ class TestLabInit(TestCase):
         self.lab = LabObj(tmplab)
 
     def test_lab_make(self):
-        self.assertIsNotNone(self.lab.__init__(self.info), "__init__ failed in making Lab")
+        self.assertIsNotNone(LabObj(self.tempLab), "__init__ failed in making Lab")
 
 
 class TestLabGetLabTAAsgmt(TestCase):  # Joe
