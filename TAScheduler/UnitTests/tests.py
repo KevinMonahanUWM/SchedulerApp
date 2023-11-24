@@ -152,9 +152,8 @@ class TestAdminCreateUser(TestCase): # Alec
             last_name= 'User',
             home_address= '123 New Street',
             phone_number= 9876543210
-
         )
-        created_user = self.adminObj.createUser(user_info)
+        created_user = self.adminObj.createUser(user_info, role='TA')
         self.assertIsNotNone(created_user)
         self.assertEqual(created_user.email_address, 'newuser@example.com', msg="user not created")
 class TestAdminCreateSection(TestCase): # Alec
