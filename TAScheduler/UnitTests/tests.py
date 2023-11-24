@@ -295,10 +295,6 @@ class TestLabInit(TestCase):
             ta=tmpta
         )
 
-        self.info = {
-            "ta", tmpta,
-            "section", tmpsection
-        }
 
         self.lab = LabObj(tmplab)
 
