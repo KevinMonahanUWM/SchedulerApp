@@ -215,7 +215,7 @@ class TestSectionGetID(TestCase):  # Joe
     def test_get_id(self):
         self.assertEquals(self.lab.getID(), 1011, "getID() did not retrieve correct section_id")
 
-    def test_get_no_id(self):
+    def test_get_but_no_id(self):
         tmpsection = Section.objects.create(
             course=self.course,
             location="Cool place",
@@ -358,7 +358,7 @@ class TestLabGetLabTAAsgmt(TestCase):  # Joe
 
         self.assertEquals(self.ta, self.labObj.getLabTAAsgmt(), "getLabTAAsgmt() does not retrieve correct ta")
 
-    def test_no_ta(self):
+    def test_get_but_no_ta(self):
         self.labObj = LabObj(self.lab)  # Form lab with no TA
 
         self.assertIsNone(self.labObj.getLabTAAsgmt(), "getLabTAAsgmt() finds something with no TA")
@@ -413,7 +413,7 @@ class TestLabAddTA(TestCase):  # Joe
         self.assertEquals(self.ta, self.lab.getLabTAAsgmt(),
                           "addTA() does not add TA to lab")
 
-    def test_full(self):
+    def test_add_ta_but_full(self):
         temp2 = User(email_address="test2@test.com", password="password2", first_name="first2", last_name="last2",
                      home_address="Your mom's house", phone_number=1234567890)
 
@@ -470,7 +470,7 @@ class TestLabRemoveTA(TestCase):  # Joe
         self.lab.removeTA()
         self.assertIsNone(self.lab.getLabTAAsgmt(), "removeTA() does not remove TA from lab")
 
-    def test_remove_none(self):
+    def test_none_to_remove(self):
         self.lab.removeTA()
         with self.assertRaises(RuntimeError, msg="Tried to remove TA when none in lab"):
             self.lab.removeTA()
