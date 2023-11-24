@@ -161,6 +161,7 @@ class TestCourseAddInstructor(TestCase):  # Randall
     instructor_user = None
     instructor_model = None
     instructor = None
+    instructorObj = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
