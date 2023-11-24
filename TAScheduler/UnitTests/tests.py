@@ -26,11 +26,11 @@ class TestUserLogin(TestCase): # Alec
 
     def test_login_valid_credentials(self):
         result = self.userObj.login("test@example.com", "password123")
-        self.assertTrue(result)
+        self.assertRedirects(result, '/home/')
 
     def test_login_invalid_credentials(self):
         result = self.userObj.login("test@example.com", "wrongpassword")
-        self.assertFalse(result)
+        self.assertRedirects(result, '/')
 class TestUserGetID(TestCase): # Alec
     def setUp(self):
         user_info = User.objects.create(
@@ -43,7 +43,7 @@ class TestUserGetID(TestCase): # Alec
         )
         self.userObj = UserObj(user_info)
 
-    def test_get_id(self):
+    def test_get_username(self):
         user_id = self.userObj.getUsername()
         self.assertEqual(user_id, "test@example.com")
 class TestUserGetPassword(TestCase): # Alec
@@ -75,17 +75,18 @@ class TestUserGetName(TestCase): # Alec
         self.assertEqual(self.userObj.getName(), "Test User")
 class TestUserGetRole(TestCase): # Alec
     def setUp(self):
-        user_info = User.objects.create(
-            email_address="testuser@example.com",
-            password="password123",
-            first_name="Test",
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
             last_name="User",
-            home_address="123 Street",
+            home_address="123 Admin Street",
             phone_number=1234567890
         )
-        self.userObj = UserObj(user_info)
+        admin_info = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_info)
     def test_get_role(self):
-        self.assertEqual(self.userObj.getRole(), "user")  # Replace "user" with the actual role name if different
+        self.assertEqual(self.adminObj.getRole(), "admin")  # Replace "user" with the actual role name if different
 class TestAdminInit(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
