@@ -252,7 +252,7 @@ class TestSectionGetParentCourse(TestCase):  # Joe
 class TestLabInit(TestCase):
     lab = None
     info = None
-
+        tempLab = None
     # noinspection DuplicatedCode
     def setUp(self):
         tempuser = User(
