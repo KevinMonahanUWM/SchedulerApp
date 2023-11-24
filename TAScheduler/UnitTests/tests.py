@@ -290,7 +290,7 @@ class TestLabInit(TestCase):
         )
         tmpsection.save()
 
-        tmplab = Lab.objects.create(
+        self.tmplab = Lab.objects.create(
             section=tmpsection,
             ta=tmpta
         )
