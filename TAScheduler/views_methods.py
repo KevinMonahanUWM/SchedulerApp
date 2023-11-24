@@ -79,6 +79,7 @@ class AdminObj(UserObj):
 
 
 class TAObj(UserObj):
+    databaseReference = None
 
     def __init__(self, ta_info):
         pass
@@ -167,7 +168,7 @@ class InstructorObj(UserObj):
 
 
 class CourseObj:
-
+    databaseReference = None
     def __init__(self, course_info):
         pass
 
