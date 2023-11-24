@@ -27,11 +27,11 @@ class TestUserLogin(TestCase): # Alec
 
     def test_login_valid_credentials(self):
         result = self.adminObj.login("test@example.com", "password123")
-        self.assertRedirects(result, '/home/')
+        self.assertRedirects(result, '/home/', msg="login with vaild credentials failed to redirect to home")
 
     def test_login_invalid_credentials(self):
         result = self.userObj.login("test@example.com", "wrongpassword")
-        self.assertRedirects(result, '/')
+        self.assertRedirects(result, '/', msg="incorrect password failed to redirect to login")
 class TestUserGetID(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -47,7 +47,7 @@ class TestUserGetID(TestCase): # Alec
 
     def test_get_username(self):
         user_id = self.adminObj.getUsername()
-        self.assertEqual(user_id, "test@example.com")
+        self.assertEqual(user_id, "test@example.com", msg="user.getUsername failed to return username")
 class TestUserGetPassword(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -62,7 +62,7 @@ class TestUserGetPassword(TestCase): # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_password(self):
-        self.assertEqual(self.adminObj.getPassword(), "password123")
+        self.assertEqual(self.adminObj.getPassword(), "password123", msg="user.getPassword failed to retrieve password")
 class TestUserGetName(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -76,7 +76,7 @@ class TestUserGetName(TestCase): # Alec
         admin_info = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_info)
     def test_get_name(self):
-        self.assertEqual(self.adminObj.getName(), "Test User")
+        self.assertEqual(self.adminObj.getName(), "Test User", msg="user.getName failed to retrieve name")
 class TestUserGetRole(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -90,7 +90,7 @@ class TestUserGetRole(TestCase): # Alec
         admin_info = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_info)
     def test_get_role(self):
-        self.assertEqual(self.adminObj.getRole(), "admin")  # Replace "user" with the actual role name if different
+        self.assertEqual(self.adminObj.getRole(), "admin", msg="user.getRole failed to retrieve 'admin'")
 class TestAdminInit(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -104,7 +104,7 @@ class TestAdminInit(TestCase): # Alec
         admin_model = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_model)
     def test_admin_init(self):
-        self.assertEqual(self.adminObj.user.email_address, "admin@example.com")
+        self.assertEqual(self.adminObj.user.email_address, "admin@example.com", msg="failed to initialize admin")
 class TestAdminCreateCourse(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -130,7 +130,7 @@ class TestAdminCreateCourse(TestCase): # Alec
     def test_create_course(self):
         created_course = self.adminObj.createCourse(self.courseObj)
         self.assertIsNotNone(created_course)
-        self.assertEqual(created_course.name, 'Intro to Testing')
+        self.assertEqual(created_course.name, 'Intro to Testing', msg="failed to create course")
 class TestAdminCreateUser(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -156,7 +156,7 @@ class TestAdminCreateUser(TestCase): # Alec
         )
         created_user = self.adminObj.createUser(user_info)
         self.assertIsNotNone(created_user)
-        self.assertEqual(created_user.email_address, 'newuser@example.com')
+        self.assertEqual(created_user.email_address, 'newuser@example.com', msg="user not created")
 class TestAdminCreateSection(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -190,7 +190,7 @@ class TestAdminCreateSection(TestCase): # Alec
     def test_create_section(self):
         created_section = self.adminObj.createSection(self.sectionObj)
         self.assertIsNotNone(created_section)
-        self.assertEqual(created_section.section_id, 201)
+        self.assertEqual(created_section.section_id, 201, msg="failed to create section")
 
 class TestAdminRemoveCourse(TestCase):  # Kevin
     pass
