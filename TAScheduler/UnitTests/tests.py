@@ -156,6 +156,12 @@ class TestCourseInit(TestCase):
 
 
 class TestCourseAddInstructor(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
+    instructor_user = None
+    instructor_model = None
+    instructor = None
+
     def setUp(self):
         self.hold_course = Course.objects.create(
             course_id=101,
@@ -189,8 +195,22 @@ class TestCourseAddInstructor(TestCase):  # Randall
         ).exists()
         self.assertTrue(instructor_to_course_exists, "Instructor was not added to the course")
 
+    def test_add_instructor_max_assignments(self):
+        self.instructor.setMaxAssignments(0)  # Assuming max assignments are now full
+        with self.assertRaises():
+            self.tempCourse.addInstructor(self.instructor)
+
+    def test_add_incorrect_object_as_instructor(self):
+        fake_object = TAObj()
+        with self.assertRaises(TypeError):
+            self.tempCourse.addInstructor(fake_object)
+
 
 class TestCourseAddTA(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
+    TA_user = None
+
     def setUp(self):
         self.hold_course = Course.objects.create(
             course_id=102,
@@ -221,8 +241,24 @@ class TestCourseAddTA(TestCase):  # Randall
         ).exists()
         self.assertTrue(ta_to_course_exists, "TA was not added to the course")
 
+    def test_add_instructor_max_assignments(self):
+        # Set max assignments for the instructor to 0
+        self.TA.setMaxAssignments(0)  # Implement this method in InstructorObj
+        with self.assertRaises():
+            self.tempCourse.addTa(self.TA)
+
+    def test_add_incorrect_object_as_TA(self):
+        fake_object = InstructorObj()
+        with self.assertRaises(TypeError):
+            self.tempCourse.addTA(fake_object)
+
 
 class TestCourseRemoveAssignment(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
+    ta_user = None
+    ta_obj = None
+    TAObj = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
@@ -235,7 +271,7 @@ class TestCourseRemoveAssignment(TestCase):  # Randall
             credits=3
         )
         self.tempCourse = CourseObj(self.hold_course)
-        self.user = User.objects.create(
+        self.ta_user = User.objects.create(
             email_address='user@example.com',
             password='password',
             first_name='Regular',
@@ -244,14 +280,21 @@ class TestCourseRemoveAssignment(TestCase):  # Randall
             phone_number='1234567893'
         )
 
+        self.ta = TA.objects.create(user=self.ta_user, grader_status=False)
+        self.ta_obj = TAObj(self.ta)
+
     def test_remove_assignment(self):
-        self.tempCourse.removeAssignment(self.user)
+        self.tempCourse.removeAssignment(self.ta_obj)
         # Check if the assignment (user) was removed from the course
         assignments = self.tempCourse.getAsgmtsForCrse()
-        self.assertNotIn(self.user, assignments, "User was not removed from the course assignments")
+        self.assertNotIn(self.ta_obj, assignments, "User was not removed from the course assignments")
+        self.assertTrue(self._obj not in assignments or assignments is None, "Tried to remove TA with no assignments")
 
 
-class TestCourseRemoveCourse(TestCase):  # Randall
+class TestCourseRemoveCourse(TestCase):  #
+    hold_course = None
+    tempCourse = None
+
     def setUp(self):
         self.hold_course = Course.objects.create(
             course_id=104,
@@ -272,6 +315,9 @@ class TestCourseRemoveCourse(TestCase):  # Randall
 
 
 class TestCourseEditCourseInfo(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
+
     def setUp(self):
         self.hold_course = Course.objects.create(
             course_id=105,
@@ -298,8 +344,17 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
         self.assertEqual(self.hold_course.modality, self.new_info["modality"], "Course modality was not updated")
         self.assertEqual(self.hold_course.credits, self.new_info["credits"], "Course credits was not updated")
 
+    def test_edit_course_incorrect_format(self):
+        incorrect_info = {"semester": 2026, "name": 123, "description": True}
+        with self.assertRaises(ValueError):
+            self.tempCourse.editCourse(incorrect_info)
+
 
 class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
+    user1 = None
+    user2 = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
@@ -338,6 +393,10 @@ class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
 
 
 class TestCourseGetSectionsForCrse(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
+    section1 = None
+    section2 = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
@@ -361,6 +420,8 @@ class TestCourseGetSectionsForCrse(TestCase):  # Randall
 
 
 class TestCourseGetCrseInfo(TestCase):  # Randall
+    hold_course = None
+    tempCourse = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
