@@ -82,7 +82,7 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
 
     def test_successful_delete(self):
         self.admin.removeCourse(self.tempCourse)
-        self.assertNotIn(Course.objects, self.hold_course, "Did not remove course from the database")
+        self.assertNotIn(self.hold_course, Course.objects, "Did not remove course from the database")
 
     def test_delete_null_course(self):
         Course.delete(self.hold_course)
@@ -124,7 +124,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
 
     def test_successful_delete(self):
         self.admin.removeUser(self.tempTA)
-        self.assertNotIn(User.objects, self.hold_user, "Did not remove user from the database")
+        self.assertNotIn(self.hold_user, User.objects, "Did not remove user from the database")
 
     def test_delete_null_user(self):
         User.delete(self.hold_user)
@@ -236,7 +236,16 @@ class TestAdminEditCourse(TestCase):  # Kevin
         self.admin.editCourse(self.tempCourse, self.new_info)
         self.assertEqual(self.new_info["description"], Course.objects.get(course_id=103))
 
-    # I could go through and test every single field but honestly seems like a waste
+    def test_bad_item_in_info(self):
+        info = {"course id", 103,
+                "semester", "Spring 2024",
+                "name", 4,
+                "description", "Unit testing at its finest",
+                "num of sections", "4",
+                "modality", "",
+                "credits", "3 or so"}
+        with self.assertRaises(TypeError, msg='Improper input entered for editing course'):
+            self.admin.editCourse(self.tempCourse, info)
 
 
 class TestAdminEditSection(TestCase):  # Kevin
@@ -281,7 +290,7 @@ class TestAdminEditSection(TestCase):  # Kevin
                          "location", "Somewhere in the universe",
                          "meeting time", datetime.datetime}
 
-    def test_bad_course(self):
+    def test_bad_section(self):
         with self.assertRaises(TypeError, msg='Section that was passed is not a valid section'):
             self.admin.editSection(11, self.new_info)
 
@@ -291,7 +300,7 @@ class TestAdminEditSection(TestCase):  # Kevin
 
     def test_success(self):
         self.admin.editSection(self.tempLab, self.new_info)
-        self.assertEqual(self.new_info["location"], Section.objects.get(section_id=1012))
+        self.assertEqual(self.new_info["location"], Section.objects.get(section_id=1012).location)
 
 
 class TestAdminEditAccount(TestCase):  # Kevin
@@ -346,6 +355,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
     admin = None
     hold_course = None
     hold_user = None
+    hold_instr = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
@@ -366,8 +376,8 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
             home_address='123 Kevin St',
             phone_number='1234667890'
         )
-        temp_instr = Instructor.objects.create(user=self.hold_user)
-        self.tempInstr = InstructorObj(temp_instr)
+        self.hold_instr = Instructor.objects.create(user=self.hold_user)
+        self.tempInstr = InstructorObj(self.hold_instr)
         hold_user = User(
             email_address='admin@example.com',
             password='adminpassword',
@@ -401,7 +411,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
 
     def test_success_connect(self):
         self.admin.courseInstrAsmgt(self.tempInstr, self.tempCourse)
-        self.assertEqual(InstructorToCourse.objects.get(course=self.hold_course).course,
+        self.assertEqual(InstructorToCourse.objects.get(course=self.hold_course, instructor=self.hold_instr).course,
                          self.hold_course, "Should have linked course and instructor together")
 
     def test_max_capacity_instr(self):
@@ -422,6 +432,7 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
     admin = None
     hold_course = None
     hold_user = None
+    hold_ta = None
 
     def setUp(self):
         self.hold_course = Course.objects.create(
@@ -442,8 +453,8 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
             home_address='123 Kevin St',
             phone_number='1234667890'
         )
-        temp_ta = TA.objects.create(user=self.hold_user, grader_status=True)
-        self.tempTA = TAObj(temp_ta)
+        self.hold_ta = TA.objects.create(user=self.hold_user, grader_status=True)
+        self.tempTA = TAObj(self.hold_ta)
         hold_user = User(
             email_address='admin@example.com',
             password='adminpassword',
@@ -477,7 +488,7 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
 
     def test_success_connect(self):
         self.admin.courseTAAsmgt(self.tempTA, self.tempCourse)
-        self.assertEqual(TAToCourse.objects.get(course=self.hold_course).course,
+        self.assertEqual(TAToCourse.objects.get(course=self.hold_course, ta=self.hold_ta).course,
                          self.hold_course, "Should have linked course and TA together")
 
     def test_max_capacity_instr(self):
