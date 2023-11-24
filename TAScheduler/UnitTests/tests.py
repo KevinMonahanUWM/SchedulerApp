@@ -1,7 +1,7 @@
 import datetime
 from django.test import TestCase
 from TAScheduler.models import Course, User, TA, Section, Lab, Administrator
-from TAScheduler.views_methods import UserObj, CourseObj, AdminObj, TAObj, LabObj
+from TAScheduler.views_methods import UserObj, CourseObj, AdminObj, TAObj, LabObj, SectionObj
 
 # PBI Assignments ...
 # Alec = #1,#2 (Total = 6)
@@ -112,8 +112,6 @@ class TestAdminCreateCourse(TestCase): # Alec
         )
         admin_model = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_model)
-
-    def test_create_course(self):
         course_info = {
             'course_id': 101,
             'semester': 'Fall 2023',
@@ -123,7 +121,9 @@ class TestAdminCreateCourse(TestCase): # Alec
             'modality': 'Online',
             'credits': 4
         }
-        created_course = self.adminObj.createCourse(course_info)
+        self.courseObj = CourseObj(course_info)
+    def test_create_course(self):
+        created_course = self.adminObj.createCourse(self.courseObj)
         self.assertIsNotNone(created_course)
         self.assertEqual(created_course.name, 'Intro to Testing')
 class TestAdminCreateUser(TestCase): # Alec
@@ -173,15 +173,16 @@ class TestAdminCreateSection(TestCase): # Alec
             modality='Online',
             credits=4
         )
-
-    def test_create_section(self):
         section_info = {
             'section_id': 201,
             'course': self.course,
             'location': 'Room 101',
             'meeting_time': datetime.datetime.now()
         }
-        created_section = self.adminObj.createSection(section_info)
+        self.sectionObj = SectionObj(section_info)  # Assuming SectionObj takes section_info
+
+    def test_create_section(self):
+        created_section = self.adminObj.createSection(self.sectionObj)
         self.assertIsNotNone(created_section)
         self.assertEqual(created_section.section_id, 201)
 
