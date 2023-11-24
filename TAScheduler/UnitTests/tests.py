@@ -4,7 +4,7 @@ import datetime
 from django.test import TestCase
 
 from TAScheduler.models import Course, User, TA, Section, Lab, Instructor, Lecture
-from TAScheduler.views_methods import LabObj, SectionObj, LectureObj
+from TAScheduler.views_methods import LabObj, LectureObj
 
 
 # PBI Assignments ...
@@ -189,10 +189,11 @@ class TestCourseGetCrseInfo(TestCase):  # Randall
 
 
 class TestSectionGetID(TestCase):  # Joe
-    section = None
+    lab = None
+    course = None
 
     def setUp(self):
-        tmpcourse = Course.objects.create(
+        self.course = Course.objects.create(
             course_id=100,
             semester="fall 2023",
             name="testCourse",
@@ -201,25 +202,33 @@ class TestSectionGetID(TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
+        self.course.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
-            course=tmpcourse,
+            course=self.course,
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
-        self.section = SectionObj(tmpsection)
+        self.lab = LabObj(tmpsection)
 
     def test_get_id(self):
-        self.assertEquals(self.section.getID(), 1011, "getID() did not retrieve correct section_id")
+        self.assertEquals(self.lab.getID(), 1011, "getID() did not retrieve correct section_id")
+
+    def test_get_no_id(self):
+        tmpsection = Section.objects.create(
+            course=self.course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+        self.lab = LabObj(tmpsection)
+        self.assertIsNone(self.lab.getID(), "getID() returns an ID when none assigned")
 
     # Maybe test for section_id = None, but I don't think section can be made without
 
 
 class TestSectionGetParentCourse(TestCase):  # Joe
-    section = None
+    lab = None
     course = None
 
     # noinspection DuplicatedCode
@@ -241,18 +250,18 @@ class TestSectionGetParentCourse(TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
-        self.section = SectionObj(tmpsection)
+        self.lab = LabObj(tmpsection)
 
     def test_get_parent_course(self):
-        self.assertEquals(self.section.getParentCourse(), self.course,
+        self.assertEquals(self.lab.getParentCourse(), self.course,
                           "getParentCourse() did not retrieve correct course")
 
 
 class TestLabInit(TestCase):
     lab = None
     info = None
-        tempLab = None
+    tempLab = None
+
     # noinspection DuplicatedCode
     def setUp(self):
         tempuser = User(
@@ -263,13 +272,11 @@ class TestLabInit(TestCase):
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -280,7 +287,6 @@ class TestLabInit(TestCase):
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -288,18 +294,20 @@ class TestLabInit(TestCase):
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         self.tmplab = Lab.objects.create(
             section=tmpsection,
             ta=tmpta
         )
 
-
-        self.lab = LabObj(tmplab)
+        self.lab = LabObj(self.tmplab)
 
     def test_lab_make(self):
         self.assertIsNotNone(LabObj(self.tempLab), "__init__ failed in making Lab")
+
+    def test_bad_lab_make(self):
+        with self.assertRaises(TypeError, msg="__init__ failed in making Lab, bad input"):
+            LabObj(5)
 
 
 class TestLabGetLabTAAsgmt(TestCase):  # Joe
@@ -317,7 +325,6 @@ class TestLabGetLabTAAsgmt(TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -325,7 +332,6 @@ class TestLabGetLabTAAsgmt(TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         self.lab = Lab.objects.create(
             section=tmpsection
@@ -372,7 +378,6 @@ class TestLabAddTA(TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         self.ta = TA.objects.create(
             user=tempuser,
@@ -389,7 +394,6 @@ class TestLabAddTA(TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -397,7 +401,6 @@ class TestLabAddTA(TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplab = Lab.objects.create(
             section=tmpsection,
@@ -413,10 +416,8 @@ class TestLabAddTA(TestCase):  # Joe
     def test_full(self):
         temp2 = User(email_address="test2@test.com", password="password2", first_name="first2", last_name="last2",
                      home_address="Your mom's house", phone_number=1234567890)
-        temp2.save()
 
         tempta = TA.objects.create(user=temp2)
-        tempta.save()
         self.lab.addTA(tempta)
         with self.assertRaises(RuntimeError, msg="Tried to add TA to full Lab"):
             self.lab.addTA(self.ta)
@@ -435,13 +436,11 @@ class TestLabRemoveTA(TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -452,7 +451,6 @@ class TestLabRemoveTA(TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -460,7 +458,6 @@ class TestLabRemoveTA(TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplab = Lab.objects.create(
             section=tmpsection,
@@ -480,7 +477,6 @@ class TestLabRemoveTA(TestCase):  # Joe
 
 
 class TestLectureInit(TestCase):
-    info = None
     lecture = None
 
     # noinspection DuplicatedCode
@@ -493,13 +489,11 @@ class TestLectureInit(TestCase):
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
 
         tempuser2 = User(
             email_address="test@instructor.com",
@@ -509,12 +503,10 @@ class TestLectureInit(TestCase):
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser2.save()
 
         tmpinstructor = Instructor.objects.create(
             user=tempuser2
         )
-        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -525,7 +517,6 @@ class TestLectureInit(TestCase):
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -533,7 +524,6 @@ class TestLectureInit(TestCase):
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
@@ -541,16 +531,14 @@ class TestLectureInit(TestCase):
             instructor=tmpinstructor
         )
 
-        self.info = {
-            "ta", tmpta,
-            "section", tmpsection,
-            "instructor", tmpinstructor
-        }
-
         self.lecture = LectureObj(tmplec)
 
     def test_lecture_make(self):
-        self.assertIsNotNone(self.lecture.__init__(self.info), "__init__ failed in making Lecture")
+        self.assertIsNotNone(self.lecture, "__init__ failed in making Lecture")
+
+    def test_bad_lecture_make(self):
+        with self.assertRaises(TypeError, msg="__init__ failed in making Lecture: Type error"):
+            self.lecture = LectureObj(7)
 
 
 class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
@@ -566,13 +554,11 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -583,7 +569,6 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -591,16 +576,12 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
             ta=tmpta,
         )
 
-        self.lecture = LectureObj(tmplec)
-
-    def test_get_instructor(self):
         tempuser2 = User(
             email_address="test@instructor.com",
             password="password",
@@ -609,21 +590,26 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser2.save()
 
-        tmpinstructor = Instructor.objects.create(
+        self.instructor = Instructor.objects.create(
             user=tempuser2
         )
-        tmpinstructor.save()
+        self.instructor.save()
+
+        self.lecture = LectureObj(tmplec)
+
+    def test_get_instructor(self):
+        self.lecture.addInstr(self.instructor)
         self.assertEquals(self.instructor, self.lecture.getLecInstrAsmgt(),
                           "getLecInstrAsmgt() does not return correct")
 
-    def test_get_but_none(self):
+    def test_get_with_no_instructor(self):
         self.assertIsNone(self.lecture.getLecInstrAsmgt(), "getLecInstrAsmgt() Retrieved instructor when none exists")
 
 
 class TestLectureAddInstructor(unittest.TestCase):  # Joe
     lecture = None
+    instructor = None
 
     def setUp(self):
         tempuser = User(
@@ -634,13 +620,25 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
+
+        tempuser2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="firstin",
+            last_name="lastin",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        self.instructor = Instructor.objects.create(
+            user=tempuser2
+        )
+        self.instructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -651,7 +649,6 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -659,7 +656,6 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
@@ -674,41 +670,17 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
         self.lecture = LectureObj(tmplec)
 
     def test_add_but_full(self):
-        tempuser2 = User(
-            email_address="test@instructor.com",
-            password="password",
-            first_name="firstin",
-            last_name="lastin",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        tempuser2.save()
-
-        tmpinstructor = Instructor.objects.create(
-            user=tempuser2
-        )
-        tmpinstructor.save()
-        self.lecture.addInstr(tmpinstructor)
+        self.lecture.addInstr(self.instructor)
         with self.assertRaises(RuntimeError, msg="Tried to add Instructor to full lecture"):
-            self.lecture.addInstr(tmpinstructor)
+            self.lecture.addInstr(self.instructor)
 
     def test_add(self):
-        tempuser2 = User(
-            email_address="test@instructor.com",
-            password="password",
-            first_name="firstin",
-            last_name="lastin",
-            home_address="Your mom's house",
-            phone_number=1234567890
+        self.lecture.addInstr(self.instructor)
+        self.assertEquals(
+            self.lecture.getLecInstrAsmgt(),
+            self.instructor,
+            "getLecInstrAsmgt() Did not add instructor to lecture"
         )
-        tempuser2.save()
-
-        tmpinstructor = Instructor.objects.create(
-            user=tempuser2
-        )
-        self.lecture.addInstr(tmpinstructor)
-        self.assertEquals(self.lecture.getLecInstrAsmgt(), tmpinstructor, "getLecInstrAsmgt() Did not add"
-                                                                          " instructor to lecture")
 
 
 class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
@@ -724,13 +696,11 @@ class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
 
         tempuser2 = User(
             email_address="test@instructor.com",
@@ -740,12 +710,10 @@ class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser2.save()
 
         tmpinstructor = Instructor.objects.create(
             user=tempuser2
         )
-        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -756,7 +724,6 @@ class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -764,7 +731,6 @@ class TestLectureRemoveInstructor(unittest.TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
@@ -798,7 +764,6 @@ class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         self.ta = TA.objects.create(
             user=tempuser,
@@ -814,12 +779,10 @@ class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser2.save()
 
         tmpinstructor = Instructor.objects.create(
             user=tempuser2
         )
-        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -830,7 +793,6 @@ class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -838,7 +800,6 @@ class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
@@ -849,13 +810,18 @@ class TestLectureGetLecTAAsgmt(unittest.TestCase):  # Joe
         self.lecture = LectureObj(tmplec)
 
     def test_get_ta_assignment(self):
-        self.assertEquals(self.lecture.getLectureTAAsgmt(), self.ta, "getLectureTAAsgmt() Retrieved incorrect TA"
-                                                                     " from lecture")
+        self.assertEquals(
+            self.lecture.getLectureTAAsgmt(),
+            self.ta,
+            "getLectureTAAsgmt() Retrieved incorrect TA from lecture"
+        )
 
     def test_get_no_ta_assignment(self):
         self.lecture.removeTA()
-        self.assertIsNone(self.lecture.getLectureTAAsgmt(), "getLectureTAAsgmt() retrieved a TA from lecture when"
-                                                            " none exists")
+        self.assertIsNone(
+            self.lecture.getLectureTAAsgmt(),
+            "getLectureTAAsgmt() retrieved a TA from lecture when none exists"
+        )
 
 
 class TestLectureAddTA(unittest.TestCase):  # Joe
@@ -872,7 +838,6 @@ class TestLectureAddTA(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         self.ta = TA.objects.create(
             user=tempuser,
@@ -888,12 +853,10 @@ class TestLectureAddTA(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser2.save()
 
         tmpinstructor = Instructor.objects.create(
             user=tempuser2
         )
-        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -904,7 +867,6 @@ class TestLectureAddTA(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -912,7 +874,6 @@ class TestLectureAddTA(unittest.TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
@@ -945,13 +906,11 @@ class TestLectureRemoveTA(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser.save()
 
         tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        tmpta.save()
 
         tempuser2 = User(
             email_address="test@instructor.com",
@@ -961,12 +920,10 @@ class TestLectureRemoveTA(unittest.TestCase):  # Joe
             home_address="Your mom's house",
             phone_number=1234567890
         )
-        tempuser2.save()
 
         tmpinstructor = Instructor.objects.create(
             user=tempuser2
         )
-        tmpinstructor.save()
 
         tmpcourse = Course.objects.create(
             course_id=100,
@@ -977,7 +934,6 @@ class TestLectureRemoveTA(unittest.TestCase):  # Joe
             modality="online",
             credits=3
         )
-        tmpcourse.save()
 
         tmpsection = Section.objects.create(
             section_id=1011,
@@ -985,7 +941,6 @@ class TestLectureRemoveTA(unittest.TestCase):  # Joe
             location="Cool place",
             meeting_time=datetime.datetime
         )
-        tmpsection.save()
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
