@@ -493,7 +493,7 @@ class TestAssignTALec(TestCase):  # Kiran
                                msg="can't assign courses when already reaches the max TA assignments"):
             self.taObj.assignTALecture(self.lecList[2])
 
-    # 5] Trying to add a non-lec
+    # 5] Trying to add a non-lec.
     def test_NonLab(self):
         invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
         for invalid_input in invalid_inputs:
