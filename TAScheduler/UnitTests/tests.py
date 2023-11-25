@@ -82,7 +82,7 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
 
     def test_successful_delete(self):
         self.admin.removeCourse(self.tempCourse)
-        self.assertNotIn(self.hold_course, Course.objects, "Did not remove course from the database")
+        self.assertNotIn(self.hold_course, Course.objects.values(), "Did not remove course from the database")
 
     def test_delete_null_course(self):
         Course.delete(self.hold_course)
