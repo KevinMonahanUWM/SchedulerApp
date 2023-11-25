@@ -351,7 +351,15 @@ class TestAdminEditAccount(TestCase):  # Kevin
 
     def test_success(self):
         self.admin.editUser(self.tempTA, self.new_info)
-        self.assertEqual(self.new_info["first name"], Section.objects.get(section_id=1012))
+        self.assertEqual(self.new_info["first_name"], User.objects.get(first_name="Paul").first_name)
+
+    def test_bad_item_info(self):
+        info = {"grader_status": "Maybe",
+                "max_assignments": 3,
+                "first_name": "Paul",
+                "last_name": 123}
+        with self.assertRaises(ValueError, msg="Should have thrown error with bad input"):
+            self.admin.editUser(self.tempTA, info)
 
 
 class TestAdminCourseInstrAsgmt(TestCase):  # Kevin

@@ -92,7 +92,9 @@ class AdminObj(UserObj):
             raise TypeError("Input passed is not a dictionary")
 
         try:  # Course ID
-            if type(new_info.get("course_id")) is not int:
+            if new_info.get("course_id") is None:
+                raise KeyError
+            if type(new_info.get("course_id")) is not int or new_info.get("course_id") < 0:
                 raise ValueError("Course id expects an int")
             if Course.objects.filter(course_id=new_info.get("course_id")).exists():
                 raise RuntimeError("Can not have two courses with the same course number")
@@ -100,6 +102,8 @@ class AdminObj(UserObj):
         except KeyError:  # No course_id in list that is fine don't change the database
             active_course.database.course_id = active_course.database.course_id
         try:  # Semester
+            if new_info.get("semester") is None:
+                raise KeyError
             if type(new_info.get("semester")) is not str or len(new_info.get("semester")) > 11:
                 raise ValueError("semester expects a string")
             if new_info.get("name") == '':
@@ -109,6 +113,8 @@ class AdminObj(UserObj):
         except KeyError:  # No semester in list that is fine don't change the database
             active_course.database.semester = active_course.database.semester
         try:  # Name
+            if new_info.get("name") is None:
+                raise KeyError
             if type(new_info.get("name")) is not str or len(new_info.get("name")) > 100:
                 raise ValueError("name expects a string")
             if new_info.get("name") == '':
@@ -118,6 +124,8 @@ class AdminObj(UserObj):
         except KeyError:  # No name in list that is fine don't change the database
             active_course.database.name = active_course.database.name
         try:  # Description
+            if new_info.get("description") is None:
+                raise KeyError
             if type(new_info.get("description")) is not str or len(new_info.get("description")) > 1000:
                 raise ValueError("description expects a string")
             if new_info.get("description") == '':
@@ -127,12 +135,16 @@ class AdminObj(UserObj):
         except KeyError:  # No description in list that is fine don't change the database
             active_course.database.description = active_course.database.description
         try:  # num_of_sections
-            if type(new_info.get("num_of_sections")) is not int:
+            if new_info.get("num_of_sections") is None:
+                raise KeyError
+            if type(new_info.get("num_of_sections")) is not int or new_info.get("num_of_sections") < 0:
                 raise ValueError("num_of_sections expects an int")
             active_course.database.num_of_sections = new_info.get("num_of_sections")
         except KeyError:  # No num_of_sections in list that is fine don't change the database
             active_course.database.num_of_sections = active_course.database.num_of_sections
         try:  # modality
+            if new_info.get("modality") is None:
+                raise KeyError
             if type(new_info.get("modality")) is not str or len(new_info.get("modality")) > 100:
                 raise ValueError("modality expects a string")
             if new_info.get("modality") == '':
@@ -142,7 +154,9 @@ class AdminObj(UserObj):
         except KeyError:  # No name in list that is fine don't change the database
             active_course.database.modality = active_course.database.modality
         try:  # credits
-            if type(new_info.get("credits")) is not int:
+            if new_info.get("credits") is None:
+                raise KeyError
+            if type(new_info.get("credits")) is not int or new_info.get("credits") < 0:
                 raise ValueError("credits expects an int")
             active_course.database.credits = new_info.get("credits")
         except KeyError:  # No credits in list that is fine don't change the database
@@ -158,7 +172,9 @@ class AdminObj(UserObj):
             raise TypeError("Input passed is not a dictionary")
 
         try:  # section_id
-            if type(new_info.get("section_id")) is not int:
+            if new_info.get("section_id") is None:
+                raise KeyError
+            if type(new_info.get("section_id")) is not int or new_info.get("section_id") < 0:
                 raise ValueError("section_id expects an int")
             if Section.objects.filter(section_id=new_info.get("section_id")).exists():
                 raise RuntimeError("Can not have two sections with the same section number")
@@ -166,6 +182,8 @@ class AdminObj(UserObj):
         except KeyError:  # No course_id in list that is fine don't change the database
             active_section.database.section.section_id = active_section.database.section.section_id
         try:  # location
+            if new_info.get("location") is None:
+                raise KeyError
             if type(new_info.get("location")) is not str or len(new_info.get("location")) > 30:
                 raise ValueError("location expects a str")
             if new_info.get("location") == '':
@@ -174,6 +192,8 @@ class AdminObj(UserObj):
         except KeyError:
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
+            if new_info.get("meeting_time") is None:
+                raise KeyError
             parsed_date = parser.parse(new_info.get("meeting_time"))
             temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
             if new_info.get("meeting_time") == '':
@@ -184,7 +204,105 @@ class AdminObj(UserObj):
         active_section.database.section.save()
 
     def editUser(self, active_user, new_info):  # new inputs
-        pass
+        if not isinstance(active_user, UserObj):
+            raise TypeError("Input passed is not a subclass of userobj")
+        elif not User.objects.filter(email_address=active_user.getUsername()).exists():
+            raise RuntimeError("User does not exist")
+        if type(new_info) is not dict:
+            raise TypeError("Input passed is not a dictionary")
+
+        try:  # email_address
+            if new_info.get("email_address") is None:
+                raise KeyError
+            if type(new_info.get("email_address")) is not str or len(new_info.get("email_address")) > 90:
+                raise ValueError("Email address excepts input of a str")
+            if User.objects.filter(email_address=new_info.get("email_address")).exists():
+                raise RuntimeError("Can not have multiple users with the same email address")
+            if new_info.get("email_address") == "":
+                raise KeyError
+            active_user.database.user.email_address = new_info.get("email_address")
+        except KeyError:  # No email address in list that is fine don't change the database
+            active_user.database.user.email_address = active_user.database.user.email_address
+        try:  # password
+            if new_info.get("password") is None:
+                raise KeyError
+            if type(new_info.get("password")) is not str or len(new_info.get("password")) > 30:
+                raise ValueError("password excepts input of a str")
+            if new_info.get("password") == "":
+                raise KeyError
+            active_user.database.user.password = new_info.get("password")
+        except KeyError:  # No password in list that is fine don't change the database
+            active_user.database.user.password = active_user.database.user.password
+        try:  # first_name
+            if new_info.get("first_name") is None:
+                raise KeyError
+            if type(new_info.get("first_name")) is not str or len(new_info.get("first_name")) > 30:
+                raise ValueError("first_name excepts input of a str")
+            if new_info.get("first_name") == "":
+                raise KeyError
+            active_user.database.user.first_name = new_info.get("first_name")
+        except KeyError:  # No first_name in list that is fine don't change the database
+            active_user.database.user.first_name = active_user.database.user.first_name
+        try:  # last_name
+            if new_info.get("last_name") is None:
+                raise KeyError
+            if type(new_info.get("last_name")) is not str or len(new_info.get("last_name")) > 30:
+                raise ValueError("last_name excepts input of a str")
+            if new_info.get("last_name") == "":
+                raise KeyError
+            active_user.database.user.last_name = new_info.get("last_name")
+        except KeyError:  # No last name in list that is fine don't change the database
+            active_user.database.user.last_name = active_user.database.user.last_name
+        try:  # home_address
+            if new_info.get("home_address") is None:
+                raise KeyError
+            if type(new_info.get("home_address")) is not str or len(new_info.get("home_address")) > 90:
+                raise ValueError("home_address excepts input of a str")
+            if new_info.get("home_address") == "":
+                raise KeyError
+            active_user.database.user.home_address = new_info.get("home_address")
+        except KeyError:  # No home_address in list that is fine don't change the database
+            active_user.database.user.home_address = active_user.database.user.home_address
+        try:  # phone number
+            if new_info.get("phone_number") is None:
+                raise KeyError
+            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) is not 10:
+                raise ValueError("phone_number expects an int input with a length of 10")
+            active_user.database.user.phone_number = new_info.get("phone_number")
+        except KeyError:
+            active_user.database.user.phone_number = active_user.database.user.phone_number
+        active_user.database.user.save()
+        role = active_user.getRole()
+        if role is TAObj:
+            try:  # grader_status
+                if new_info.get("grader_status") is None:
+                    raise KeyError
+                if type(new_info.get("grader_status")) is not bool:
+                    raise ValueError("grader_status expects boolean as input")
+                active_user.database.grader_status = new_info.get("grader_status")
+            except KeyError:  # no grader status in dict
+                active_user.database.grader_status = active_user.database.grader_status
+            try:  # max assignments
+                if new_info.get("max_assignments") is None:
+                    raise KeyError
+                if type(new_info.get("max_assignments")) is not int or (
+                        new_info.get("max_assignments") < 0 or new_info.get("max_assignments") > 6):
+                    raise ValueError("max_assignments expects an int as input between 0 and 6")
+                active_user.database.max_assignments = new_info.get("max_assignments")
+            except KeyError:
+                active_user.database.max_assignments = active_user.database.max_assignments
+        elif role is InstructorObj:
+            try:  # max assignments
+                if new_info.get("max_assignments") is None:
+                    raise KeyError
+                if type(new_info.get("max_assignments")) is not int or (
+                        new_info.get("max_assignments") < 0 or new_info.get("max_assignments") > 6):
+                    raise ValueError("max_assignments expects an int as input between 0 and 6")
+                active_user.database.max_assignments = new_info.get("max_assignments")
+            except KeyError:
+                active_user.database.max_assignments = active_user.database.max_assignments
+        active_user.database.save()
+
 
     def courseInstrAsmgt(self, active_instr, active_course):  # new inputs
         pass
