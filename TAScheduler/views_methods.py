@@ -46,7 +46,7 @@ class AdminObj(UserObj):
         pass
 
     def getRole(self):
-        pass
+        return type(self.admin_database)
 
     def login(self, username, password):
         pass
@@ -68,7 +68,12 @@ class AdminObj(UserObj):
         Course.delete(active_course.course_database)
 
     def removeUser(self, active_user):
-        pass
+        role = active_user.getRole()
+        if type(active_user) is not CourseObj:
+            raise TypeError("Input passed is not a Course object")
+        elif not Course.objects.filter(course_id=active_user.course_database.course_id).exists():
+            raise RuntimeError("Course does not exist")
+        Course.delete(active_user.course_database)
 
     def removeSection(self, active_section):
         pass
@@ -112,7 +117,7 @@ class TAObj(UserObj):
         pass
 
     def getRole(self):
-        pass
+        return type(self.ta_database)
 
     def hasMaxAsgmts(self):
         pass
@@ -162,7 +167,7 @@ class InstructorObj(UserObj):
         pass
 
     def getRole(self):
-        pass
+        return type(self.instr_database)
 
     def hasMaxAsgmts(self):
         pass
