@@ -190,7 +190,7 @@ class CourseObj:
     def __init__(self, course_info):
         if type(course_info) is not Course:
             raise TypeError("Data passed to init method is not a member of the course database class")
-        elif Course.objects.filter(course_id=course_info.course_id).exists():
+        elif not Course.objects.filter(course_id=course_info.course_id).exists():
             raise TypeError("The course object does not exist in the database")
         self.course_database = course_info
 
@@ -236,7 +236,7 @@ class LectureObj(SectionObj):
     def __init__(self, lecture_info):
         if type(lecture_info) is not Lecture:
             raise TypeError("Data passed to init method is not a member of the lecture database class")
-        elif Section.objects.filter(section_id=lecture_info.section.section_id).exists():
+        elif not Section.objects.filter(section_id=lecture_info.section.section_id).exists():
             raise TypeError("The lecture object does not exist in the database")
         self.lecture_database = lecture_info
 
@@ -271,7 +271,7 @@ class LabObj(SectionObj):
     def __init__(self, lab_info):
         if type(lab_info) is not Lab:
             raise TypeError("Data passed to init method is not a member of the lab database class")
-        elif Section.objects.filter(section_id=lab_info.section.section_id).exists():
+        elif not Section.objects.filter(section_id=lab_info.section.section_id).exists():
             raise TypeError("The lab object does not exist in the database")
         self.lab_database = lab_info
 
