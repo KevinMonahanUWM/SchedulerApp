@@ -82,7 +82,39 @@ class AdminObj(UserObj):
         Section.delete(active_section.database.section)
 
     def editCourse(self, active_course, new_info):  # new inputs
-        pass
+        if type(active_course) is not CourseObj:
+            raise TypeError("Input passed is not a Course object")
+        elif not Course.objects.filter(course_id=active_course.database.course_id).exists():
+            raise RuntimeError("Course does not exist")
+        if type(new_info) is not dict:
+            raise TypeError("Input passed is not a dictionary")
+
+        try:
+            if type(new_info.get("semester")) is not str or len(new_info.get("semester")) > 11:
+                raise TypeError("semester expects a string")
+            if new_info.get("name") == '':
+                raise KeyError  # Should go to except section because if string
+                # is empty we don't replace the name with nothing
+            active_course.database.semester = new_info.get("semester")
+        except KeyError:  # No semester in list that is fine don't change the database
+            active_course.database.semester = active_course.database.semester
+        try:
+            if type(new_info.get("course_id")) is not int:
+                raise TypeError("Course id expects an int")
+            if Course.objects.filter(course_id=new_info.get("course_id")).exists():
+                raise RuntimeError("Can not have two courses with the same course number")
+            active_course.database.course_id = new_info.get("course_id")
+        except KeyError:  # No course_id in list that is fine don't change the database
+            active_course.database.course_id = active_course.database.course_id
+        try:
+            if type(new_info.get("name")) is not str or len(new_info.get("name")) > 1000:
+                raise TypeError("name expects a string")
+            if new_info.get("name") == '':
+                raise KeyError  # Should go to except section because if string
+                # is empty we don't replace the name with nothing
+            active_course.database.name = new_info.get("name")
+        except KeyError:  # No name in list that is fine don't change the database
+            active_course.database.name = active_course.database.name
 
     def editSection(self, active_section, new_info):  # new inputs
         pass

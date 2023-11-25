@@ -214,13 +214,13 @@ class TestAdminEditCourse(TestCase):  # Kevin
         hold_admin = Administrator(user=hold_user)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
-        self.new_info = {"course id", 103,
-                         "semester", "Spring 2024",
-                         "name", "Intro to Units",
-                         "description", "Unit testing at its finest",
-                         "num of sections", 4,
-                         "modality", "",
-                         "credits", 3}
+        self.new_info = {"course_id": 103,
+                         "semester": "Spring 2024",
+                         "name": "Intro to Units",
+                         "description": "Unit testing at its finest",
+                         "num_of_sections": 4,
+                         "modality": "",
+                         "credits": 3}
 
     def test_bad_course(self):
         with self.assertRaises(TypeError, msg='Course that was passed is not a valid course'):
@@ -235,13 +235,13 @@ class TestAdminEditCourse(TestCase):  # Kevin
         self.assertEqual(self.new_info["description"], Course.objects.get(course_id=103))
 
     def test_bad_item_in_info(self):
-        info = {"course id", 103,
-                "semester", "Spring 2024",
-                "name", 4,
-                "description", "Unit testing at its finest",
-                "num of sections", "4",
-                "modality", "",
-                "credits", "3 or so"}
+        info = {"course_id": 103,
+                "semester": "Spring 2024",
+                "name": 4,
+                "description": "Unit testing at its finest",
+                "num_of_sections": "4",
+                "modality": "",
+                "credits": "3 or so"}
         with self.assertRaises(TypeError, msg='Improper input entered for editing course'):
             self.admin.editCourse(self.tempCourse, info)
 
@@ -284,9 +284,9 @@ class TestAdminEditSection(TestCase):  # Kevin
         hold_admin = Administrator(user=hold_user)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
-        self.new_info = {"section id", 1012,
-                         "location", "Somewhere in the universe",
-                         "meeting time", "2000-1-1 12:00:00"}
+        self.new_info = {"section_id": 1012,
+                         "location": "Somewhere in the universe",
+                         "meeting_time": "2000-1-1 12:00:00"}
 
     def test_bad_section(self):
         with self.assertRaises(TypeError, msg='Section that was passed is not a valid section'):
@@ -329,12 +329,12 @@ class TestAdminEditAccount(TestCase):  # Kevin
         hold_admin = Administrator(user=hold_user)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
-        self.new_info = {"grader status", True,
-                         "max assignments", 3,
-                         "first name", "Paul",
-                         "last name", "Different"}
+        self.new_info = {"grader_status": True,
+                         "max_assignments": 3,
+                         "first_name": "Paul",
+                         "last_name": "Different"}
 
-    def test_bad_course(self):
+    def test_bad_user(self):
         with self.assertRaises(TypeError, msg='User that was passed is not a valid user'):
             self.admin.editUser(11, self.new_info)
 
