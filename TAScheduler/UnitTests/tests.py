@@ -124,7 +124,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
 
     def test_successful_delete(self):
         self.admin.removeUser(self.tempTA)
-        self.assertNotIn(self.hold_user, User.objects, "Did not remove user from the database")
+        self.assertNotIn(self.hold_user, User.objects.values(), "Did not remove user from the database")
 
     def test_delete_null_user(self):
         User.delete(self.hold_user)
@@ -530,7 +530,7 @@ class TestTAInit(TestCase):
 
     def test_success(self):
         ta = TAObj(self.ta_database)
-        self.assertEqual(ta.ta_database, self.ta_database,
+        self.assertEqual(ta.database, self.ta_database,
                          "TA object should be saved in the database reference")
 
 
