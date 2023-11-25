@@ -1,29 +1,41 @@
 import abc
-
+from django.contrib.auth import authenticate
+from django.shortcuts import redirect
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab
 
 
 class UserObj(abc.ABC):
 
     @abc.abstractmethod
-    def login(self, username, password):
-        pass
+    def login(self, email_address, password):
+        try:
+            user = User.objects.get(email=email_address)
+        except User.DoesNotExist:
+            return redirect('/'), # display "Invalid username or password."
+        user = authenticate(username=email_address, password=password)
+        if user is not None:
+            return redirect('/home/'), None
+        return redirect('/'), # display "Invalid username or password."
 
     @abc.abstractmethod
     def getUsername(self):
-        pass
+        return self.user.email_address
 
     @abc.abstractmethod
     def getPassword(self):
-        pass
+        return self.user.password
 
     @abc.abstractmethod
     def getName(self):
-        pass
+        return f"{self.user.first_name} {self.user.last_name}"
 
     @abc.abstractmethod
     def getRole(self):
-        pass
+        if Administrator.objects.filter(user=self.user).exists():
+            return "admin"
+        if Instructor.objects.filter(user=self.user).exists():
+            return "instructor"
+        return "ta"
 
 
 class AdminObj(UserObj):
@@ -37,24 +49,24 @@ class AdminObj(UserObj):
         self.admin_database = admin_info
 
     def getUsername(self):
-        pass
+        self.UserObj.getUsername()
 
     def getPassword(self):
-        pass
+        self.UserObj.getPassword()
 
     def getName(self):
-        pass
+        self.UserObj.getName()
 
     def getRole(self):
-        pass
+        self.UserObj.getRole()
 
     def login(self, username, password):
-        pass
+        self.UserObj.login(self, username, password)
 
     def createCourse(self, course_info):
         pass
 
-    def createUser(self, user_info):
+    def createUser(self, user_info, role):
         pass
 
     def createSection(self, section_info):
