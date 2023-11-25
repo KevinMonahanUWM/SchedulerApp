@@ -1,10 +1,7 @@
 import datetime
-
 from django.test import TestCase
-
 from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, Instructor, InstructorToCourse, TAToCourse
-from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj
-
+from TAScheduler.views_methods import UserObj, CourseObj, AdminObj, TAObj, LabObj, InstructorObj, SectionObj
 
 # PBI Assignments ...
 # Alec = #1,#2 (Total = 6)
@@ -15,41 +12,185 @@ from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, Instru
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
 ### Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
-class TestUserLogin(TestCase):  # Alec
-    pass
 
+class TestUserLogin(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_info = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_info)
 
-class TestUserGetID(TestCase):  # Alec
-    pass
+    def test_login_valid_credentials(self):
+        result = self.adminObj.login("test@example.com", "password123")
+        self.assertRedirects(result, '/home/', msg="login with vaild credentials failed to redirect to home")
 
+    def test_login_invalid_credentials(self):
+        result = self.userObj.login("test@example.com", "wrongpassword")
+        self.assertRedirects(result, '/', msg="incorrect password failed to redirect to login")
+class TestUserGetID(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_info = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_info)
 
-class TestUserGetPassword(TestCase):  # Alec
-    pass
+    def test_get_username(self):
+        user_id = self.adminObj.getUsername()
+        self.assertEqual(user_id, "test@example.com", msg="user.getUsername failed to return username")
+class TestUserGetPassword(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_info = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_info)
 
+    def test_get_password(self):
+        self.assertEqual(self.adminObj.getPassword(), "password123", msg="user.getPassword failed to retrieve password")
+class TestUserGetName(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_info = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_info)
+    def test_get_name(self):
+        self.assertEqual(self.adminObj.getName(), "Test User", msg="user.getName failed to retrieve name")
+class TestUserGetRole(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_info = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_info)
+    def test_get_role(self):
+        self.assertEqual(self.adminObj.getRole(), "admin", msg="user.getRole failed to retrieve 'admin'")
+class TestAdminInit(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
+    def test_admin_init(self):
+        self.assertEqual(self.adminObj.user.email_address, "admin@example.com", msg="failed to initialize admin")
+class TestAdminCreateCourse(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
+        course_info = Course.objects.create(
+            course_id= 101,
+            semester= 'Fall 2023',
+            name= 'Intro to Testing',
+            description= 'A course about unit testing',
+            num_of_sections= 3,
+            modality= 'Online',
+            credits= 4
+        )
+        self.courseObj = CourseObj(course_info)
+    def test_create_course(self):
+        created_course = self.adminObj.createCourse(self.courseObj)
+        self.assertIsNotNone(created_course)
+        self.assertEqual(created_course.name, 'Intro to Testing', msg="failed to create course")
+class TestAdminCreateUser(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpass",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
 
-class TestUserGetName(TestCase):  # Alec
-    pass
+    def test_create_user(self):
+        user_info = User.objects.create(
+            email_address='newuser@example.com',
+            password= 'password123',
+            first_name= 'New',
+            last_name= 'User',
+            home_address= '123 New Street',
+            phone_number= 9876543210
+        )
+        created_user = self.adminObj.createUser(user_info, role='TA')
+        self.assertIsNotNone(created_user)
+        self.assertEqual(created_user.email_address, 'newuser@example.com', msg="user not created")
+class TestAdminCreateSection(TestCase): # Alec
+    def setUp(self):
+        admin_user_info = User.objects.create(
+            email_address="admin@example.com",
+            password="adminpassword",
+            first_name="Admin",
+            last_name="User",
+            home_address="123 Admin Street",
+            phone_number=1234567890
+        )
+        admin_model = Administrator.objects.create(user=admin_user_info)
+        self.adminObj = AdminObj(admin_model)
 
+        self.course = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Intro to Django Testing',
+            description='A comprehensive course on testing in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
+        )
+        section_info = {
+            'section_id': 201,
+            'course': self.course,
+            'location': 'Room 101',
+            'meeting_time': datetime.datetime.now()
+        }
+        self.sectionObj = SectionObj(section_info)  # Assuming SectionObj takes section_info
 
-class TestUserGetRole(TestCase):  # Alec
-    pass
-
-
-class TestAdminInit(TestCase):
-    pass
-
-
-class TestAdminCreateCourse(TestCase):  # Alec
-    pass
-
-
-class TestAdminCreateUser(TestCase):  # Alec
-    pass
-
-
-class TestAdminCreateSection(TestCase):  # Alec
-    pass
-
+    def test_create_section(self):
+        created_section = self.adminObj.createSection(self.sectionObj)
+        self.assertIsNotNone(created_section)
+        self.assertEqual(created_section.section_id, 201, msg="failed to create section")
 
 class TestAdminRemoveCourse(TestCase):  # Kevin
     tempCourse = None
