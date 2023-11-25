@@ -530,7 +530,7 @@ class TestTAInit(TestCase):
 
     def test_success(self):
         ta = TAObj(self.ta_database)
-        self.assertEqual(ta.databasereference, self.ta_database,
+        self.assertEqual(ta.ta_database, self.ta_database,
                          "TA object should be saved in the database reference")
 
 

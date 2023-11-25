@@ -31,9 +31,9 @@ class AdminObj(UserObj):
 
     def __init__(self, admin_info):
         if type(admin_info) is not Administrator:
-            TypeError("Data passed to init method is not a member of the Administrator database class")
-        elif User.objects.get(email_address=admin_info.user.email_address) is not admin_info.user:
-            TypeError("The administrator object does not exist in the database")
+            raise TypeError("Data passed to init method is not a member of the Administrator database class")
+        elif not User.objects.filter(email_address=admin_info.user.email_address).exists():
+            raise TypeError("The administrator object does not exist in the database")
         self.admin_database = admin_info
 
     def getUsername(self):
@@ -90,9 +90,9 @@ class TAObj(UserObj):
 
     def __init__(self, ta_info):
         if type(ta_info) is not TA:
-            TypeError("Data passed to init method is not a member of the TA database class")
-        elif User.objects.get(email_address=ta_info.user.email_address) is not ta_info.user:
-            TypeError("The ta object does not exist in the database")
+            raise TypeError("Data passed to init method is not a member of the TA database class")
+        elif not User.objects.filter(email_address=ta_info.user.email_address).exists():
+            raise TypeError("The ta object does not exist in the database")
         self.ta_database = ta_info
 
     def login(self, username, password):
@@ -140,9 +140,9 @@ class InstructorObj(UserObj):
 
     def __init__(self, instr_info):
         if type(instr_info) is not Instructor:
-            TypeError("Data passed to init method is not a member of the Instructor database class")
-        elif User.objects.get(email_address=instr_info.user.email_address) is not instr_info.user:
-            TypeError("The instructor object does not exist in the database")
+            raise TypeError("Data passed to init method is not a member of the Instructor database class")
+        elif not User.objects.filter(email_address=instr_info.user.email_address).exists():
+            raise TypeError("The instructor object does not exist in the database")
         self.instr_database = instr_info
 
     def login(self, username, password):
@@ -187,9 +187,9 @@ class CourseObj:
 
     def __init__(self, course_info):
         if type(course_info) is not Course:
-            TypeError("Data passed to init method is not a member of the course database class")
-        elif Course.objects.get(course_id=course_info.course_id) is not course_info:
-            TypeError("The course object does not exist in the database")
+            raise TypeError("Data passed to init method is not a member of the course database class")
+        elif not Course.objects.filter(course_id=course_info.course_id).exists():
+            raise TypeError("The course object does not exist in the database")
         self.course_database = course_info
 
     def addInstructor(self, active_instr):
@@ -233,9 +233,9 @@ class LectureObj(SectionObj):
 
     def __init__(self, lecture_info):
         if type(lecture_info) is not Lecture:
-            TypeError("Data passed to init method is not a member of the lecture database class")
-        elif Section.objects.get(section_id=lecture_info.section.section_id) is not lecture_info.section:
-            TypeError("The lecture object does not exist in the database")
+            raise TypeError("Data passed to init method is not a member of the lecture database class")
+        elif not Section.objects.filter(section_id=lecture_info.section.section_id).exists():
+            raise TypeError("The lecture object does not exist in the database")
         self.lecture_database = lecture_info
 
     def getID(self):
@@ -268,9 +268,9 @@ class LabObj(SectionObj):
 
     def __init__(self, lab_info):
         if type(lab_info) is not Lab:
-            TypeError("Data passed to init method is not a member of the lab database class")
-        elif Section.objects.get(section_id=lab_info.section.section_id) is not lab_info.section:
-            TypeError("The lab object does not exist in the database")
+            raise TypeError("Data passed to init method is not a member of the lab database class")
+        elif not Section.objects.filter(section_id=lab_info.section.section_id).exists():
+            raise TypeError("The lab object does not exist in the database")
         self.lab_database = lab_info
 
     def getID(self):
