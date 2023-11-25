@@ -8,6 +8,9 @@ from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lect
 
 class UserObj(abc.ABC):
 
+    def __init__(self):
+        self.database = None
+
     @abc.abstractmethod
     def login(self, username, password):
         pass
@@ -33,6 +36,7 @@ class AdminObj(UserObj):
     database = None
 
     def __init__(self, admin_info):
+        super().__init__()
         if type(admin_info) is not Administrator:
             raise TypeError("Data passed to init method is not a member of the Administrator database class")
         elif not User.objects.filter(email_address=admin_info.user.email_address).exists():
@@ -335,6 +339,7 @@ class TAObj(UserObj):
     database = None
 
     def __init__(self, ta_info):
+        super().__init__()
         if type(ta_info) is not TA:
             raise TypeError("Data passed to init method is not a member of the TA database class")
         elif not User.objects.filter(email_address=ta_info.user.email_address).exists():
@@ -385,6 +390,7 @@ class InstructorObj(UserObj):
     database = None
 
     def __init__(self, instr_info):
+        super().__init__()
         if type(instr_info) is not Instructor:
             raise TypeError("Data passed to init method is not a member of the Instructor database class")
         elif not User.objects.filter(email_address=instr_info.user.email_address).exists():
@@ -465,6 +471,9 @@ class CourseObj:
 
 class SectionObj(abc.ABC):
 
+    def __init__(self):
+        self.database = None
+
     @abc.abstractmethod
     def getID(self):
         pass
@@ -478,6 +487,7 @@ class LectureObj(SectionObj):
     database = None
 
     def __init__(self, lecture_info):
+        super().__init__()
         if type(lecture_info) is not Lecture:
             raise TypeError("Data passed to init method is not a member of the lecture database class")
         elif not Section.objects.filter(section_id=lecture_info.section.section_id).exists():
@@ -513,6 +523,7 @@ class LabObj(SectionObj):
     database = None
 
     def __init__(self, lab_info):
+        super().__init__()
         if type(lab_info) is not Lab:
             raise TypeError("Data passed to init method is not a member of the lab database class")
         elif not Section.objects.filter(section_id=lab_info.section.section_id).exists():
