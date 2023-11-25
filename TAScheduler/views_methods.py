@@ -89,7 +89,15 @@ class AdminObj(UserObj):
         if type(new_info) is not dict:
             raise TypeError("Input passed is not a dictionary")
 
-        try:
+        try:  # Course ID
+            if type(new_info.get("course_id")) is not int:
+                raise TypeError("Course id expects an int")
+            if Course.objects.filter(course_id=new_info.get("course_id")).exists():
+                raise RuntimeError("Can not have two courses with the same course number")
+            active_course.database.course_id = new_info.get("course_id")
+        except KeyError:  # No course_id in list that is fine don't change the database
+            active_course.database.course_id = active_course.database.course_id
+        try:  # Semester
             if type(new_info.get("semester")) is not str or len(new_info.get("semester")) > 11:
                 raise TypeError("semester expects a string")
             if new_info.get("name") == '':
@@ -98,15 +106,7 @@ class AdminObj(UserObj):
             active_course.database.semester = new_info.get("semester")
         except KeyError:  # No semester in list that is fine don't change the database
             active_course.database.semester = active_course.database.semester
-        try:
-            if type(new_info.get("course_id")) is not int:
-                raise TypeError("Course id expects an int")
-            if Course.objects.filter(course_id=new_info.get("course_id")).exists():
-                raise RuntimeError("Can not have two courses with the same course number")
-            active_course.database.course_id = new_info.get("course_id")
-        except KeyError:  # No course_id in list that is fine don't change the database
-            active_course.database.course_id = active_course.database.course_id
-        try:
+        try:  # Name
             if type(new_info.get("name")) is not str or len(new_info.get("name")) > 1000:
                 raise TypeError("name expects a string")
             if new_info.get("name") == '':
