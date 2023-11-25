@@ -49,7 +49,7 @@ class AdminObj(UserObj):
         pass
 
     def getRole(self):
-        return type(self.database)
+        return str(type(self.database))
 
     def login(self, username, password):
         pass
@@ -313,7 +313,7 @@ class AdminObj(UserObj):
             raise TypeError("Input passed is not a Course object")
         elif not Course.objects.filter(course_id=active_course.database.course_id).exists():
             raise RuntimeError("Course does not exist")
-        if active_instr.getInstrCrseAsgmts() == active_instr.database.max_assignments:
+        if active_instr.getInstrCrseAsgmts().count() == active_instr.database.max_assignments:
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         InstructorToCourse.objects.create(instructor=active_instr.database, course=active_course.database)
 
@@ -326,7 +326,7 @@ class AdminObj(UserObj):
             raise TypeError("Input passed is not a Course object")
         elif not Course.objects.filter(course_id=active_course.database.course_id).exists():
             raise RuntimeError("Course does not exist")
-        if active_ta.getTACrseAsgmts() == active_ta.database.max_assignments:
+        if active_ta.getTACrseAsgmts().count() == active_ta.database.max_assignments:
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
@@ -354,7 +354,7 @@ class TAObj(UserObj):
         pass
 
     def getRole(self):
-        return type(self.database)
+        return str(type(self.database))
 
     def hasMaxAsgmts(self):
         pass
@@ -369,7 +369,7 @@ class TAObj(UserObj):
         pass
 
     def getTACrseAsgmts(self):
-        return TAToCourse.objects.filter(ta=self.database).count()
+        return TAToCourse.objects.filter(ta=self.database)
 
     def getTALabAsgmts(self):
         pass
@@ -404,7 +404,7 @@ class InstructorObj(UserObj):
         pass
 
     def getRole(self):
-        return type(self.database)
+        return str(type(self.database))
 
     def hasMaxAsgmts(self):
         pass
@@ -416,7 +416,7 @@ class InstructorObj(UserObj):
         pass
 
     def getInstrCrseAsgmts(self):
-        return InstructorToCourse.objects.filter(instructor=self.database).count()
+        return InstructorToCourse.objects.filter(instructor=self.database)
 
     def getInstrLecAsgmts(self):  # new
         pass
