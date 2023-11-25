@@ -45,7 +45,7 @@ class TestUserGetID(TestCase):  # Alec
 
     def test_get_username(self):
         user_id = self.adminObj.getUsername()
-        self.assertEqual(user_id, "test@example.com", msg="user.getUsername failed to return username")
+        self.assertEqual(user_id, "admin@example.com", msg="user.getUsername failed to return username")
 
 
 class TestUserGetPassword(TestCase):  # Alec
@@ -79,7 +79,7 @@ class TestUserGetName(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_name(self):
-        self.assertEqual(self.adminObj.getName(), "Test User", msg="user.getName failed to retrieve name")
+        self.assertEqual(self.adminObj.getName(), "Admin User", msg="user.getName failed to retrieve name")
 
 
 class TestUserGetRole(TestCase):  # Alec
@@ -96,7 +96,9 @@ class TestUserGetRole(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_role(self):
-        self.assertEqual(self.adminObj.getRole(), "admin", msg="user.getRole failed to retrieve 'admin'")
+        self.assertEqual(self.adminObj.getRole(), "<class 'TAScheduler.models.Administrator'>", msg="user.getRole "
+                                                                                                    "failed to "
+                                                                                                    "retrieve 'admin'")
 
 
 class TestAdminInit(TestCase):  # Alec
@@ -511,6 +513,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
     def test_success(self):
         self.admin.editUser(self.tempTA, self.new_info)
         self.assertEqual(self.new_info["first_name"], User.objects.get(first_name="Paul").first_name)
+        self.assertEqual(self.new_info["grader_status"], TA.objects.get(user=self.tempTA.database.user).grader_status)
 
     def test_bad_item_info(self):
         info = {"grader_status": "Maybe",

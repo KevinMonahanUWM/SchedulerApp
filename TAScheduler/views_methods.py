@@ -43,10 +43,10 @@ class AdminObj(UserObj):
         return self.database.user.email_address
 
     def getPassword(self):
-        pass
+        return self.database.user.password
 
     def getName(self):
-        pass
+        return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
         return str(type(self.database))
@@ -274,7 +274,7 @@ class AdminObj(UserObj):
             active_user.database.user.phone_number = active_user.database.user.phone_number
         active_user.database.user.save()
         role = active_user.getRole()
-        if role is TAObj:
+        if role == "<class 'TAScheduler.models.TA'>":
             try:  # grader_status
                 if new_info.get("grader_status") is None:
                     raise KeyError
@@ -292,7 +292,7 @@ class AdminObj(UserObj):
                 active_user.database.max_assignments = new_info.get("max_assignments")
             except KeyError:
                 active_user.database.max_assignments = active_user.database.max_assignments
-        elif role is InstructorObj:
+        elif role == "<class 'TAScheduler.models.Instructor'>":
             try:  # max assignments
                 if new_info.get("max_assignments") is None:
                     raise KeyError
@@ -348,10 +348,10 @@ class TAObj(UserObj):
         return self.database.user.email_address
 
     def getPassword(self):
-        pass
+        return self.database.user.password
 
     def getName(self):
-        pass
+        return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
         return str(type(self.database))
@@ -398,10 +398,10 @@ class InstructorObj(UserObj):
         return self.database.user.email_address
 
     def getPassword(self):
-        pass
+        return self.database.user.password
 
     def getName(self):
-        pass
+        return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
         return str(type(self.database))
