@@ -4,7 +4,7 @@ import datetime
 from django.test import TestCase
 
 from TAScheduler.models import Course, User, TA, Section, Lab, Instructor, Lecture
-from TAScheduler.views_methods import LabObj, LectureObj
+from TAScheduler.views_methods import LabObj, LectureObj, TAObj
 
 
 # PBI Assignments ...
@@ -303,7 +303,7 @@ class TestLabInit(TestCase):
         self.lab = LabObj(self.tmplab)
 
     def test_lab_make(self):
-        self.assertIsNotNone(LabObj(self.tempLab), "__init__ failed in making Lab")
+        self.assertIsNotNone(self.lab, "__init__ failed in making Lab")
 
     def test_bad_lab_make(self):
         with self.assertRaises(TypeError, msg="__init__ failed in making Lab, bad input"):
@@ -336,7 +336,6 @@ class TestLabGetLabTAAsgmt(TestCase):  # Joe
         self.lab = Lab.objects.create(
             section=tmpsection
         )
-        self.lab.save()
 
     def test_get_ta(self):
         temp = User(
@@ -356,7 +355,10 @@ class TestLabGetLabTAAsgmt(TestCase):  # Joe
 
         self.labObj = LabObj(self.lab)  # Form lab after adding TA manually
 
-        self.assertEquals(self.ta, self.labObj.getLabTAAsgmt(), "getLabTAAsgmt() does not retrieve correct ta")
+        self.assertEquals(
+            self.ta,
+            self.labObj.getLabTAAsgmt(),
+            "getLabTAAsgmt() does not retrieve correct ta; Test may also be accepting wrong object")
 
     def test_get_but_no_ta(self):
         self.labObj = LabObj(self.lab)  # Form lab with no TA
@@ -409,7 +411,7 @@ class TestLabAddTA(TestCase):  # Joe
         self.lab = LabObj(tmplab)
 
     def test_add_ta(self):
-        self.lab.addTA(self.ta)
+        self.lab.addTA(TAObj(self.ta))
         self.assertEquals(self.ta, self.lab.getLabTAAsgmt(),
                           "addTA() does not add TA to lab")
 
@@ -418,9 +420,9 @@ class TestLabAddTA(TestCase):  # Joe
                      home_address="Your mom's house", phone_number=1234567890)
 
         tempta = TA.objects.create(user=temp2)
-        self.lab.addTA(tempta)
+        self.lab.addTA(TAObj(self.ta))
         with self.assertRaises(RuntimeError, msg="Tried to add TA to full Lab"):
-            self.lab.addTA(self.ta)
+            self.lab.addTA(TAObj(self.ta))
 
 
 class TestLabRemoveTA(TestCase):  # Joe
@@ -525,16 +527,14 @@ class TestLectureInit(TestCase):
             meeting_time=datetime.datetime
         )
 
-        tmplec = Lecture.objects.create(
+        self.lecture = Lecture.objects.create(
             section=tmpsection,
             ta=tmpta,
             instructor=tmpinstructor
         )
 
-        self.lecture = LectureObj(tmplec)
-
     def test_lecture_make(self):
-        self.assertIsNotNone(self.lecture, "__init__ failed in making Lecture")
+        self.assertIsNotNone(LectureObj(self.lecture), "__init__ failed in making Lecture")
 
     def test_bad_lecture_make(self):
         with self.assertRaises(TypeError, msg="__init__ failed in making Lecture: Type error"):
@@ -579,7 +579,7 @@ class TestLectureGetLecInstrAsgmt(unittest.TestCase):  # Joe
 
         tmplec = Lecture.objects.create(
             section=tmpsection,
-            ta=tmpta,
+            ta=tmpta
         )
 
         tempuser2 = User(
@@ -612,20 +612,6 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
     instructor = None
 
     def setUp(self):
-        tempuser = User(
-            email_address="test@ta.com",
-            password="password",
-            first_name="first",
-            last_name="last",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-
-        tmpta = TA.objects.create(
-            user=tempuser,
-            grader_status=True
-        )
-
         tempuser2 = User(
             email_address="test@instructor.com",
             password="password",
@@ -658,12 +644,10 @@ class TestLectureAddInstructor(unittest.TestCase):  # Joe
         )
 
         tmplec = Lecture.objects.create(
-            section=tmpsection,
-            ta=tmpta,
+            section=tmpsection
         )
 
         self.info = {
-            "ta", tmpta,
             "section", tmpsection,
         }
 
@@ -839,11 +823,11 @@ class TestLectureAddTA(unittest.TestCase):  # Joe
             phone_number=1234567890
         )
 
-        self.ta = TA.objects.create(
+        tmpta = TA.objects.create(
             user=tempuser,
             grader_status=True
         )
-        self.ta.save()
+        self.ta = TAObj(tmpta)
 
         tempuser2 = User(
             email_address="test@instructor.com",
