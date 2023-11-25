@@ -61,7 +61,9 @@ class AdminObj(UserObj):
         pass
 
     def removeCourse(self, active_course):
-        pass
+        if type(active_course) is not Course:
+            raise TypeError("Input passed is not a Course object")
+        elif not Course.objects.filter(course_id=active_course.course_id).exists()
 
     def removeUser(self, active_user):
         pass
