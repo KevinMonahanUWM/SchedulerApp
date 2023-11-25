@@ -412,7 +412,7 @@ class InstructorObj(UserObj):
     def assignInstrCourse(self, active_course):
         pass
 
-    def assignInstrLecture(self, active_lecture):  # new
+    def assignInstrLecture(self, active_lecture):  # new.
         pass
 
     def getInstrCrseAsgmts(self):
