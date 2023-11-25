@@ -242,7 +242,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
                 "num_of_sections": "4",
                 "modality": "",
                 "credits": "3 or so"}
-        with self.assertRaises(TypeError, msg='Improper input entered for editing course'):
+        with self.assertRaises(ValueError, msg='Improper input entered for editing course'):
             self.admin.editCourse(self.tempCourse, info)
 
 
@@ -299,6 +299,13 @@ class TestAdminEditSection(TestCase):  # Kevin
     def test_success(self):
         self.admin.editSection(self.tempLab, self.new_info)
         self.assertEqual(self.new_info["location"], Section.objects.get(section_id=1012).location)
+
+    def test_bad_item_info(self):
+        info = {"section_id": 1012,
+                "location": "",
+                "meeting_time": "bad date"}
+        with self.assertRaises(ValueError, msg="Should have thrown error with bad input"):
+            self.admin.editSection(self.tempLab, info)
 
 
 class TestAdminEditAccount(TestCase):  # Kevin

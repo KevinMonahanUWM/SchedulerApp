@@ -1,5 +1,7 @@
 import abc
 
+from dateutil import parser
+
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab
 
 
@@ -91,7 +93,7 @@ class AdminObj(UserObj):
 
         try:  # Course ID
             if type(new_info.get("course_id")) is not int:
-                raise TypeError("Course id expects an int")
+                raise ValueError("Course id expects an int")
             if Course.objects.filter(course_id=new_info.get("course_id")).exists():
                 raise RuntimeError("Can not have two courses with the same course number")
             active_course.database.course_id = new_info.get("course_id")
@@ -99,7 +101,7 @@ class AdminObj(UserObj):
             active_course.database.course_id = active_course.database.course_id
         try:  # Semester
             if type(new_info.get("semester")) is not str or len(new_info.get("semester")) > 11:
-                raise TypeError("semester expects a string")
+                raise ValueError("semester expects a string")
             if new_info.get("name") == '':
                 raise KeyError  # Should go to except section because if string
                 # is empty we don't replace the name with nothing
@@ -108,7 +110,7 @@ class AdminObj(UserObj):
             active_course.database.semester = active_course.database.semester
         try:  # Name
             if type(new_info.get("name")) is not str or len(new_info.get("name")) > 100:
-                raise TypeError("name expects a string")
+                raise ValueError("name expects a string")
             if new_info.get("name") == '':
                 raise KeyError  # Should go to except section because if string
                 # is empty we don't replace the name with nothing
@@ -117,7 +119,7 @@ class AdminObj(UserObj):
             active_course.database.name = active_course.database.name
         try:  # Description
             if type(new_info.get("description")) is not str or len(new_info.get("description")) > 1000:
-                raise TypeError("description expects a string")
+                raise ValueError("description expects a string")
             if new_info.get("description") == '':
                 raise KeyError  # Should go to except section because if string
                 # is empty we don't replace the description with nothing
@@ -126,13 +128,13 @@ class AdminObj(UserObj):
             active_course.database.description = active_course.database.description
         try:  # num_of_sections
             if type(new_info.get("num_of_sections")) is not int:
-                raise TypeError("num_of_sections expects an int")
+                raise ValueError("num_of_sections expects an int")
             active_course.database.num_of_sections = new_info.get("num_of_sections")
         except KeyError:  # No num_of_sections in list that is fine don't change the database
             active_course.database.num_of_sections = active_course.database.num_of_sections
         try:  # modality
             if type(new_info.get("modality")) is not str or len(new_info.get("modality")) > 100:
-                raise TypeError("modality expects a string")
+                raise ValueError("modality expects a string")
             if new_info.get("modality") == '':
                 raise KeyError  # Should go to except section because if string
                 # is empty we don't replace the modality with nothing
@@ -141,14 +143,45 @@ class AdminObj(UserObj):
             active_course.database.modality = active_course.database.modality
         try:  # credits
             if type(new_info.get("credits")) is not int:
-                raise TypeError("credits expects an int")
+                raise ValueError("credits expects an int")
             active_course.database.credits = new_info.get("credits")
         except KeyError:  # No credits in list that is fine don't change the database
             active_course.database.credits = active_course.database.credits
         active_course.database.save()
 
     def editSection(self, active_section, new_info):  # new inputs
-        pass
+        if not isinstance(active_section, SectionObj):
+            raise TypeError("Input passed is not a subclass of sectionobj")
+        elif not Section.objects.filter(section_id=active_section.getID()).exists():
+            raise RuntimeError("Section does not exist")
+        if type(new_info) is not dict:
+            raise TypeError("Input passed is not a dictionary")
+
+        try:  # section_id
+            if type(new_info.get("section_id")) is not int:
+                raise ValueError("section_id expects an int")
+            if Section.objects.filter(section_id=new_info.get("section_id")).exists():
+                raise RuntimeError("Can not have two sections with the same section number")
+            active_section.database.section.section_id = new_info.get("section_id")
+        except KeyError:  # No course_id in list that is fine don't change the database
+            active_section.database.section.section_id = active_section.database.section.section_id
+        try:  # location
+            if type(new_info.get("location")) is not str or len(new_info.get("location")) > 30:
+                raise ValueError("location expects a str")
+            if new_info.get("location") == '':
+                raise KeyError
+            active_section.database.section.location = new_info.get("location")
+        except KeyError:
+            active_section.database.section.location = active_section.database.section.location
+        try:  # meeting_time
+            parsed_date = parser.parse(new_info.get("meeting_time"))
+            temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
+            if new_info.get("meeting_time") == '':
+                raise KeyError
+            active_section.database.section.meeting_time = new_info.get("meeting_time")
+        except KeyError:
+            active_section.database.section.meeting_time = active_section.database.section.meeting_time
+        active_section.database.section.save()
 
     def editUser(self, active_user, new_info):  # new inputs
         pass
