@@ -71,11 +71,15 @@ class AdminObj(UserObj):
         if not isinstance(active_user, UserObj):
             raise TypeError("Input passed is not a subclass of userobj")
         elif not User.objects.filter(email_address=active_user.getUsername()).exists():
-            raise RuntimeError("Course does not exist")
-        User.delete(active_user.database)
+            raise RuntimeError("User does not exist")
+        User.delete(active_user.database.user)
 
     def removeSection(self, active_section):
-        pass
+        if not isinstance(active_section, SectionObj):
+            raise TypeError("Input passed is not a subclass of sectionobj")
+        elif not Section.objects.filter(section_id=active_section.getID()).exists():
+            raise RuntimeError("Section does not exist")
+        Section.delete(active_section.database.section)
 
     def editCourse(self, active_course, new_info):  # new inputs
         pass
@@ -247,7 +251,7 @@ class LectureObj(SectionObj):
         self.database = lecture_info
 
     def getID(self):
-        pass
+        return self.database.section.section_id
 
     def getParentCourse(self):
         pass
@@ -282,7 +286,7 @@ class LabObj(SectionObj):
         self.database = lab_info
 
     def getID(self):
-        pass
+        return self.database.section.section_id
 
     def getParentCourse(self):
         pass

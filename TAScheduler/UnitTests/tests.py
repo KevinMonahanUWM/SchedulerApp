@@ -1,5 +1,3 @@
-import datetime
-
 from django.test import TestCase
 
 from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, Instructor, InstructorToCourse, TAToCourse
@@ -155,7 +153,7 @@ class TestAdminRemoveSection(TestCase):  # Kevin
             section_id=1011,
             course=temp_course,
             location="A distant realm",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
         temp_lab = Lab.objects.create(
             section=self.hold_sec,
@@ -176,7 +174,7 @@ class TestAdminRemoveSection(TestCase):  # Kevin
 
     def test_successful_delete(self):
         self.admin.removeSection(self.tempLab)
-        self.assertNotIn(User.objects, self.hold_sec, "Did not remove section from the database")
+        self.assertNotIn(self.hold_sec, Section.objects.values(), "Did not remove section from the database")
 
     def test_delete_null_user(self):
         Section.delete(self.hold_sec)
@@ -267,7 +265,7 @@ class TestAdminEditSection(TestCase):  # Kevin
             section_id=1011,
             course=hold_course,
             location="The end of the universe",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
         hold_lab = Lab.objects.create(
             section=hold_sec,
@@ -288,7 +286,7 @@ class TestAdminEditSection(TestCase):  # Kevin
         self.admin = AdminObj(hold_admin)
         self.new_info = {"section id", 1012,
                          "location", "Somewhere in the universe",
-                         "meeting time", datetime.datetime}
+                         "meeting time", "2000-1-1 12:00:00"}
 
     def test_bad_section(self):
         with self.assertRaises(TypeError, msg='Section that was passed is not a valid section'):
