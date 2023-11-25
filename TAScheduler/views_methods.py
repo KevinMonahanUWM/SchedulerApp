@@ -2,7 +2,8 @@ import abc
 
 from dateutil import parser
 
-from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab
+from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
+    TAToCourse
 
 
 class UserObj(abc.ABC):
@@ -303,12 +304,31 @@ class AdminObj(UserObj):
                 active_user.database.max_assignments = active_user.database.max_assignments
         active_user.database.save()
 
-
     def courseInstrAsmgt(self, active_instr, active_course):  # new inputs
-        pass
+        if not isinstance(active_instr, InstructorObj):
+            raise TypeError("Input passed is not an object of instructor obj")
+        elif not User.objects.filter(email_address=active_instr.getUsername()).exists():
+            raise RuntimeError("User does not exist")
+        if type(active_course) is not CourseObj:
+            raise TypeError("Input passed is not a Course object")
+        elif not Course.objects.filter(course_id=active_course.database.course_id).exists():
+            raise RuntimeError("Course does not exist")
+        if active_instr.getInstrCrseAsgmts() == active_instr.database.max_assignments:
+            raise RuntimeError("Instructor is already assigned to max number of course permitted")
+        InstructorToCourse.objects.create(instructor=active_instr.database, course=active_course.database)
 
     def courseTAAsmgt(self, active_ta, active_course):  # new remove sectionTAAsmgt
-        pass
+        if not isinstance(active_ta, TAObj):
+            raise TypeError("Input passed is not an object of ta obj")
+        elif not User.objects.filter(email_address=active_ta.getUsername()).exists():
+            raise RuntimeError("User does not exist")
+        if type(active_course) is not CourseObj:
+            raise TypeError("Input passed is not a Course object")
+        elif not Course.objects.filter(course_id=active_course.database.course_id).exists():
+            raise RuntimeError("Course does not exist")
+        if active_ta.getTACrseAsgmts() == active_ta.database.max_assignments:
+            raise RuntimeError("Instructor is already assigned to max number of course permitted")
+        TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
 
 class TAObj(UserObj):
@@ -349,7 +369,7 @@ class TAObj(UserObj):
         pass
 
     def getTACrseAsgmts(self):
-        pass
+        return TAToCourse.objects.filter(ta=self.database).count()
 
     def getTALabAsgmts(self):
         pass
@@ -396,7 +416,7 @@ class InstructorObj(UserObj):
         pass
 
     def getInstrCrseAsgmts(self):
-        pass
+        return InstructorToCourse.objects.filter(instructor=self.database).count()
 
     def getInstrLecAsgmts(self):  # new
         pass

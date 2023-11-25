@@ -71,7 +71,7 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_user.save()
         hold_admin = Administrator(user=hold_user)
@@ -104,7 +104,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
-            phone_number='1234667890'
+            phone_number=1234667890
         )
         temp_ta = TA.objects.create(user=self.hold_user, grader_status=False)
         self.tempTA = TAObj(temp_ta)
@@ -114,7 +114,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_admin = Administrator(user=temp)
         hold_admin.save()
@@ -166,7 +166,7 @@ class TestAdminRemoveSection(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_admin = Administrator(user=temp)
         hold_admin.save()
@@ -208,7 +208,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_user.save()
         hold_admin = Administrator(user=hold_user)
@@ -278,7 +278,7 @@ class TestAdminEditSection(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_user.save()
         hold_admin = Administrator(user=hold_user)
@@ -320,7 +320,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
-            phone_number='1234667890'
+            phone_number=1234667890
         )
         temp_ta = TA.objects.create(user=self.hold_user, grader_status=False)
         self.tempTA = TAObj(temp_ta)
@@ -330,7 +330,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_user.save()
         hold_admin = Administrator(user=hold_user)
@@ -387,7 +387,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
-            phone_number='1234667890'
+            phone_number=1234667890
         )
         self.hold_instr = Instructor.objects.create(user=self.hold_user)
         self.tempInstr = InstructorObj(self.hold_instr)
@@ -397,7 +397,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_user.save()
         hold_admin = Administrator(user=hold_user)
@@ -429,7 +429,14 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
 
     def test_max_capacity_instr(self):
         User.delete(self.hold_user)
-        temp = User.objects.create(self.hold_user)
+        temp = User.objects.create(
+            email_address='kev@example.com',
+            password='kevpassword',
+            first_name='Kevin',
+            last_name='User',
+            home_address='123 Kevin St',
+            phone_number=1234667890
+        )
         instr = Instructor.objects.create(
             user=temp,
             max_assignments=0
@@ -464,7 +471,7 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
-            phone_number='1234667890'
+            phone_number=1234667890
         )
         self.hold_ta = TA.objects.create(user=self.hold_user, grader_status=True)
         self.tempTA = TAObj(self.hold_ta)
@@ -474,7 +481,7 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
-            phone_number='1234567890'
+            phone_number=1234567890
         )
         hold_user.save()
         hold_admin = Administrator(user=hold_user)
@@ -506,7 +513,14 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
 
     def test_max_capacity_instr(self):
         User.delete(self.hold_user)
-        temp = User.objects.create(self.hold_user)
+        temp = User.objects.create(
+            email_address='kev@example.com',
+            password='kevpassword',
+            first_name='Kevin',
+            last_name='User',
+            home_address='123 Kevin St',
+            phone_number=1234667890
+        )
         ta = TA.objects.create(
             user=temp,
             max_assignments=0,
