@@ -232,7 +232,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
 
     def test_success(self):
         self.admin.editCourse(self.tempCourse, self.new_info)
-        self.assertEqual(self.new_info["description"], Course.objects.get(course_id=103))
+        self.assertEqual(self.new_info["description"], Course.objects.get(course_id=103).description)
 
     def test_bad_item_in_info(self):
         info = {"course_id": 103,

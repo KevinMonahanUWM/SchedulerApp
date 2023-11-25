@@ -107,7 +107,7 @@ class AdminObj(UserObj):
         except KeyError:  # No semester in list that is fine don't change the database
             active_course.database.semester = active_course.database.semester
         try:  # Name
-            if type(new_info.get("name")) is not str or len(new_info.get("name")) > 1000:
+            if type(new_info.get("name")) is not str or len(new_info.get("name")) > 100:
                 raise TypeError("name expects a string")
             if new_info.get("name") == '':
                 raise KeyError  # Should go to except section because if string
@@ -115,6 +115,37 @@ class AdminObj(UserObj):
             active_course.database.name = new_info.get("name")
         except KeyError:  # No name in list that is fine don't change the database
             active_course.database.name = active_course.database.name
+        try:  # Description
+            if type(new_info.get("description")) is not str or len(new_info.get("description")) > 1000:
+                raise TypeError("description expects a string")
+            if new_info.get("description") == '':
+                raise KeyError  # Should go to except section because if string
+                # is empty we don't replace the description with nothing
+            active_course.database.description = new_info.get("description")
+        except KeyError:  # No description in list that is fine don't change the database
+            active_course.database.description = active_course.database.description
+        try:  # num_of_sections
+            if type(new_info.get("num_of_sections")) is not int:
+                raise TypeError("num_of_sections expects an int")
+            active_course.database.num_of_sections = new_info.get("num_of_sections")
+        except KeyError:  # No num_of_sections in list that is fine don't change the database
+            active_course.database.num_of_sections = active_course.database.num_of_sections
+        try:  # modality
+            if type(new_info.get("modality")) is not str or len(new_info.get("modality")) > 100:
+                raise TypeError("modality expects a string")
+            if new_info.get("modality") == '':
+                raise KeyError  # Should go to except section because if string
+                # is empty we don't replace the modality with nothing
+            active_course.database.modality = new_info.get("modality")
+        except KeyError:  # No name in list that is fine don't change the database
+            active_course.database.modality = active_course.database.modality
+        try:  # credits
+            if type(new_info.get("credits")) is not int:
+                raise TypeError("credits expects an int")
+            active_course.database.credits = new_info.get("credits")
+        except KeyError:  # No credits in list that is fine don't change the database
+            active_course.database.credits = active_course.database.credits
+        active_course.database.save()
 
     def editSection(self, active_section, new_info):  # new inputs
         pass
