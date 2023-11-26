@@ -221,7 +221,7 @@ class SectionObj(abc.ABC):
 
     @abc.abstractmethod
     def getID(self):
-        pass
+        return self.section.section_id
 
     @abc.abstractmethod
     def getParentCourse(self):
@@ -239,28 +239,28 @@ class LectureObj(SectionObj):
         self.database = lecture_info
 
     def getID(self):
-        pass
+        return super().getID()
 
     def getParentCourse(self):
-        pass
+        return super().getID()
 
     def getLectureTAAsgmt(self):  # new
-        pass
+        return self.database.ta
 
     def addTA(self, active_ta):  # new
         pass
 
     def getLecInstrAsmgt(self):
-        pass
+        return self.database.instructor
 
     def addInstr(self, active_instr):
         pass
 
     def removeInstr(self):
-        pass
+        self.database.instructor = None
 
     def removeTA(self):  # new
-        pass
+        self.database.ta = None
 
 
 class LabObj(SectionObj):
@@ -274,16 +274,16 @@ class LabObj(SectionObj):
         self.database = lab_info
 
     def getID(self):
-        pass
+        return super().getID()
 
     def getParentCourse(self):
-        pass
+        return super().getID()
 
     def getLabTAAsgmt(self):
-        pass
+        return self.database.ta
 
     def addTA(self, active_ta):
         pass
 
     def removeTA(self):
-        pass
+        self.database.ta = None
