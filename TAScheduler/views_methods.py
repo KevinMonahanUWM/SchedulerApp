@@ -221,7 +221,7 @@ class SectionObj(abc.ABC):
 
     @abc.abstractmethod
     def getID(self):
-        return self.section.section_id
+        pass
 
     @abc.abstractmethod
     def getParentCourse(self):
@@ -239,10 +239,10 @@ class LectureObj(SectionObj):
         self.database = lecture_info
 
     def getID(self):
-        return super().getID()
+        return self.database.section.section_id
 
     def getParentCourse(self):
-        return super().getID()
+        return self.database.section.course
 
     def getLectureTAAsgmt(self):  # new
         return self.database.ta
@@ -274,10 +274,10 @@ class LabObj(SectionObj):
         self.database = lab_info
 
     def getID(self):
-        return super().getID()
+        return self.database.section.section_id
 
     def getParentCourse(self):
-        return super().getID()
+        return self.database.section.course
 
     def getLabTAAsgmt(self):
         return self.database.ta
