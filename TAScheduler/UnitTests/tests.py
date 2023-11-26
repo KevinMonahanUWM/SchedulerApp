@@ -1,7 +1,7 @@
 from django.test import TestCase
 from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, Instructor, InstructorToCourse, \
     TAToCourse, Lecture
-from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj, SectionObj, LectureObj
+from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj, LectureObj
 
 
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
@@ -23,10 +23,10 @@ class TestUserLogin(TestCase):  # Alec
 
     def test_login_valid_credentials(self):
         result = self.adminObj.login("test@example.com", "password123")
-        self.assertRedirects(result, '/home/', msg_prefix="login with vaild credentials failed to redirect to home")
+        self.assertRedirects(result, '/home/', msg_prefix="login with valid credentials failed to redirect to home")
 
     def test_login_invalid_credentials(self):
-        result = self.adminObj.login("test@example.com", "wrongpassword")
+        result = self.adminObj.login("test@example.com", "wrong_password")
         self.assertRedirects(result, '/', msg_prefix="incorrect password failed to redirect to login")
 
 
@@ -593,7 +593,7 @@ class TestAdminCourseInstrAssignment(TestCase):  # Kevin
         User.delete(self.hold_user)
         temp = User.objects.create(
             email_address='kev@example.com',
-            password='kevpassword',
+            password='kev_password',
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
@@ -677,7 +677,7 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
         User.delete(self.hold_user)
         temp = User.objects.create(
             email_address='kev@example.com',
-            password='kevpassword',
+            password='kev_password',
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
@@ -953,8 +953,8 @@ class TestAssignTALab(TestCase):
     # [1] Success TA->Lab
     def test_ExistLab(self):
         self.taObj.assignTALab(self.labList[0])
-        self.assertIn(self.taObj.database, Lab.objects.get(ta=self.taDB).ta
-                      , "Should have linked lab and TA together")
+        self.assertIn(self.taObj.database, Lab.objects.get(ta=self.taDB).ta,
+                      "Should have linked lab and TA together")
 
     # [2] Adding Lab not existing in DB
     def test_NotExistLab(self):
@@ -1052,9 +1052,9 @@ class TestTAGetTALabAssignments(TestCase):  # Kiran
 
     # [3] 1 lab "assignment" - not in db
     def test_1AssignmentNoExistLab(self):
-        tempSection = Section(section_id=102,
-                              course_id=self.courseDB)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
-        tempLab = Lab(section=tempSection, ta=self.taObj)
+        temp_section = Section(section_id=102,
+                               course_id=self.courseDB)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
+        temp_lab = Lab(section=temp_section, ta=self.taObj)
         self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="shouldn't assign non-existing lab")
 
     # [4] 1->0 lab Assignment
@@ -1275,7 +1275,7 @@ class TestInstructorInit(TestCase):
     def test_success(self):
         self.instrObj = InstructorObj(self.instructorDB)
         self.assertEqual(self.instrObj.database, self.instructorDB,
-                         msg="insrtuctor object should be saved in the database reference")
+                         msg="instructor object should be saved in the database reference")
 
 
 class TestInstructorHasMaxAssignments(TestCase):  # Kiran
@@ -1662,7 +1662,7 @@ class TestSectionGetID(TestCase):  # Joe
             section_id=1011,
             course=self.course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
         self.lab = LabObj(tmp_section)
 
@@ -1673,7 +1673,7 @@ class TestSectionGetID(TestCase):  # Joe
         tmp_section = Section.objects.create(
             course=self.course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
         self.lab = LabObj(tmp_section)
         self.assertIsNone(self.lab.getID(), "getID() returns an ID when none assigned")
@@ -1702,7 +1702,7 @@ class TestSectionGetParentCourse(TestCase):  # Joe
             section_id=1011,
             course=self.course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
         self.lab = LabObj(tmp_section)
 
@@ -1746,7 +1746,7 @@ class TestLabInit(TestCase):
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         self.tmp_lab = Lab.objects.create(
@@ -1784,7 +1784,7 @@ class TestLabGetLabTAAssignment(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         self.lab = Lab.objects.create(
@@ -1855,7 +1855,7 @@ class TestLabAddTA(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lab = Lab.objects.create(
@@ -1912,7 +1912,7 @@ class TestLabRemoveTA(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lab = Lab.objects.create(
@@ -1978,7 +1978,7 @@ class TestLectureInit(TestCase):
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         self.lecture = Lecture.objects.create(
@@ -2028,7 +2028,7 @@ class TestLectureGetLecInstrAssignment(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lec = Lecture.objects.create(
@@ -2095,7 +2095,7 @@ class TestLectureAddInstructor(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lec = Lecture.objects.create(
@@ -2168,7 +2168,7 @@ class TestLectureRemoveInstructor(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lec = Lecture.objects.create(
@@ -2237,7 +2237,7 @@ class TestLectureGetLecTAAssignment(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lec = Lecture.objects.create(
@@ -2311,7 +2311,7 @@ class TestLectureAddTA(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lec = Lecture.objects.create(
@@ -2378,7 +2378,7 @@ class TestLectureRemoveTA(TestCase):  # Joe
             section_id=1011,
             course=tmp_course,
             location="Cool place",
-            meeting_time=datetime.datetime
+            meeting_time="2000-1-1 12:00:00"
         )
 
         tmp_lec = Lecture.objects.create(
