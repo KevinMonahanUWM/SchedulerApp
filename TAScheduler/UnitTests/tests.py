@@ -6,13 +6,13 @@ from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, Instru
 
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
-# Rememeber: These methods were made before any coding (I was guessing) so it's likely they should be changed.
+# Remember: These methods were made before any coding (I was guessing) so it's likely they should be changed.
 
 class TestUserLogin(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -34,7 +34,7 @@ class TestUserGetID(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -52,7 +52,7 @@ class TestUserGetPassword(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -69,7 +69,7 @@ class TestUserGetName(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -86,7 +86,7 @@ class TestUserGetRole(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -105,7 +105,7 @@ class TestAdminInit(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -123,7 +123,7 @@ class TestAdminCreateCourse(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -132,13 +132,13 @@ class TestAdminCreateCourse(TestCase):  # Alec
         admin_model = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_model)
         self.course_info = {
-            "course_id":101,
-            "semester":'Fall 2023',
-            "name":'Intro to Testing',
-           " description":'A course about unit testing',
+            "course_id": 101,
+            "semester": 'Fall 2023',
+            "name": 'Intro to Testing',
+            "description": 'A course about unit testing',
             "num_of_sections": 3,
-            "modality":'Online',
-            "credits":4
+            "modality": 'Online',
+            "credits": 4
         }
 
     def test_create_course(self):
@@ -151,7 +151,7 @@ class TestAdminCreateUser(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpass",
+            password="admin_pass",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -179,7 +179,7 @@ class TestAdminCreateSection(TestCase):  # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
-            password="adminpassword",
+            password="admin_password",
             first_name="Admin",
             last_name="User",
             home_address="123 Admin Street",
@@ -228,7 +228,7 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
         self.tempCourse = CourseObj(self.hold_course)
         hold_user = User(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -261,7 +261,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
     def setUp(self):
         self.hold_user = User.objects.create(
             email_address='kev@example.com',
-            password='kevpassword',
+            password='kev_password',
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
@@ -271,7 +271,7 @@ class TestAdminRemoveAccount(TestCase):  # Kevin
         self.tempTA = TAObj(temp_ta)
         temp = User.objects.create(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -323,7 +323,7 @@ class TestAdminRemoveSection(TestCase):  # Kevin
         self.tempLab = LabObj(temp_lab)
         temp = User.objects.create(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -365,7 +365,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
         self.tempCourse = CourseObj(hold_course)
         hold_user = User(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -435,7 +435,7 @@ class TestAdminEditSection(TestCase):  # Kevin
         self.tempLab = LabObj(hold_lab)
         hold_user = User(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -477,7 +477,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
     def setUp(self):
         self.hold_user = User.objects.create(
             email_address='kev@example.com',
-            password='kevpassword',
+            password='kev_password',
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
@@ -487,7 +487,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
         self.tempTA = TAObj(temp_ta)
         hold_user = User(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -524,7 +524,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
             self.admin.editUser(self.tempTA, info)
 
 
-class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
+class TestAdminCourseInstrAssignment(TestCase):  # Kevin
     tempCourse = None
     tempInstr = None
     admin = None
@@ -545,7 +545,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
         self.tempCourse = CourseObj(self.hold_course)
         self.hold_user = User.objects.create(
             email_address='kev@example.com',
-            password='kevpassword',
+            password='kev_password',
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
@@ -555,7 +555,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
         self.tempInstr = InstructorObj(self.hold_instr)
         hold_user = User(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -576,12 +576,12 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
 
     def test_null_instr(self):
         User.delete(self.hold_user)
-        with self.assertRaises(RuntimeError, msg="Tried to link course to non existant user"):
+        with self.assertRaises(RuntimeError, msg="Tried to link course to non existent user"):
             self.admin.courseInstrAsmgt(self.tempInstr, self.tempCourse)
 
     def test_null_course(self):
         Course.delete(self.hold_course)
-        with self.assertRaises(RuntimeError, msg="Tried to link user to non existant course"):
+        with self.assertRaises(RuntimeError, msg="Tried to link user to non existent course"):
             self.admin.courseInstrAsmgt(self.tempInstr, self.tempCourse)
 
     def test_success_connect(self):
@@ -608,7 +608,7 @@ class TestAdminCourseInstrAsgmt(TestCase):  # Kevin
             self.admin.courseInstrAsmgt(temp_in, self.tempCourse)
 
 
-class TestAdminCourseTAAsgmt(TestCase):  # Kevin
+class TestAdminCourseTAAssignment(TestCase):  # Kevin
     tempCourse = None
     tempTA = None
     admin = None
@@ -629,7 +629,7 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
         self.tempCourse = CourseObj(self.hold_course)
         self.hold_user = User.objects.create(
             email_address='kev@example.com',
-            password='kevpassword',
+            password='kev_password',
             first_name='Kevin',
             last_name='User',
             home_address='123 Kevin St',
@@ -639,7 +639,7 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
         self.tempTA = TAObj(self.hold_ta)
         hold_user = User(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -660,12 +660,12 @@ class TestAdminCourseTAAsgmt(TestCase):  # Kevin
 
     def test_null_instr(self):
         User.delete(self.hold_user)
-        with self.assertRaises(RuntimeError, msg="Tried to link course to non existant user"):
+        with self.assertRaises(RuntimeError, msg="Tried to link course to non existent user"):
             self.admin.courseTAAsmgt(self.tempTA, self.tempCourse)
 
     def test_null_course(self):
         Course.delete(self.hold_course)
-        with self.assertRaises(RuntimeError, msg="Tried to link user to non existant course"):
+        with self.assertRaises(RuntimeError, msg="Tried to link user to non existent course"):
             self.admin.courseTAAsmgt(self.tempTA, self.tempCourse)
 
     def test_success_connect(self):
@@ -700,7 +700,7 @@ class TestTAInit(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -710,12 +710,12 @@ class TestTAInit(TestCase):
 
     def test_bad_input(self):
         with self.assertRaises(TypeError, msg='TA that was passed is not a valid TA'):
-            ta = TAObj(11)
+            TAObj(11)
 
     def test_null_ta(self):
         User.delete(self.user)
         with self.assertRaises(TypeError, msg='TA that was passed does not exist'):
-            ta = TAObj(self.ta_database)
+            TAObj(self.ta_database)
 
     def test_success(self):
         ta = TAObj(self.ta_database)
@@ -723,7 +723,7 @@ class TestTAInit(TestCase):
                          "TA object should be saved in the database reference")
 
 
-class TestTAHasMaxAsgmts(TestCase):  # Kiran
+class TestTAHasMaxAssignments(TestCase):  # Kiran
     taDB = None
     courseDB = None
     user = None  # for TA
@@ -733,7 +733,7 @@ class TestTAHasMaxAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -741,14 +741,14 @@ class TestTAHasMaxAsgmts(TestCase):  # Kiran
         )
         self.taDB = TA.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
-        tempUserForAdmin = User(email_address='admin@example.com',
-                                password='adminpassword',
-                                first_name='Admin',
-                                last_name='User',
-                                home_address='123 Admin St',
-                                phone_number='1234567890')
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address='admin@example.com',
+                                   password='admin_password',
+                                   first_name='Admin',
+                                   last_name='User',
+                                   home_address='123 Admin St',
+                                   phone_number='1234567890')
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         self.courseDB = Course.objects.create(
             course_id=101,
@@ -761,19 +761,19 @@ class TestTAHasMaxAsgmts(TestCase):  # Kiran
         )
 
     # 1] TA w/ 1 course assignment
-    def test_1Crse1MaxCap(self):
+    def test_1Course1MaxCap(self):
         TAToCourse.objects.create(ta=self.taDB, course=self.courseDB)  # assigning TA to course using db?
         self.assertEquals(self.taObj.hasMaxAsgmts(), True,
                           msg="TA has 1 max assignments & assigned 1 course: @ max cap")
 
-    # 2] TA w/ 0 course assignment
-    def test_0Crse1MaxCap(self):
+    # [2] TA w/ 0 course assignment
+    def test_0Course1MaxCap(self):
         self.assertEquals(self.taObj.hasMaxAsgmts(), False,
                           msg="TA has 1 max assignments & not assigned 1 course: not @ max cap")
 
-    # 3] TA w/ max cap -> no max assign
+    # [3] TA w/ max cap -> no max assign
     # using views method: I know bad practice but this is still a good test to ensure both method's working correctly
-    def test_origMaxCapToNoAsgn(self):
+    def test_origMaxCapToNoAssignment(self):
         TAToCourse.objects.create(ta=self.taDB, course=self.courseDB)
         self.adminObj.removeCourse(CourseObj(self.courseDB))
         self.assertEquals(self.taObj.hasMaxAsgmts(), False,
@@ -790,7 +790,7 @@ class TestTAAssignTACourse(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -811,31 +811,31 @@ class TestTAAssignTACourse(TestCase):  # Kiran
             ))
             self.courseList.append(Course(self.courseDBList[i]))  # ADDED FROM REVIEW!
 
-    # 1] Success TA->Course
+    # [1] Success TA->Course
     def test_ExistCourse(self):
         self.taObj.assignTACourse(self.courseList[0])
-        self.assertIn(self.courseDBList[0], TAToCourse.objects.filter(course=self.courseDBList[0], ta=self.taDB).course
-                      , "Should have linked course and TA together")
+        self.assertIn(self.courseDBList[0], TAToCourse.objects.filter(course=self.courseDBList[0], ta=self.taDB).course,
+                      "Should have linked course and TA together")
 
-    # 2] Adding Course not existing in DB
+    # [2] Adding Course not existing in DB
     def test_NotExistCourse(self):
-        tempCourse = CourseObj(Course(course_id=104, semester='Fall 2023',
-                                      name='Introduction to Testing',
-                                      description='A course about writing tests in Django.',
-                                      num_of_sections=3,
-                                      modality='Online',
-                                      credits=4))  # id =104, not 101,102,103
+        temp_course = CourseObj(Course(course_id=104, semester='Fall 2023',
+                                       name='Introduction to Testing',
+                                       description='A course about writing tests in Django.',
+                                       num_of_sections=3,
+                                       modality='Online',
+                                       credits=4))  # id =104, not 101,102,103
         with self.assertRaises(ValueError, msg="can't send in non existing course, i.e., course obj"):
-            self.taObj.assignTACourse(tempCourse)
+            self.taObj.assignTACourse(temp_course)
 
-    # 3] Adding duplicate course
+    # [3] Adding duplicate course
     def test_duplicateCourse(self):
         self.taObj.assignTACourse(self.courseList[0])
         with self.assertRaises(ValueError,
                                msg="violated integrity of database, can't assign a TA the same course twice"):
             self.taObj.assignTACourse(self.courseList[0])
 
-    # 4] Adding Course to TA @ maxcap
+    # [4] Adding Course to TA @ max capacity
     def test_OverCap(self):
         self.taObj.assignTACourse(self.courseList[0])
         self.taObj.assignTACourse(self.courseList[1])
@@ -843,7 +843,7 @@ class TestTAAssignTACourse(TestCase):  # Kiran
                                msg="can't assign courses when already reaches the max TA assignments"):
             self.taObj.assignTACourse(self.courseList[2])
 
-    # 5] Trying to add a non-course
+    # [5] Trying to add a non-course
     def test_NonCourse(self):
         invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
 
@@ -854,7 +854,7 @@ class TestTAAssignTACourse(TestCase):  # Kiran
                     self.taObj.assignTACourse(invalid_input)
 
 
-class TestTAGetTACrseAsgmts(TestCase):  # Kiran
+class TestTAGetTACourseAssignments(TestCase):  # Kiran
     taDB = None
     courseDB = None
     course = None
@@ -865,7 +865,7 @@ class TestTAGetTACrseAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -873,9 +873,9 @@ class TestTAGetTACrseAsgmts(TestCase):  # Kiran
         )
         self.taDB = TA.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
-        tempUserForAdmin = User(email_address="admin@example.com")
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address="admin@example.com")
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         self.courseDB = Course.objects.create(
             course_id=101,
@@ -888,16 +888,16 @@ class TestTAGetTACrseAsgmts(TestCase):  # Kiran
         )
         self.course = CourseObj(self.courseDB)
 
-    # 1] 1 assignment
+    # [1] 1 assignment
     def test_1Assignment(self):
         self.taObj.assignTACourse(self.course)
         self.assertEquals(self.taObj.getTACrseAsgmts(), 1, msg="should be 1 assigment")
 
-    # 2] 0 assignment
+    # [2] 0 assignment
     def test_0Assignment(self):
-        self.assertEquals(self.taObj.getTACrseAsgmts(), 0, msg="should be 0 assigments")
+        self.assertEquals(self.taObj.getTACrseAsgmts(), 0, msg="should be 0 assignments")
 
-    # 3] 1->0 Assignment
+    # [3] 1->0 Assignment
     # using views method: same reasons above^
     def test_1to0Assignment(self):
         self.taObj.assignTACourse(self.course)
@@ -917,7 +917,7 @@ class TestAssignTALab(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -950,26 +950,26 @@ class TestAssignTALab(TestCase):
             ))
             self.labList.append(LabObj(self.labDBList[i]))
 
-    # 1] Success TA->Lab
+    # [1] Success TA->Lab
     def test_ExistLab(self):
         self.taObj.assignTALab(self.labList[0])
         self.assertIn(self.taObj.database, Lab.objects.get(ta=self.taDB).ta
                       , "Should have linked lab and TA together")
 
-    # 2] Adding Lab not existing in DB
+    # [2] Adding Lab not existing in DB
     def test_NotExistLab(self):
-        tempLab = LabObj(Lab(section=self.sectionDBList[0]))  # created, not saved to db
+        temp_lab = LabObj(Lab(section=self.sectionDBList[0]))  # created, not saved to db
         with self.assertRaises(ValueError, msg="can't send in non existing lab, i.e., lab obj"):
-            self.taObj.assignTALab(tempLab)
+            self.taObj.assignTALab(temp_lab)
 
-    # 3] Adding duplicate lab: (don't know why this would happen but might as well test it :P)
+    # [3] Adding duplicate lab: (don't know why this would happen but might as well test it :P)
     def test_duplicateLab(self):
         self.taObj.assignTALab(self.labList[0])
         with self.assertRaises(ValueError,
                                msg="violated integrity of database, can't assign a TA the same lab twice"):
             self.taObj.assignTALab(self.labList[0])
 
-    # 4] Adding TA to Lab @ max cap
+    # [4] Adding TA to Lab @ max cap
     def test_OverCap(self):
         self.taObj.assignTALab(self.labList[0])
         self.taObj.assignTALab(self.labList[1])
@@ -977,7 +977,7 @@ class TestAssignTALab(TestCase):
                                msg="can't assign courses when already reaches the max TA assignments"):
             self.taObj.assignTALab(self.labList[2])
 
-    # 5] Trying to add a non-lab
+    # [5] Trying to add a non-lab
     def test_NonLab(self):
         invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
 
@@ -987,20 +987,21 @@ class TestAssignTALab(TestCase):
                 with self.assertRaises(ValueError, msg="Shouldn't be allowed to assign TA to non-course"):
                     self.taObj.assignTALab(invalid_input)
 
-    # 6] Assigning lab TA w/ grader status
+    # [6] Assigning lab TA w/ grader status
     def test_GraderStatus(self):
-        tempUser = User.objects.create(email_address='grader@gmail.com', password='TApassword',
-                                       first_name='TA',
-                                       last_name='User',
-                                       home_address='123 TA St',
-                                       phone_number='1234567890')  # HOPEFULLY DON'T NEED ALL FIELDS?
-        tempTa = TA.objects.create(user=tempUser, max_assignments=2, grader_status=True)  # new TA in db W/ GraderStatus
-        self.taObj = TAObj(tempTa)
+        temp_user = User.objects.create(email_address='grader@gmail.com', password='TA_password',
+                                        first_name='TA',
+                                        last_name='User',
+                                        home_address='123 TA St',
+                                        phone_number='1234567890')  # HOPEFULLY DON'T NEED ALL FIELDS?
+        temp_ta = TA.objects.create(user=temp_user, max_assignments=2,
+                                    grader_status=True)  # new TA in db W/ GraderStatus
+        self.taObj = TAObj(temp_ta)
         with self.assertRaises(RuntimeError, msg="TA can't assign to lab when grader"):
             self.taObj.assignTALab(self.labList[0])
 
 
-class TestTAGetTALabAsgmts(TestCase):  # Kiran
+class TestTAGetTALabAssignments(TestCase):  # Kiran
     taDB = None
     labDB = None
     lab = None
@@ -1011,7 +1012,7 @@ class TestTAGetTALabAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1019,9 +1020,9 @@ class TestTAGetTALabAsgmts(TestCase):  # Kiran
         )
         self.taDB = TA.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)
-        tempUserForAdmin = User(email_address="admin@example.com")  # HOPEFULLY OK W/O FIELDS?
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address="admin@example.com")  # HOPEFULLY OK W/O FIELDS?
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         # Course
         self.courseDB = Course.objects.create(
@@ -1040,23 +1041,23 @@ class TestTAGetTALabAsgmts(TestCase):  # Kiran
             meeting_time="mt" + str(1))
         # Lab - create assignments in the test.
 
-    # 1] 1 lab assignment
+    # [1] 1 lab assignment
     def test_1Assignment(self):
         Lab.objects.create(section_id=self.sectionDB, ta=self.taObj)  # creating assignment?
         self.assertEquals(self.taObj.getTALabAsgmts(), 1, msg="should be 1 assigment")
 
-    # 2] 0 lab assignment
+    # [2] 0 lab assignment
     def test_0Assignment(self):
-        self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="should be 0 assigments")
+        self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="should be 0 assignments")
 
-    # 3] 1 lab "assignment" - not in db
+    # [3] 1 lab "assignment" - not in db
     def test_1AssignmentNoExistLab(self):
         tempSection = Section(section_id=102,
                               course_id=self.courseDB)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
         tempLab = Lab(section=tempSection, ta=self.taObj)
         self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="shouldn't assign non-existing lab")
 
-    # 4] 1->0 lab Assignment
+    # [4] 1->0 lab Assignment
     # Using views method: I know not good practice but this is still a good check for both of the assign/remove methods.
     def test_1to0Assignment(self):
         self.taObj.assignTALab(self.labDB)
@@ -1076,7 +1077,7 @@ class TestAssignTALec(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1107,26 +1108,26 @@ class TestAssignTALec(TestCase):  # Kiran
                 Lecture.objects.create(section_id=self.sectionDBList[i]))  # HOPEFULLY FINE W/O FIELDS?
             self.lecList.append(LectureObj(self.lecDBList[i]))
 
-    # 1] Success TA->Lec
+    # [1] Success TA->Lec
     def test_ExistLLec(self):
         self.taObj.assignTALecture(self.lecList[0])
-        self.assertIn(self.taObj.database, Lecture.objects.get(ta=self.taDB).ta
-                      , "Should have linked lec and TA together")
+        self.assertIn(self.taObj.database, Lecture.objects.get(ta=self.taDB).ta,
+                      "Should have linked lec and TA together")
 
-    # 2] Adding Lec not existing in DB
+    # [2] Adding Lec not existing in DB
     def test_NotExistLec(self):
-        tempLec = LectureObj(Lecture(section=self.sectionDBList[0]))  # created, not saved to db
+        temp_lec = LectureObj(Lecture(section=self.sectionDBList[0]))  # created, not saved to db
         with self.assertRaises(ValueError, msg="can't send in non existing lecture, i.e., lecture obj"):
-            self.taObj.assignTALecture(tempLec)
+            self.taObj.assignTALecture(temp_lec)
 
-    # 3] Adding duplicate lec: (don't know why this would happen but might as well test it :P)
+    # [3] Adding duplicate lec: (don't know why this would happen but might as well test it :P)
     def test_duplicateLec(self):
         self.taObj.assignTALecture(self.lecList[0])
         with self.assertRaises(ValueError,
                                msg="violated integrity of database, can't assign a TA the same lec twice"):
             self.taObj.assignTALecture(self.lecList[0])
 
-    # 4] Adding TA to Lab @ max cap
+    # [4] Adding TA to Lab @ max cap
     def test_OverCap(self):
         self.taObj.assignTALecture(self.lecList[0])
         self.taObj.assignTALecture(self.lecList[1])
@@ -1134,7 +1135,7 @@ class TestAssignTALec(TestCase):  # Kiran
                                msg="can't assign courses when already reaches the max TA assignments"):
             self.taObj.assignTALecture(self.lecList[2])
 
-    # 5] Trying to add a non-lec.
+    # [5] Trying to add a non-lec.
     def test_NonLab(self):
         invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
         for invalid_input in invalid_inputs:
@@ -1143,16 +1144,16 @@ class TestAssignTALec(TestCase):  # Kiran
                 with self.assertRaises(ValueError, msg="Shouldn't be allowed to assign TA to non-course"):
                     self.taObj.assignTALecture(invalid_input)
 
-    # 6] Assigning lec TA w/o grader status
+    # [6] Assigning lec TA w/o grader status
     def test_GraderStatus(self):
-        tempUser = User.objects.create(email_address='grader@gmail.com')  # HOPEFULLY DON'T NEED ALL FIELDS?
-        tempTa = TA.objects.create(user=tempUser, max_assignments=2, grader_status=False)  # w/o GraderStatus
-        self.taObj = TAObj(tempTa)  # reassigning
+        temp_user = User.objects.create(email_address='grader@gmail.com')  # HOPEFULLY DON'T NEED ALL FIELDS?
+        temp_ta = TA.objects.create(user=temp_user, max_assignments=2, grader_status=False)  # w/o GraderStatus
+        self.taObj = TAObj(temp_ta)  # reassigning
         with self.assertRaises(ValueError, msg="TA can't assign to lec when grader"):
             self.taObj.assignTALecture(self.lecList[0])
 
 
-class TestTAGetTALecAsgmts(TestCase):  # Kiran
+class TestTAGetTALecAssignments(TestCase):  # Kiran
     taDB = None
     lecDB = None
     user = None  # for TA
@@ -1162,7 +1163,7 @@ class TestTAGetTALecAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1170,9 +1171,9 @@ class TestTAGetTALecAsgmts(TestCase):  # Kiran
         )
         self.taDB = TA.objects.create(user=self.user, max_assignments=1, grader_status=True)  # gs=T, max 1 assignment!
         self.taObj = TAObj(self.taDB)
-        tempUserForAdmin = User(email_address="admin@example.com")  # HOPEFULLY OK W/O FIELDS?
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address="admin@example.com")  # HOPEFULLY OK W/O FIELDS?
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         # Course
         self.courseDB = Course.objects.create(
@@ -1191,23 +1192,23 @@ class TestTAGetTALecAsgmts(TestCase):  # Kiran
             meeting_time="mt" + str(1))
         # Lecture - create assignments in the test.
 
-    # 1] 1 lect assignment
+    # [1] 1 lecture assignment
     def test_1Assignment(self):
         Lecture.objects.create(section_id=self.sectionDB, ta=self.taDB)  # creating assignment?
         self.assertEquals(self.taObj.getTALecAsgmts(), 1, msg="should be 1 assigment")
 
-    # 2] 0 lab assignment
+    # [2] 0 lab assignment
     def test_0Assignment(self):
-        self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="should be 0 assigments")
+        self.assertEquals(self.taObj.getTALabAsgmts(), 0, msg="should be 0 assignments")
 
-    # 3] 1 lab "assignment" - not in db
+    # [3] 1 lab "assignment" - not in db
     def test_1AssignmentNoExistLab(self):
-        tempSection = Section(section_id=102)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
-        tempLec = LectureObj(Lecture(section=tempSection))
-        self.taObj.assignTALecture(tempLec)
+        temp_section = Section(section_id=102)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
+        temp_lec = LectureObj(Lecture(section=temp_section))
+        self.taObj.assignTALecture(temp_lec)
         self.assertEquals(self.taObj.getTALecAsgmts(), 0, msg="shouldn't assign non-existing lecture")
 
-    # 4] 1->0 lab Assignment
+    # [4] 1->0 lab Assignment
     # Using views method: I know not good practice but this is still a good check for both of the assign/remove methods.
     def test_1to0Assignment(self):
         self.taObj.assignTALecture(self.lecDB)
@@ -1226,7 +1227,7 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
         for i in [1, 2]:
             self.userDBList.append(User.objects.create(
                 email_address='TA@example.com' + str(i),
-                password='TApassword',
+                password='TA_password',
                 first_name='TA',
                 last_name='User',
                 home_address='123 TA St',
@@ -1237,11 +1238,11 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
         self.taObj1 = TAObj(self.taDB1)  # grader
         self.taObj2 = TAObj(self.taDB2)  # non-grader
 
-    # 1] Getting nongrader status
+    # [1] Getting non-grader status
     def test_nonGraderStatus(self):
         self.assertEquals(self.taObj1.getGraderStatus(), True, msg="grader status ta should have true GS field")
 
-    # 2] Getting grader status
+    # [2] Getting grader status
     def test_graderStatus(self):
         self.assertEquals(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
 
@@ -1254,7 +1255,7 @@ class TestInstructorInit(TestCase):
     def setUp(self):
         self.user = User.objects.create(
             email_address='admin@example.com',
-            password='adminpassword',
+            password='admin_password',
             first_name='Admin',
             last_name='User',
             home_address='123 Admin St',
@@ -1277,7 +1278,7 @@ class TestInstructorInit(TestCase):
                          msg="insrtuctor object should be saved in the database reference")
 
 
-class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
+class TestInstructorHasMaxAssignments(TestCase):  # Kiran
     instrDB = None
     courseDB = None
     user = None  # for instructor
@@ -1287,7 +1288,7 @@ class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1295,9 +1296,9 @@ class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
         )
         self.instrDB = Instructor.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.instrObj = InstructorObj(self.instrDB)
-        tempUserForAdmin = User(email_address="admin@example.com")
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address="admin@example.com")
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         self.courseDB = Course.objects.create(
             course_id=101,
@@ -1309,20 +1310,20 @@ class TestInstructorHasMaxAsgmts(TestCase):  # Kiran
             credits=4
         )
 
-    # 1] Instr w/ 1 course assignment
-    def test_1Crse1MaxCap(self):
+    # [1] Instr w/ 1 course assignment
+    def test_1Course1MaxCap(self):
         InstructorToCourse.objects.create(instructor=self.instrDB, course=self.courseDB)
         self.assertEquals(self.instrObj.hasMaxAsgmts(), True,
                           msg="instructor has 1 max assignments & assigned 1 course: @ max cap")
 
-    # 2] Instr w/ 0 course assignment
-    def test_0Crse1MaxCap(self):
+    # [2] Instr w/ 0 course assignment
+    def test_0Course1MaxCap(self):
         self.assertEquals(self.instrObj.hasMaxAsgmts(), False,
                           msg="instructor has 1 max assignments & not assigned 1 course: not @ max cap")
 
-    # 3] Instr w/ max cap -> no max assign
+    # [3] Instr w/ max cap -> no max assign
     # using views method
-    def test_origMaxCapToNoAsgn(self):
+    def test_origMaxCapToNoAssignment(self):
         InstructorToCourse.objects.create(instructor=self.instrDB, course=self.courseDB)
         self.adminObj.removeCourse(
             CourseObj(self.courseDB))  # removing course SHOULD also remove this instructor's assignment
@@ -1340,7 +1341,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1361,27 +1362,27 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
             ))
             self.courseList.append(CourseObj(self.courseDBList[i]))
 
-    # 1] Success instructore->Course
+    # [1] Success instructor->Course
     def test_ExistCourse(self):
         self.instrObj.assignInstrCourse(self.courseList[0])
         self.assertIn(self.courseList[0].databaseReference,
-                      InstructorToCourse.objects.filter(course=self.courseDBList[0], instructor=self.instrDB).course
-                      , "Should have linked course and instructor together")
+                      InstructorToCourse.objects.filter(course=self.courseDBList[0], instructor=self.instrDB).course,
+                      "Should have linked course and instructor together")
 
-    # 2] Adding Course not existing in DB
+    # [2] Adding Course not existing in DB
     def test_NotExistCourse(self):
-        tempCourse = CourseObj(Course(course_id=102))  # not "101", which exists already
+        temp_course = CourseObj(Course(course_id=102))  # not "101", which exists already
         with self.assertRaises(ValueError, msg="can't send in non existing course, i.e., course obj"):
-            self.instrObj.assignInstrCourse(tempCourse)
+            self.instrObj.assignInstrCourse(temp_course)
 
-    # 3] Adding duplicate course: (don't know why this would happen but might as well test it :P)
+    # [3] Adding duplicate course: (don't know why this would happen but might as well test it :P)
     def test_duplicateCourse(self):
         self.instrObj.assignInstrCourse(self.courseList[0])
         with self.assertRaises(ValueError,
                                msg="violated integrity of database, can't assign a instructor the same course twice"):
             self.instrObj.assignInstrCourse(self.courseList[0])
 
-    # 4] Adding Course to instructor @ maxcap
+    # [4] Adding Course to instructor @ max capacity
     def test_OverCap(self):
         self.instrObj.assignInstrCourse(self.courseList[0])
         self.instrObj.assignInstrCourse(self.courseList[1])
@@ -1389,7 +1390,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
                                msg="can't assign courses when already reaches the max instructor assignments"):
             self.instrObj.assignInstrCourse(self.courseList[2])
 
-    # 5] Trying to add a non-course
+    # [5] Trying to add a non-course
     def test_NonCourse(self):
         invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
 
@@ -1400,7 +1401,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
                     self.instrObj.assignInstrCourse(invalid_input)
 
 
-class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
+class TestInstructorGetInstrCourseAssignments(TestCase):  # Kiran
     instrDB = None
     courseDB = None
     course = None
@@ -1411,7 +1412,7 @@ class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1419,9 +1420,9 @@ class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
         )
         self.instrDB = Instructor.objects.create(user=self.user, max_assignments=2)  # max 2 assignment!
         self.instrObj = InstructorObj(self.instrDB)  # creating TA object using TA in database
-        tempUserForAdmin = User(email_address="admin@example.com")
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address="admin@example.com")
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         self.courseDB = Course.objects.create(
             course_id=101,
@@ -1434,16 +1435,16 @@ class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
         )
         self.course = CourseObj(self.courseDB)
 
-    # 1] 1 assignment
+    # [1] 1 assignment
     def test_1Assignment(self):
         InstructorToCourse.objects.create(course_id=self.courseDB, ta=self.instrDB)  # creating assignment?
         self.assertEquals(self.instrObj.getInstrCrseAsgmts(), 1, msg="should be 1 assigment")
 
-    # 2] 0 assignment
+    # [2] 0 assignment
     def test_0Assignment(self):
-        self.assertEquals(self.instrObj.getInstrCrseAsgmts(), 0, msg="should be 0 assigments")
+        self.assertEquals(self.instrObj.getInstrCrseAsgmts(), 0, msg="should be 0 assignments")
 
-    # 3] 1->0 Assignment
+    # [3] 1->0 Assignment
     # using views methods: same reasoning given ^
     def test_1to0Assignment(self):
         self.instrObj.assignInstrCourse(self.course)
@@ -1463,7 +1464,7 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1493,26 +1494,26 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
             self.lecDBList.append(Lecture.objects.create(section_id=self.sectionDBList[i]))
             self.lecList.append(self.lecDBList[i])
 
-    # 1] Success Instructor->Lec
+    # [1] Success Instructor->Lec
     def test_ExistLec(self):
         self.instrObj.assignInstrLecture(self.lecList[0])
-        self.assertIn(self.instrObj.database, Lecture.objects.get(instructor=self.instrDB).instructor
-                      , "Should have linked lecture and instructor together")
+        self.assertIn(self.instrObj.database, Lecture.objects.get(instructor=self.instrDB).instructor,
+                      "Should have linked lecture and instructor together")
 
-    # 2] Adding Lecture not existing in DB
+    # [2] Adding Lecture not existing in DB
     def test_NotExistLec(self):
-        tempLec = LectureObj(Lecture(section=self.sectionDBList[0]))  # created, not saved to db
+        temp_lec = LectureObj(Lecture(section=self.sectionDBList[0]))  # created, not saved to db
         with self.assertRaises(ValueError, msg="can't send in non existing lecture, i.e., lecture obj"):
-            self.instrObj.assignInstrLecture(tempLec)
+            self.instrObj.assignInstrLecture(temp_lec)
 
-    # 3] Adding duplicate lecture: (don't know why this would happen but might as well test it :P)
+    # [3] Adding duplicate lecture: (don't know why this would happen but might as well test it :P)
     def test_duplicateLec(self):
         self.instrObj.assignInstrLecture(self.lecList[0])
         with self.assertRaises(ValueError,
                                msg="violated integrity of database, can't assign a instructor the same lecture twice"):
             self.instrObj.assignInstrLecture(self.lecList[0])
 
-    # 4] Adding Instructor to lecture @ max cap
+    # [4] Adding Instructor to lecture @ max cap
     def test_OverCap(self):
         self.instrObj.assignInstrLecture(self.lecList[0])
         self.instrObj.assignInstrLecture(self.lecList[1])
@@ -1520,7 +1521,7 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
                                msg="can't assign courses when already reaches the max TA assignments"):
             self.instrObj.assignInstrLecture(self.lecList[2])
 
-    # 5] Trying to add a non-lec
+    # [5] Trying to add a non-lec
     def test_NonLec(self):
         invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
 
@@ -1531,7 +1532,7 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
                     self.instrObj.assignInstrLecture(invalid_input)
 
 
-class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
+class TestInstructorGetInstrLecAssignments(TestCase):  # Kiran
     instrDB = None
     lecDB = None
     user = None  # for instructor
@@ -1541,7 +1542,7 @@ class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='TA@example.com',
-            password='TApassword',
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1549,9 +1550,9 @@ class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
         )
         self.instrDB = Instructor.objects.create(user=self.user, max_assignments=2)  # max 2 assignment!
         self.instrObj = InstructorObj(self.instrDB)
-        tempUserForAdmin = User(email_address="admin@example.com")  # HOPEFULLY OK W/O FIELDS?
-        tempAdmin = Administrator(user=tempUserForAdmin)
-        self.adminObj = AdminObj(tempAdmin)
+        temp_user_for_admin = User(email_address="admin@example.com")  # HOPEFULLY OK W/O FIELDS?
+        temp_admin = Administrator(user=temp_user_for_admin)
+        self.adminObj = AdminObj(temp_admin)
 
         # Course
         self.courseDB = Course.objects.create(
@@ -1571,24 +1572,24 @@ class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
         # Lecture
         self.lecDB = Lecture.objects.create(section_id=self.sectionDB)
 
-    # 1] 1 lecture assignment
+    # [1] 1 lecture assignment
     def test_1Assignment(self):
         Lecture.objects.create(section_id=self.sectionDB, ta=self.instrDB)  # creating assignment?
         self.assertEquals(self.instrObj.getInstrLecAsgmts(), 1, msg="should be 1 assigment")
 
-    # 2] 0 lab assignment
+    # [2] 0 lab assignment
     def test_0Assignment(self):
-        self.assertEquals(self.instrObj.getInstrLecAsgmts(), 0, msg="should be 0 assigments")
+        self.assertEquals(self.instrObj.getInstrLecAsgmts(), 0, msg="should be 0 assignments")
 
-    # 3] 1 lab "assignment" - not in db
+    # [3] 1 lab "assignment" - not in db
     def test_1AssignmentNoExistLab(self):
-        tempSection = Section(section_id=102)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
-        tempLec = LectureObj(Lecture(section=tempSection))
+        temp_section = Section(section_id=102)  # not "101", which exists already HOPEFULLY OK W/O ALL FIELDS?
+        temp_lec = LectureObj(Lecture(section=temp_section))
 
-        self.instrObj.assignInstrCourse(tempLec)
+        self.instrObj.assignInstrCourse(temp_lec)
         self.assertEquals(self.instrObj.getInstrLecAsgmts(), 0, msg="shouldn't assign non-existing lecture")
 
-    # 4] 1->0 lec Assignment
+    # [4] 1->0 lec Assignment
     def test_1to0Assignment(self):
         self.instrObj.assignInstrCourse(self.lecDB)
         self.adminObj.removeSection(self.lecDB)
@@ -1596,12 +1597,12 @@ class TestInstructorGetInstrLecAsgmts(TestCase):  # Kiran
 
 
 # don't think this is needed for our sprint 1?
-class TestInstructorLecTAAsmgt(TestCase):  # is this an instructor assigning a TA to a lecture?
+class TestInstructorLecTAAssignment(TestCase):  # is this an instructor assigning a TA to a lecture?
     pass
 
 
 # don't think this is needed for our sprint 1?
-class TestInstructorLabTAAsmgt(TestCase):  # is this an instructor assigning a TA to a lab?
+class TestInstructorLabTAAssignment(TestCase):  # is this an instructor assigning a TA to a lab?
     pass
 
 
@@ -1629,65 +1630,776 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
     pass
 
 
-class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
+class TestCourseGetAssignmentsForCourse(TestCase):  # Randall
     pass
 
 
-class TestCourseGetSectionsForCrse(TestCase):  # Randall
+class TestCourseGetSectionsForCourse(TestCase):  # Randall
     pass
 
 
-class TestCourseGetCrseInfo(TestCase):  # Randall
+class TestCourseGetCourseInfo(TestCase):  # Randall
     pass
 
 
 class TestSectionGetID(TestCase):  # Joe
-    pass
+    lab = None
+    course = None
+
+    def setUp(self):
+        self.course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+        self.course.save()
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=self.course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+        self.lab = LabObj(tmp_section)
+
+    def test_get_id(self):
+        self.assertEquals(self.lab.getID(), 1011, "getID() did not retrieve correct section_id")
+
+    def test_get_but_no_id(self):
+        tmp_section = Section.objects.create(
+            course=self.course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+        self.lab = LabObj(tmp_section)
+        self.assertIsNone(self.lab.getID(), "getID() returns an ID when none assigned")
+
+    # Maybe test for section_id = None, but I don't think section can be made without
 
 
 class TestSectionGetParentCourse(TestCase):  # Joe
-    pass
+    lab = None
+    course = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        self.course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+        self.course.save()
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=self.course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+        self.lab = LabObj(tmp_section)
+
+    def test_get_parent_course(self):
+        self.assertEquals(self.lab.getParentCourse(), self.course,
+                          "getParentCourse() did not retrieve correct course")
 
 
 class TestLabInit(TestCase):
-    pass
+    lab = None
+    info = None
+    tempLab = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        temp_user = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        self.tmp_lab = Lab.objects.create(
+            section=tmp_section,
+            ta=tmp_ta
+        )
+
+        self.lab = LabObj(self.tmp_lab)
+
+    def test_lab_make(self):
+        self.assertIsNotNone(self.lab, "__init__ failed in making Lab")
+
+    def test_bad_lab_make(self):
+        with self.assertRaises(TypeError, msg="__init__ failed in making Lab, bad input"):
+            LabObj(5)
 
 
-class TestLabGetLabTAAsgmt(TestCase):  # Joe
-    pass
+class TestLabGetLabTAAssignment(TestCase):  # Joe
+    lab = None
+    ta = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        self.lab = Lab.objects.create(
+            section=tmp_section
+        )
+
+    def test_get_ta(self):
+        temp = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+        temp.save()
+        self.ta = TA.objects.create(user=temp)
+        self.ta.save()
+
+        self.lab.ta = self.ta
+        self.lab.save()
+
+        self.labObj = LabObj(self.lab)  # Form lab after adding TA manually
+
+        self.assertEquals(
+            self.ta,
+            self.labObj.getLabTAAsgmt(),
+            "getLabTAAssignment() does not retrieve correct ta; Test may also be accepting wrong object")
+
+    def test_get_but_no_ta(self):
+        self.labObj = LabObj(self.lab)  # Form lab with no TA
+
+        self.assertIsNone(self.labObj.getLabTAAsgmt(), "getLabTAAssignment() finds something with no TA")
 
 
 class TestLabAddTA(TestCase):  # Joe
-    pass
+    lab = None
+    ta = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        temp_user = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        self.ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+        self.ta.save()
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lab = Lab.objects.create(
+            section=tmp_section,
+        )
+
+        self.lab = LabObj(tmp_lab)
+
+    def test_add_ta(self):
+        self.lab.addTA(TAObj(self.ta))
+        self.assertEquals(self.ta, self.lab.getLabTAAsgmt(),
+                          "addTA() does not add TA to lab")
+
+    def test_add_ta_but_full(self):
+        temp2 = User(email_address="test2@test.com", password="password2", first_name="first2", last_name="last2",
+                     home_address="Your mom's house", phone_number=1234567890)
+
+        temp_ta = TA.objects.create(user=temp2)
+        self.lab.addTA(TAObj(self.ta))
+        with self.assertRaises(RuntimeError, msg="Tried to add TA to full Lab"):
+            self.lab.addTA(TAObj(temp_ta))
 
 
 class TestLabRemoveTA(TestCase):  # Joe
-    pass
+    lab = None
+    ta = None
+
+    def setUp(self):
+        temp_user = User(
+            email_address="test@test.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lab = Lab.objects.create(
+            section=tmp_section,
+            ta=tmp_ta
+        )
+
+        self.lab = LabObj(tmp_lab)
+
+    def test_remove(self):
+        self.lab.removeTA()
+        self.assertIsNone(self.lab.getLabTAAsgmt(), "removeTA() does not remove TA from lab")
+
+    def test_none_to_remove(self):
+        self.lab.removeTA()
+        with self.assertRaises(RuntimeError, msg="Tried to remove TA when none in lab"):
+            self.lab.removeTA()
 
 
 class TestLectureInit(TestCase):
-    pass
+    lecture = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        temp_user = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        self.lecture = Lecture.objects.create(
+            section=tmp_section,
+            ta=tmp_ta,
+            instructor=tmp_instructor
+        )
+
+    def test_lecture_make(self):
+        self.assertIsNotNone(LectureObj(self.lecture), "__init__ failed in making Lecture")
+
+    def test_bad_lecture_make(self):
+        with self.assertRaises(TypeError, msg="__init__ failed in making Lecture: Type error"):
+            self.lecture = LectureObj(7)
 
 
-class TestLectureGetLecInstrAsgmt(TestCase):  # Joe
-    pass
+class TestLectureGetLecInstrAssignment(TestCase):  # Joe
+    instructor = None
+    lecture = None
+
+    def setUp(self):
+        temp_user = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lec = Lecture.objects.create(
+            section=tmp_section,
+            ta=tmp_ta
+        )
+
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        self.instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+        self.instructor.save()
+
+        self.lecture = LectureObj(tmp_lec)
+
+    def test_get_instructor(self):
+        self.lecture.addInstr(self.instructor)
+        self.assertEquals(self.instructor, self.lecture.getLecInstrAsmgt(),
+                          "getLecInstrAssignment() does not return correct")
+
+    def test_get_with_no_instructor(self):
+        self.assertIsNone(self.lecture.getLecInstrAsmgt(),
+                          "getLecInstrAssignment() Retrieved instructor when none exists")
 
 
 class TestLectureAddInstructor(TestCase):  # Joe
-    pass
+    lecture = None
+    instructor = None
+
+    def setUp(self):
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        self.instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+        self.instructor.save()
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lec = Lecture.objects.create(
+            section=tmp_section
+        )
+
+        self.info = {
+            "section", tmp_section,
+        }
+
+        self.lecture = LectureObj(tmp_lec)
+
+    def test_add_but_full(self):
+        self.lecture.addInstr(self.instructor)
+        with self.assertRaises(RuntimeError, msg="Tried to add Instructor to full lecture"):
+            self.lecture.addInstr(self.instructor)
+
+    def test_add(self):
+        self.lecture.addInstr(self.instructor)
+        self.assertEquals(
+            self.lecture.getLecInstrAsmgt(),
+            self.instructor,
+            "getLecInstrAssignment() Did not add instructor to lecture"
+        )
 
 
 class TestLectureRemoveInstructor(TestCase):  # Joe
-    pass
+    instructor = None
+    lecture = None
+
+    def setUp(self):
+        temp_user = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lec = Lecture.objects.create(
+            section=tmp_section,
+            ta=tmp_ta,
+            instructor=tmp_instructor
+        )
+
+        self.lecture = LectureObj(tmp_lec)
+
+    def test_none_to_remove(self):
+        self.lecture.removeInstr()
+        with self.assertRaises(RuntimeError, msg="removeInstr() Tried to remove from lecture with no instructor"):
+            self.lecture.removeInstr()
+
+    def test_remove(self):
+        self.lecture.removeInstr()
+        self.assertIsNone(self.lecture.getLecInstrAsmgt(), "removeInstr() did not remove from lecture")
 
 
-class TestLectureGetLecTAAsgmt(TestCase):  # Joe
-    pass
+class TestLectureGetLecTAAssignment(TestCase):  # Joe
+    ta = None
+    lecture = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        temp_user = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        self.ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+        self.ta.save()
+
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lec = Lecture.objects.create(
+            section=tmp_section,
+            ta=self.ta,
+            instructor=tmp_instructor
+        )
+
+        self.lecture = LectureObj(tmp_lec)
+
+    def test_get_ta_assignment(self):
+        self.assertEquals(
+            self.lecture.getLectureTAAsgmt(),
+            self.ta,
+            "getLectureTAAssignment() Retrieved incorrect TA from lecture"
+        )
+
+    def test_get_no_ta_assignment(self):
+        self.lecture.removeTA()
+        self.assertIsNone(
+            self.lecture.getLectureTAAsgmt(),
+            "getLectureTAAssignment() retrieved a TA from lecture when none exists"
+        )
 
 
 class TestLectureAddTA(TestCase):  # Joe
-    pass
+    ta = None
+    lecture = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        temp_user = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+        self.ta = TAObj(tmp_ta)
+
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lec = Lecture.objects.create(
+            section=tmp_section,
+            ta=self.ta,
+            instructor=tmp_instructor
+        )
+
+        self.lecture = LectureObj(tmp_lec)
+
+    def test_add(self):
+        self.lecture.addTA(self.ta)
+        self.assertEquals(self.lecture.getLectureTAAsgmt(), self.ta, "addTA() did not add correct TA to lecture")
+
+    def test_add_but_full(self):
+        self.lecture.addTA(self.ta)
+        with self.assertRaises(RuntimeError, msg="addTA() Tried to add to full lecture"):
+            self.lecture.addTA(self.ta)
 
 
 class TestLectureRemoveTA(TestCase):  # Joe
-    pass
+    lecture = None
+
+    # noinspection DuplicatedCode
+    def setUp(self):
+        temp_user = User(
+            email_address="test@ta.com",
+            password="password",
+            first_name="first",
+            last_name="last",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_ta = TA.objects.create(
+            user=temp_user,
+            grader_status=True
+        )
+
+        temp_user2 = User(
+            email_address="test@instructor.com",
+            password="password",
+            first_name="first_in",
+            last_name="last_in",
+            home_address="Your mom's house",
+            phone_number=1234567890
+        )
+
+        tmp_instructor = Instructor.objects.create(
+            user=temp_user2
+        )
+
+        tmp_course = Course.objects.create(
+            course_id=100,
+            semester="fall 2023",
+            name="testCourse",
+            description="test",
+            num_of_sections=3,
+            modality="online",
+            credits=3
+        )
+
+        tmp_section = Section.objects.create(
+            section_id=1011,
+            course=tmp_course,
+            location="Cool place",
+            meeting_time=datetime.datetime
+        )
+
+        tmp_lec = Lecture.objects.create(
+            section=tmp_section,
+            ta=tmp_ta,
+            instructor=tmp_instructor
+        )
+
+        self.info = {
+            "ta", tmp_ta,
+            "section", tmp_section,
+            "instructor", tmp_instructor
+        }
+
+        self.lecture = LectureObj(tmp_lec)
+
+    def test_none_to_remove(self):
+        self.lecture.removeTA()
+        with self.assertRaises(RuntimeError, msg="removeTA() Tried to remove from none from lecture"):
+            self.lecture.removeTA()
+
+    def test_remove(self):
+        self.lecture.removeTA()
+        self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
