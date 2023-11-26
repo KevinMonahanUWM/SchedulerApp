@@ -11,11 +11,11 @@ class UserObj(abc.ABC):
         try:
             user = User.objects.get(email=email_address)
         except User.DoesNotExist:
-            return redirect('/'), # display "Invalid username or password."
+            return False # display "Invalid username or password."
         user = authenticate(username=email_address, password=password)
         if user is not None:
-            return redirect('/home/'), None
-        return redirect('/'), # display "Invalid username or password."
+            return True
+        return False, # display "Invalid username or password."
 
     @abc.abstractmethod
     def getUsername(self):
@@ -49,7 +49,7 @@ class AdminObj(UserObj):
         self.admin_database = admin_info
 
     def getUsername(self):
-        self.UserObj.getUsername()
+        self.UserObj.getUsername(self)
 
     def getPassword(self):
         self.UserObj.getPassword()
