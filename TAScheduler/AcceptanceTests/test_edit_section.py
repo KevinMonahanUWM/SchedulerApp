@@ -26,7 +26,7 @@ class SuccessEdit(TestCase):
     # 1] Database reflects our input
     def test_DatabaseEditChange(self):
         secChanges = {"location": "Naboo"}  # probs need to send "all" fields
-        resp = self.client.post("home/managesection/edit", data={"section": self.secList[0], "edit": secChanges})
+        resp = self.client.post("home/managesection/edit", data={"section": self.secList[0], "edit": secChanges}) # MAYBE JUST ID not section
         dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)
         self.assertEquals(dbEditedSect["location"], "Naboo")
 
@@ -35,6 +35,9 @@ class SuccessEdit(TestCase):
         secChanges = {"location": "Naboo"}  # ^
         resp = self.client.post("home/managesection/edit", data={"section": self.secList[0], "edit": secChanges})
         self.assertEquals(resp.context["message"], "SUCCESSFULLY CHANGED INFORMATION")
+
+    # 3] Redirect to success page
+    # self.assertRedirect("success.html/", message:"Sucessfully editted Section")
 
 
 # AC2] - Unsuccessful (invalid changes)
@@ -60,8 +63,7 @@ class UnSuccessEdit(TestCase):
         self.assertEquals(resp.context["message"], "MISSING SECTION FIELDS")
 
     # add these if we're going to allow editing of lectures/labs.
-    # def test_NonExistantUserAsgmt(self):
-    # def test_NonExistantCourse(self):#
+    # def test_NonExistantCourse(self):
 
 
 # AC3] - Discard
@@ -85,17 +87,17 @@ class DiscardEdit(TestCase):
     def test_DataRestored(self):
         secChanges = {"location": "Naboo"}  # probs need to send "all" fields
         resp = self.client.post("home/managesection/edit",
-                                {"section": self.secList[0], "edit": secChanges, "discard_changes": 'Discard Changes'})
+                                {"section": self.secList[0], "edit": secChanges, "discard_changes": True})
         self.assertEquals(Section.objects.get(section_id= self.secList[0].section_id).location, "location1")
 
     # 2] Replace this with the specific URL when done
     def test_Redirected(self):
         resp = self.client.post("home/managesection/edit", {'discard_changes': 'Discard Changes'})
         self.assertEquals(resp.status_code, 302, msg="discarding changes should have redirected")
+        # self.assertRedirect("success.html/", message:"Discard")
 
-
-    # 3] probably replace the message.
-    def test_ConfirmationMsg(self):
-        pass
-        # going to fill this out later.
+    # # 3] probably replace the message.
+    # def test_ConfirmationMsg(self):
+    #     pass
+    #     # going to fill this out later.
 

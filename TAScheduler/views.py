@@ -103,21 +103,56 @@ class CreateSection(View):
             message = adminUser.createSection(secInfo)
             # WE DON'T HAVE SUCCESS URL OR SUCCESS HTML ATM.
             return render(request, "success.html", {"message": message})
+            # redirect?
         except:
             # WE DON'T HAVE ERROR URL OR ERROR HTML ATM.
             # NEED A WAY TO RETURN AN INFORMATIVE MESSAGE FROM THE CREATESECTION METHOD
             return render(request, "error.html", {"message": message})
+            # redirect?
 
 class DeleteSection(View):
 
     def get(self, request):
         return render(request, "sectionManagement/delete_section.html")
 
+    def post(self, request):
+        sectionObj = request.POST["section"]  # ASSUMING WE'RE RETURNING A SECTION OBJECT
+        discardBoolean = request.POST["discard"]
+
+        adminUser = request.session["user_object"]  # ASSUMING WE'RE STORING AdminObj IN SESSION AT THE LOGIN
+        if discardBoolean:
+            try:
+                message = adminUser.removeSection(sectionObj)
+                return render(request, "success.html", {"message": message})
+                #redirect?
+            except:
+                return render(request, "error.html", {"message": message})
+                # redirect?
+        else:
+            return render(request, "sectionManagement/delete_section.html", {"message": "Discarded Changes"})
+
 
 class EditSection(View):
 
     def get(self, request):
         return render(request, "sectionManagement/edit_section.html")
+
+    def post(self,request):
+        sectionObj = request.POST["section"]  # ASSUMING WE'RE RETURNING A SECTION OBJECT
+        editChanges = request.POST["edit"]
+        discardBoolean = request.POST["discard"]
+
+        adminUser = request.session["user_object"]  # ASSUMING WE'RE STORING AdminObj IN SESSION AT THE LOGIN
+        if discardBoolean:
+            try:
+                message = adminUser.editSection(sectionObj,editChanges)
+                return render(request, "success.html", {"message": message})
+                # redirect?
+            except:
+                return render(request, "error.html", {"message": message})
+                # redirect?
+        else:
+            return render(request, "sectionManagement/edit_section.html", {"message": "Discarded Changes"})
 
 
 class AddTAToSection(View):

@@ -21,18 +21,18 @@ class SuccessDelete(TestCase):
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
             self.secList = self.secList.append(testSection)
-        # insert lab/lecs from "class Create" if needed ...
+        # insert lab/lecs from "section class Create" if needed ...
 
     # 1] Section not found in the section list
     def test_CorrectDelete(self):
-        resp = self.client.post("home/managesection/delete", data={"section": self.secList[0]})
+        resp = self.client.post("home/managesection/delete", data={"section": self.secList[0]}) # MAYBE JUST ID not section
         self.assertNotIn(self.secList[0], Section.objects.all,
                          msg="The 1st section should no longer be in the database.")
 
     # 2] Number of sections should have decreased if deleted properly
     def test_CorrectNumSec(self):
         oldNumSecs = Section.objects.count()
-        resp = self.client.post("home/managesection/delete", data={"section": self.secList[0]})
+        resp = self.client.post("home/managesection/delete", data={"section": self.secList[0]}) # MAYBE JUST ID not section
         newNumSecs = Section.objects.count()
         self.assertEquals(newNumSecs, oldNumSecs - 1,
                           msg="deleting a section should have decremented the number of sections in the database.")
@@ -46,7 +46,7 @@ class SuccessDelete(TestCase):
 class FailDelete(TestCase):
     def setUp(self):
         self.client = Client()
-        self.courseList = list()  # holding list of test courses so easier to call later
+        self.courseList = list()
         self.secList = list()
         # Creating 3 Courses: hardcoded "numSec","modality","credits"
         for i in [1, 2, 3]:

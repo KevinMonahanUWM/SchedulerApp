@@ -20,20 +20,20 @@ class Create(TestCase):
         self.client = Client()
         self.courseList = list()  # holding list of test courses so easier to call later
         self.secList = list()
-        for i in [1, 2, 3]: # Creating 3 Courses: hardcoded "numSec","modality","credits"
+        for i in [1, 2, 3]:  # Creating 3 Courses: hardcoded "numSec","modality","credits"
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
                                 modality="Remote", credts=3, )
             testCourse.save()
             self.courseList = self.courseList.append(testCourse)
-        for i in [1, 2, 3]: # Creating 3 Sections: hardcoded "meetingTime"
+        for i in [1, 2, 3]:  # Creating 3 Sections: hardcoded "meetingTime"
             testSection = Section(section_id=i, course=self.courseList[i - 1], location="location" + str(i),
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
             self.secList = self.secList.append(testSection)
-        self.lec1 = Lecture(section=self.secList[0]).save #I probs don't need these, but they're here for later
-        self.lab1 = Lab(section=self.secList[0]).save # Course1: Lecture + Lab
-        self.lec2 = Lecture(section=self.secList[1]).save # Course2: Lecture
-        self.lab2 = Lab(sectoin=self.secList[2]) # Course3: Lab
+        self.lec1 = Lecture(section=self.secList[0]).save  # I probs don't need these, but they're here for later
+        self.lab1 = Lab(section=self.secList[0]).save  # Course1: Lecture + Lab
+        self.lec2 = Lecture(section=self.secList[1]).save  # Course2: Lecture
+        self.lab2 = Lab(sectoin=self.secList[2])  # Course3: Lab
         # For user's input ...
         self.lecInfo = {"section_id": 4, "course": self.courseList[2], "location": "location" + 4,
                         "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "secType": "Lecture"}
@@ -68,11 +68,13 @@ class Create(TestCase):
     def test_RedirectLecture(self):
         resp = self.client.post("home/managecourse/create", data=self.lecInfo)
         self.assertEqual(resp.status_code, 302, "Should have redirected upon successful lecture creation")
+        # self.assertRedirect("success.html/", message:"successfully created lecture")
 
     # 6] Redirect for Lab
     def test_RedirectLab(self):
         resp = self.client.post("home/managecourse/create", data=self.labInfo)
         self.assertEqual(resp.status_code, 302, "Should have redirected upon successful lab creation")
+        # self.assertRedirect("success.html/", message:"successfully created lab")
 
 
 # AC2] - Duplicate Section (not unique in the database)
@@ -128,12 +130,15 @@ class NoCreateDupeSec(TestCase):
     def test_NoRedirectLec(self):
         resp = self.client.post("home/managecourse/create", data=self.dupedLecIDInfo)
         self.assertEqual(resp.status_code, 200, "Should not have redirected upon successful lab creation")
+        # self.assertRedirect("error.html/", message:"Can't create duplicate lecture")
 
     # 6] Redirect for Lab - CHANGE to "self.assertRedirects" WHEN CORRECT URL ADDED!
     def test_NoRedirectLab(self):
         resp = self.client.post("home/managecourse/create", data=self.dupedLabIDInfo)
         self.assertEqual(resp.status_code, 200, "Should not have redirected upon successful lab creation")
+        # self.assertRedirect("error.html/", message:"Can't create duplicate lab")
 
+    # PROBABLY NEED TO CHECK Section.objects.filter(self.secList[2]) isn't changed too
 
 # AC3] - Nonexistant Course
 class NonexistantCourse(TestCase):
@@ -163,7 +168,7 @@ class NonexistantCourse(TestCase):
         resp = self.client.post("home/managecourse/create", data=self.badCrsIDLecInfo)
         self.assertEquals(resp.context["message"], "BAD HOST COURSE ID: COURSE DOES NOT EXIST",
                           msg="can't instantiate lecture already existing")
-#
+
     # 2] No DB Change: # of secs same ("adding" lec)
     def test_NoDBChangeNoExistCourse(self):
         oldNumSecs = Section.objects.count()
@@ -171,11 +176,16 @@ class NonexistantCourse(TestCase):
         newNumSecs = Section.objects.count()
         self.assertEquals(oldNumSecs, newNumSecs,
                           msg="adding bad host couse ID'ed lecture shouldn't have incremented number of secs")
+
     # 3] No redirect
     def test_NoRedirectLec(self):
         resp = self.client.post("home/managecourse/create", data=self.badCrsIDLecInfo)
         self.assertEqual(resp.status_code, 200, "Should not have redirected upon successful lec creation")
+        # self.assertRedirect("error.html/", message:"BAD HOST COURSE ID")
 
-
-    # 3] repeat 1] for lab#
+    # 3] repeat 1] for lab
     # 4] repeat 2] for lab
+    # 5] repeat 3] for lab
+
+    # PROBABLY NEED TO CHECK Section.objects.filter(self.secList[2]) isn't changed too
+
