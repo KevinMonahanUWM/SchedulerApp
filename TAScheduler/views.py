@@ -86,6 +86,28 @@ class CreateSection(View):
         return render(request, "sectionManagement/create_section.html")
 
 
+    def post(self, request):
+        section_id = request.POST.get('section_id')
+        course_id = request.POST.get('course_id')
+        section_type = request.POST.get('section_type')
+        location = request.POST.get('location')
+        meeting_time = request.POST.get('meeting_time')
+        secInfo = {'section_id': section_id, 'course_id': course_id,
+                   'section_type': section_type, 'location': location, 'meeting_time': meeting_time}
+
+        adminUser = request.session["user_object"]  # ASSUMING WE'RE STORING AdminObj IN SESSION AT THE LOGIN
+        try:
+            # ASSUMING .createSection() WILL HANDLE ALL THE BAD INPUT.
+            # WE'RE GOING TO NEED TO ADJUST ALL OUR MESSAGES TO RETURN MESSAGES NOT JUST THROW EXCEPTIONS
+            # ... UNLESS MAKE CUSTOM EXCEPTIONS AND CHECK FOR THOSE HERE?
+            message = adminUser.createSection(secInfo)
+            # WE DON'T HAVE SUCCESS URL OR SUCCESS HTML ATM.
+            return render(request, "success.html", {"message": message})
+        except:
+            # WE DON'T HAVE ERROR URL OR ERROR HTML ATM.
+            # NEED A WAY TO RETURN AN INFORMATIVE MESSAGE FROM THE CREATESECTION METHOD
+            return render(request, "error.html", {"message": message})
+
 class DeleteSection(View):
 
     def get(self, request):
