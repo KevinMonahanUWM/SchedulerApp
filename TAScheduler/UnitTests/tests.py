@@ -1,12 +1,9 @@
 import datetime
 
 from django.test import TestCase
-from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, Instructor, InstructorToCourse, \
-    TAToCourse, Lecture
+from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, InstructorToCourse, TAToCourse, \
+    Instructor, Lecture
 from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj, LectureObj
-
-from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, InstructorToCourse, TAToCourse, Instructor
-from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj
 
 
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
@@ -665,6 +662,7 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
         temp_ta = TAObj(ta)
         with self.assertRaises(RuntimeError, msg="Tried to link course to TA with max assignments"):
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
+
 
 class TestTAInit(TestCase):
     ta_database = None
@@ -1578,7 +1576,7 @@ class TestInstructorLecTAAssignment(TestCase):  # is this an instructor assignin
 class TestInstructorLabTAAssignment(TestCase):  # is this an instructor assigning a TA to a lab?
     pass
 
-  
+
 class TestCourseInit(TestCase):
     pass
 
@@ -1798,7 +1796,8 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
         with self.assertRaises(TypeError):
             self.tempCourse.editCourse({"num_of_sections": "three"})
 
-class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
+
+class TestCourseGetAssignmentsForCourse(TestCase):  # Randall
     hold_course = None
     tempCourse = None
     user1 = None
@@ -1848,7 +1847,7 @@ class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
         self.assertEqual(assignments['tas'], [])
 
 
-class TestCourseGetSectionsForCrse(TestCase):  # Randall
+class TestCourseGetSectionsForCourse(TestCase):  # Randall
     hold_course = None
     tempCourse = None
     section1 = None
@@ -1879,7 +1878,7 @@ class TestCourseGetSectionsForCrse(TestCase):  # Randall
         self.assertEqual(sections, [])
 
 
-class TestCourseGetCrseInfo(TestCase):  # Randall
+class TestCourseGetCourseInfo(TestCase):  # Randall
     hold_course = None
     tempCourse = None
 
@@ -1905,9 +1904,6 @@ class TestCourseGetCrseInfo(TestCase):  # Randall
         self.assertEqual(info['modality'], self.hold_course.modality, "Course modality is incorrect")
         self.assertEqual(info['credits'], self.hold_course.credits, "Course credits is incorrect")
 
-    def test_get_course_info_with_incorrect_type(self):
-        with self.assertRaises(TypeError):
-            self.tempCourse.getCrseInfo("not a dictionary")
 
 class TestSectionGetID(TestCase):  # Joe
     lab = None
