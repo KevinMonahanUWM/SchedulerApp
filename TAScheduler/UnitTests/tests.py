@@ -997,7 +997,7 @@ class TestInstructorLabTAAsmgt(TestCase):  # is this an instructor assigning a T
     pass
 
 
-class TestCourseInit(TestCase):
+class TestCourseInit(TestCase):#
     pass
 
 

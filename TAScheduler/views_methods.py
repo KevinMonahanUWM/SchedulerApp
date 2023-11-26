@@ -134,7 +134,7 @@ class TAObj(UserObj):
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
         TAToCourse(course=courseDB,ta=self.ta_database).save()  # Assign the course? Is that it?
-
+#
     def assignTALab(self, active_lab): 
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
