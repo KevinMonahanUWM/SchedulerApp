@@ -183,7 +183,7 @@ class TestCourseAddInstructor(TestCase):  # Randall
             phone_number='1234567891'
         )
         self.instructor_model = Instructor.objects.create(
-            user=self.instructor_user)  # Create an Instructor model instance
+            user=self.instructor_user, max_assignments=1)  # Create an Instructor model instance
         self.instructor = InstructorObj(self.instructor_model)  # Wrap it with InstructorObj
 
     def test_add_instructor(self):
@@ -196,15 +196,21 @@ class TestCourseAddInstructor(TestCase):  # Randall
         ).exists()
         self.assertTrue(instructor_to_course_exists, "Instructor was not added to the course")
 
-    def test_add_instructor_max_assignments(self):
-        self.instructor.setMaxAssignments(0)  # Assuming max assignments are now full
-        with self.assertRaises():
+    def test_add_instructor_at_max_assignments(self):
+        self.instructor_model.max_assignments = 0
+        self.instructor_model.save()
+        with self.assertRaises(ValueError):
             self.tempCourse.addInstructor(self.instructor)
 
-    def test_add_incorrect_object_as_instructor(self):
-        fake_object = TAObj()
-        with self.assertRaises(TypeError):
-            self.tempCourse.addInstructor(fake_object)
+    def test_add_instructor_to_full_course(self):
+        # Assuming all sections already have an instructor assigned
+        with self.assertRaises(ValueError):
+            self.tempCourse.addInstructor(self.instructor)
+
+    def test_add_unsaved_instructor(self):
+        unsaved_instructor = Instructor(user=self.instructor_user)  # Not saved
+        with self.assertRaises(AssertionError):
+            self.tempCourse.addInstructor(unsaved_instructor)
 
 
 class TestCourseAddTA(TestCase):  # Randall
@@ -242,16 +248,22 @@ class TestCourseAddTA(TestCase):  # Randall
         ).exists()
         self.assertTrue(ta_to_course_exists, "TA was not added to the course")
 
-    def test_add_instructor_max_assignments(self):
-        # Set max assignments for the instructor to 0
-        self.TA.setMaxAssignments(0)  # Implement this method in InstructorObj
-        with self.assertRaises():
-            self.tempCourse.addTa(self.TA)
+    def test_add_ta_at_max_assignments(self):
+        self.ta.max_assignments = 0  # Assume max assignments are now full
+        self.ta.save()
+        with self.assertRaises(ValueError):  # Replace with the actual exception you expect
+            self.tempCourse.addTa(self.ta)
 
-    def test_add_incorrect_object_as_TA(self):
-        fake_object = InstructorObj()
-        with self.assertRaises(TypeError):
-            self.tempCourse.addTA(fake_object)
+    def test_add_ta_to_full_course(self):
+        # Assuming all sections already have TAs assigned or the course has reached its TA limit
+        with self.assertRaises(ValueError):
+            self.tempCourse.addTa(self.ta)
+
+    def test_add_unsaved_ta(self):
+        unsaved_ta = TA(user=self.ta_user)  # Not saved
+        unsaved_ta_obj = TAObj(unsaved_ta)  # Wrap it with TAObj but do not save
+        with self.assertRaises(AssertionError):
+            self.tempCourse.addTa(unsaved_ta_obj)
 
 
 class TestCourseRemoveAssignment(TestCase):  # Randall
@@ -283,13 +295,17 @@ class TestCourseRemoveAssignment(TestCase):  # Randall
 
         self.ta = TA.objects.create(user=self.ta_user, grader_status=False)
         self.ta_obj = TAObj(self.ta)
+        self.tempCourse.addInstructor(self.ta_obj)
+        self.tempCourse.removeAssignment(self.ta_obj)
+        self.tempCourse.addTa(self.ta_obj)
+        self.tempCourse.removeAssignment(self.ta_obj)
 
     def test_remove_assignment(self):
         self.tempCourse.removeAssignment(self.ta_obj)
         # Check if the assignment (user) was removed from the course
         assignments = self.tempCourse.getAsgmtsForCrse()
         self.assertNotIn(self.ta_obj, assignments, "User was not removed from the course assignments")
-        self.assertTrue(self._obj not in assignments or assignments is None, "Tried to remove TA with no assignments")
+        self.assertTrue(self.ta_obj not in assignments or assignments is None, "Tried to remove TA with no assignments")
 
 
 class TestCourseRemoveCourse(TestCase):  #
@@ -350,6 +366,10 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
         with self.assertRaises(ValueError):
             self.tempCourse.editCourse(incorrect_info)
 
+    def test_edit_course_with_incorrect_types(self):
+        with self.assertRaises(TypeError):
+            self.tempCourse.editCourse({"num_of_sections": "three"})
+
 
 class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
     hold_course = None
@@ -386,11 +406,19 @@ class TestCourseGetAsgmtsForCrse(TestCase):  # Randall
             phone_number='1234567893'
         )
 
+        self.tempCourse.addInstructor(self.user1)
+        self.tempCourse.addInstructor(self.user2)
+
     def test_get_assignments_for_course(self):
         assignments = self.tempCourse.getAsgmtsForCrse()
         # Assertions to verify the correct assignments are returned
         self.assertIn(self.user1, assignments, "User1 is not in the course assignments")
         self.assertIn(self.user2, assignments, "User2 is not in the course assignments")
+
+    def test_no_assignments(self):
+        assignments = self.tempCourse.getAsgmtsForCrse()
+        self.assertEqual(assignments['instructors'], [])
+        self.assertEqual(assignments['tas'], [])
 
 
 class TestCourseGetSectionsForCrse(TestCase):  # Randall
@@ -419,6 +447,10 @@ class TestCourseGetSectionsForCrse(TestCase):  # Randall
         self.assertIn(self.section1, sections, "Section1 is not in the course sections")
         self.assertIn(self.section2, sections, "Section2 is not in the course sections")
 
+    def test_no_sections(self):
+        sections = self.tempCourse.getSectionsCrse()
+        self.assertEqual(sections, [])
+
 
 class TestCourseGetCrseInfo(TestCase):  # Randall
     hold_course = None
@@ -445,6 +477,10 @@ class TestCourseGetCrseInfo(TestCase):  # Randall
         self.assertEqual(info['num_of_section'], self.hold_course.num_of_sections, "Course section is incorrect")
         self.assertEqual(info['modality'], self.hold_course.modality, "Course modality is incorrect")
         self.assertEqual(info['credits'], self.hold_course.credits, "Course credits is incorrect")
+
+    def test_get_course_info_with_incorrect_type(self):
+        with self.assertRaises(TypeError):
+            self.tempCourse.getCrseInfo("not a dictionary")
 
 
 class TestSectionGetID(TestCase):  # Joe
