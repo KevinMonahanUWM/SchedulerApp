@@ -81,7 +81,7 @@ class AdminObj(UserObj):
         if role.lower() == 'administrator':
             Administrator.objects.create(user=new_user)
         elif role.lower() == 'ta':
-            TA.objects.create(user=new_user)
+            TA.objects.create(user=new_user, grader_status=False)
         elif role.lower() == 'instructor':
             Instructor.objects.create(user=new_user)
         return new_user
