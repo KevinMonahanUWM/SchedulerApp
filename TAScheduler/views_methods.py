@@ -196,28 +196,53 @@ class CourseObj:
     def addInstructor(self, active_instr):
         if not isinstance(active_instr, InstructorObj):
             raise TypeError("active_instr is not an instance of InstructorObj")
-        if InstructorToCourse.objects.filter(course=self.course_database).count() >= self.course_database.max_instructors:
-            raise ValueError("This course has reached the maximum number of instructors")
+        if not active_instr.instr_database.user_id:
+            raise ValueError("Instructor must have a valid user associated")
+
+        if InstructorToCourse.objects.filter(instructor=active_instr.instr_database,
+                                             course=self.course_database).exists():
+            raise ValueError("Instructor is already assigned to this course")
+
         if InstructorToCourse.objects.filter(
-                instructor=active_instr.database).count() >= active_instr.database.max_assignments:
+                instructor=active_instr.instr_database).count() >= active_instr.instr_database.max_assignments:
             raise ValueError("Instructor has reached the maximum number of course assignments")
-        InstructorToCourse.objects.create(instructor=active_instr.database, course=self.course_database)
+
+        if InstructorToCourse.objects.filter(
+                course=self.course_database).count() >= self.course_database.num_of_sections:
+            raise ValueError(
+                "This course has reached the maximum number of instructors based on the number of sections")
+        if not Instructor.objects.filter(id=active_instr.instr_database.id).exists():
+            raise ValueError("Instructor must be saved in the database before being assigned to a course")
+
+        InstructorToCourse.objects.create(instructor=active_instr.instr_database, course=self.course_database)
 
     def addTa(self, active_ta):
         if not isinstance(active_ta, TAObj):
             raise TypeError("active_ta is not an instance of TAObj")
-        if TAToCourse.objects.filter(course=self.course_database).count() >= self.course_database.max_tas:
-            raise ValueError("This course has reached the maximum number of TAs")
-        if TAToCourse.objects.filter(ta=active_ta.database).count() >= active_ta.database.max_assignments:
+
+        if TAToCourse.objects.filter(ta=active_ta.ta_database, course=self.course_database).exists():
+            raise ValueError("TA is already assigned to this course")
+
+        if TAToCourse.objects.filter(ta=active_ta.ta_database).count() >= active_ta.ta_database.max_assignments:
             raise ValueError("TA has reached the maximum number of course assignments")
-        TAToCourse.objects.create(ta=active_ta.database, course=self.course_database)
+
+        if TAToCourse.objects.filter(course=self.course_database).count() >= self.course_database.num_of_sections:
+            raise ValueError("This course has reached the maximum number of TAs based on the number of sections")
+
+        TAToCourse.objects.create(ta=active_ta.ta_database, course=self.course_database)
 
     def removeAssignment(self, active_user):
         # to implement a way to determine if a user is a TA or Instructor
         if isinstance(active_user, InstructorObj):
-            InstructorToCourse.objects.filter(course=self.course_database, instructor=active_user.database).delete()
+            InstructorToCourse.objects.filter(
+                course=self.course_database,
+                instructor=active_user.instr_database  # Corrected attribute name
+            ).delete()
         elif isinstance(active_user, TAObj):
-            TAToCourse.objects.filter(course=self.course_database, ta=active_user.database).delete()
+            TAToCourse.objects.filter(
+                course=self.course_database,
+                ta=active_user.ta_database  # Corrected attribute name
+            ).delete()
         else:
             raise TypeError("The active_user must be an instance of InstructorObj or TAObj")
 
@@ -231,17 +256,19 @@ class CourseObj:
         self.course_database.save()
 
     def getAsgmtsForCrse(self):
+        instructor_assignments = InstructorToCourse.objects.filter(course=self.course_database)
+        ta_assignments = TAToCourse.objects.filter(course=self.course_database)
         return {
-            'instructors': list(self.course_database.instructortocourse_set.all()),
-            'tas': list(self.course_database.tatocourse_set.all())
+            'instructors': list(instructor_assignments),
+            'tas': list(ta_assignments)
         }
 
     def getSectionsCrse(self):
-        return list(self.course_database.section_set.all())
+        return list(Section.objects.filter(course=self.course_database))
 
     def getCrseInfo(self):
         return {
-            'course_id': self.course_database.id,
+            'course_id': self.course_database.course_id,
             'semester': self.course_database.semester,
             'name': self.course_database.name,
             'description': self.course_database.description,
