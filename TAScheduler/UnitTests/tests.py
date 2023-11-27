@@ -35,6 +35,16 @@ class TestUserLogin(TestCase): # Alec
         # Assuming the login method returns False for invalid credentials
         result = self.adminObj.login("admin@example.com", "wrongpassword")
         self.assertFalse(result, "login with invalid credentials should fail but didn't")
+
+    def test_login_wrong_username(self):
+        print("Testing with wrong email: wrong@example.com, correct password: adminpass")
+        result = self.adminObj.login("wrong@example.com", "adminpass")
+        self.assertFalse(result, "login with wrong username and correct password should fail but didn't")
+
+    def test_login_no_input(self):
+        print("Testing with no email and no password")
+        result = self.adminObj.login("", "")
+        self.assertFalse(result, "login with no credentials should fail but didn't")
 class TestUserGetUsername(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
