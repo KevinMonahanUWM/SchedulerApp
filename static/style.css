@@ -1,0 +1,25 @@
+
+.successBorder {
+  border: 1px solid green;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.successTD {
+  font-weight: bold;
+  color: green;
+}
+
+
+.errorBorder {
+  border: 1px solid red;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.errorTD {
+  font-weight: bold;
+  color: red;
+}

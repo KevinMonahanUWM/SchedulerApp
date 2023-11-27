@@ -159,3 +159,14 @@ class AddTAToSection(View):
 
     def get(self, request):
         return render(request, "sectionManagement/add_ta_to_section.html")
+
+class Error(View):
+
+    def get(self, request):
+        return render(request, "error.html")
+
+
+class Success(View):
+
+    def get(self, request):
+        return render(request, "success.html")

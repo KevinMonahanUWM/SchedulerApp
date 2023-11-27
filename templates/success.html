@@ -1,0 +1,17 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Success Page</title>
+    <link rel="stylesheet" href= {% static 'style.css' %}>
+</head>
+<body>
+<table class = successBorder>
+    <tr>
+        <td class = successTD>{{ message }}</td>
+    </tr>
+</table>
+<p><a href="{{ return_url }}">Go back</a></p>
+</body>
+</html>
