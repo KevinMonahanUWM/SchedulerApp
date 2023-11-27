@@ -9,13 +9,13 @@ class UserObj(abc.ABC):
     @abc.abstractmethod
     def login(self, email_address, password):
         try:
-            user = User.objects.get(email=email_address)
+            user = User.objects.get(email_address=email_address)  # Correct field name
         except User.DoesNotExist:
-            return False # display "Invalid username or password."
+            return False  # display "Invalid username or password."
         user = authenticate(username=email_address, password=password)
         if user is not None:
             return True
-        return False # display "Invalid username or password."
+        return False  # display "Invalid username or password."
 
     @abc.abstractmethod
     def getUsername(self):
@@ -50,19 +50,19 @@ class AdminObj(UserObj):
         self.admin_database = admin_info
 
     def getUsername(self):
-        return self.database.user.email_address
+        return self.admin_database.user.email_address
 
     def getPassword(self):
-        return self.database.user.password
+        return self.admin_database.user.password
 
     def getName(self):
-        return self.database.user.first_name + " " + self.database.user.last_name
+        return self.admin_database.user.first_name + " " + self.admin_database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return 'admin'
 
     def login(self, username, password):
-        self.UserObj.login(self, username, password)
+        return super().login(username, password)
 
     def createCourse(self, course_info):
         if Course.objects.filter(course_id=course_info.get('course_id')).exists():
@@ -73,7 +73,14 @@ class AdminObj(UserObj):
     def createUser(self, user_info, role):
         if User.objects.filter(email_address=user_info['email_address']).exists():
             raise RuntimeError("User with this email address already exists")
-        new_user = User.objects.create(**user_info)
+        new_user = User.objects.create(
+            email_address=user_info['email_address'],
+            password=user_info['password'],
+            first_name=user_info['first_name'],
+            last_name=user_info['last_name'],
+            home_address=user_info['home_address'],
+            phone_number=user_info['phone_number']
+        )
         if role.lower() == 'administrator':
             Administrator.objects.create(user=new_user)
         elif role.lower() == 'ta':
