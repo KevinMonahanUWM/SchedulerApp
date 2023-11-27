@@ -15,7 +15,7 @@ class UserObj(abc.ABC):
         user = authenticate(username=email_address, password=password)
         if user is not None:
             return True
-        return False, # display "Invalid username or password."
+        return False # display "Invalid username or password."
 
     @abc.abstractmethod
     def getUsername(self):
@@ -42,6 +42,7 @@ class AdminObj(UserObj):
     admin_database = None
 
     def __init__(self, admin_info):
+        super().__init__()
         if type(admin_info) is not Administrator:
             raise TypeError("Data passed to init method is not a member of the Administrator database class")
         elif not User.objects.filter(email_address=admin_info.user.email_address).exists():
@@ -49,28 +50,43 @@ class AdminObj(UserObj):
         self.admin_database = admin_info
 
     def getUsername(self):
-        self.UserObj.getUsername(self)
+        return self.database.user.email_address
 
     def getPassword(self):
-        self.UserObj.getPassword()
+        return self.database.user.password
 
     def getName(self):
-        self.UserObj.getName()
+        return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        self.UserObj.getRole()
+        return str(type(self.database))
 
     def login(self, username, password):
         self.UserObj.login(self, username, password)
 
     def createCourse(self, course_info):
-        pass
+        if Course.objects.filter(course_id=course_info.get('course_id')).exists():
+            raise RuntimeError("Course with this ID already exists")
+        new_course = Course.objects.create(**course_info)
+        return new_course
 
     def createUser(self, user_info, role):
-        pass
+        if User.objects.filter(email_address=user_info['email_address']).exists():
+            raise RuntimeError("User with this email address already exists")
+        new_user = User.objects.create(**user_info)
+        if role.lower() == 'administrator':
+            Administrator.objects.create(user=new_user)
+        elif role.lower() == 'ta':
+            TA.objects.create(user=new_user)
+        elif role.lower() == 'instructor':
+            Instructor.objects.create(user=new_user)
+        return new_user
 
     def createSection(self, section_info):
-        pass
+        if Section.objects.filter(section_id=section_info.get('section_id')).exists():
+            raise RuntimeError("Section with this ID already exists")
+        new_section = Section.objects.create(**section_info)
+        return new_section
 
     def removeCourse(self, active_course):
         pass

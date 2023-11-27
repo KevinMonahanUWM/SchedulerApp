@@ -114,20 +114,19 @@ class TestAdminCreateCourse(TestCase): # Alec
         )
         admin_model = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_model)
-        course_info = Course.objects.create(
-            course_id= 101,
-            semester= 'Fall 2023',
-            name= 'Intro to Testing',
-            description= 'A course about unit testing',
-            num_of_sections= 3,
-            modality= 'Online',
-            credits= 4
-        )
-        self.courseObj = CourseObj(course_info)
+        self.course_info = {
+            'course_id': 101,
+            'semester': 'Fall 2023',
+            'name': 'Intro to Testing',
+            'description': 'A course about unit testing',
+            'num_of_sections': 3,
+            'modality': 'Online',
+            'credits': 4
+        }
     def test_create_course(self):
-        created_course = self.adminObj.createCourse(self.courseObj)
-        self.assertIsNotNone(created_course)
-        self.assertEqual(created_course.name, 'Intro to Testing', msg="failed to create course")
+            created_course = self.adminObj.createCourse(self.course_info)
+            self.assertIsNotNone(created_course)
+            self.assertEqual(created_course.name, 'Intro to Testing', msg="failed to create course")
 class TestAdminCreateUser(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -153,7 +152,7 @@ class TestAdminCreateUser(TestCase): # Alec
         created_user = self.adminObj.createUser(user_info, role='TA')
         self.assertIsNotNone(created_user)
         self.assertEqual(created_user.email_address, 'newuser@example.com', msg="user not created")
-class TestAdminCreateSection(TestCase): # Alec
+class TestAdminCreateSection(TestCase):
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -175,19 +174,17 @@ class TestAdminCreateSection(TestCase): # Alec
             modality='Online',
             credits=4
         )
-        section_info = {
+        self.section_info = {
             'section_id': 201,
             'course': self.course,
             'location': 'Room 101',
             'meeting_time': datetime.datetime.now()
         }
-        self.sectionObj = SectionObj(section_info)  # Assuming SectionObj takes section_info
 
     def test_create_section(self):
-        created_section = self.adminObj.createSection(self.sectionObj)
+        created_section = self.adminObj.createSection(self.section_info)
         self.assertIsNotNone(created_section)
         self.assertEqual(created_section.section_id, 201, msg="failed to create section")
-
 class TestAdminRemoveCourse(TestCase):  # Kevin
     tempCourse = None
     admin = None
