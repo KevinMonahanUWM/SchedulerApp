@@ -261,7 +261,7 @@ class LectureObj(SectionObj):
 
     def addInstr(self, active_instr):
         if type(active_instr) is not Instructor:
-            raise TypeError("Data passed to addTA method is not a Instructor")
+            raise TypeError("Data passed to addInstructor method is not a Instructor")
         elif not Instructor.objects.filter(user=active_instr.user).exists():
             raise TypeError("The Instructor object does not exist in the database")
         elif self.database.instructor is not None:
@@ -269,12 +269,12 @@ class LectureObj(SectionObj):
         self.database.instructor = active_instr
 
     def removeInstr(self):
-        if type(self.database.instructor) is None:
+        if self.database.instructor is None:
             raise RuntimeError("No instructor to remove")
         self.database.instructor = None
 
     def removeTA(self):  # new
-        if type(self.database.ta) is None:
+        if self.database.ta is None:
             raise RuntimeError("No TA to remove")
         self.database.ta = None
 
@@ -308,6 +308,6 @@ class LabObj(SectionObj):
         self.database.ta = active_ta
 
     def removeTA(self):
-        if type(self.database.ta) is None:
+        if self.database.ta is None:
             raise RuntimeError("No TA to remove")
         self.database.ta = None
