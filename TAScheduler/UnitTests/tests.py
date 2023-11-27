@@ -35,7 +35,7 @@ class TestUserLogin(TestCase): # Alec
         # Assuming the login method returns False for invalid credentials
         result = self.adminObj.login("admin@example.com", "wrongpassword")
         self.assertFalse(result, "login with invalid credentials should fail but didn't")
-class TestUserGetID(TestCase): # Alec
+class TestUserGetUsername(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -79,8 +79,8 @@ class TestUserGetName(TestCase): # Alec
         admin_info = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_info)
     def test_get_name(self):
-        user_id = self.adminObj.getUsername()
-        self.assertEqual(user_id, "admin@example.com", msg="user.getUsername failed to return username")
+        user_name = self.adminObj.getName()
+        self.assertEqual(user_name, "Admin User", msg="user.getName failed to return name")
 class TestUserGetRole(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
