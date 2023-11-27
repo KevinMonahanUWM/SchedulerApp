@@ -8,31 +8,23 @@ class UserObj(abc.ABC):
 
     @abc.abstractmethod
     def login(self, email_address, password):
-        try:
-            User.objects.get(email_address=email_address, password=password)  # Correct field name\
-            return True
-        except User.DoesNotExist:
-            return False  # display "Invalid username or password."
+        pass
 
     @abc.abstractmethod
     def getUsername(self):
-        return self.user.email_address
+        pass
 
     @abc.abstractmethod
     def getPassword(self):
-        return self.user.password
+        pass
 
     @abc.abstractmethod
     def getName(self):
-        return f"{self.user.first_name} {self.user.last_name}"
+        pass
 
     @abc.abstractmethod
     def getRole(self):
-        if Administrator.objects.filter(user=self.user).exists():
-            return "admin"
-        if Instructor.objects.filter(user=self.user).exists():
-            return "instructor"
-        return "ta"
+        pass
 
 
 class AdminObj(UserObj):
@@ -59,7 +51,11 @@ class AdminObj(UserObj):
         return 'admin'
 
     def login(self, username, password):
-        return super().login(username, password)
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def createCourse(self, course_info):
         if Course.objects.filter(course_id=course_info.get('course_id')).exists():

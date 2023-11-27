@@ -131,9 +131,10 @@ class TestAdminCreateCourse(TestCase): # Alec
             'credits': 4
         }
     def test_create_course(self):
-            created_course = self.adminObj.createCourse(self.course_info)
-            self.assertIsNotNone(created_course)
-            self.assertEqual(created_course.name, 'Intro to Testing', msg="failed to create course")
+        self.adminObj.createCourse(self.course_info)
+        # Checking if the course has been successfully saved in the database
+        course_count = Course.objects.filter(course_id=101).count()
+        self.assertGreater(course_count, 0, msg="Course not found in the database")
 class TestAdminCreateUser(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -156,9 +157,9 @@ class TestAdminCreateUser(TestCase): # Alec
             'home_address': '123 New Street',
             'phone_number': 9876543210
         }
-        created_user = self.adminObj.createUser(user_info, role='TA')
-        self.assertIsNotNone(created_user)
-        self.assertEqual(created_user.email_address, 'newuser@example.com', "user not created")
+        self.adminObj.createUser(user_info, role='TA')
+        user_count = User.objects.filter(email_address='newuser@example.com').count()
+        self.assertGreater(user_count, 0, msg="User not found in the database")
 class TestAdminCreateSection(TestCase):
     def setUp(self):
         admin_user_info = User.objects.create(
@@ -189,10 +190,11 @@ class TestAdminCreateSection(TestCase):
         }
 
     def test_create_section(self):
-        created_section = self.adminObj.createSection(self.section_info)
-        self.assertIsNotNone(created_section)
-        self.assertEqual(created_section.section_id, 201, msg="failed to create section")
+        self.adminObj.createSection(self.section_info)
 
+        # Check if the section has been successfully saved in the database
+        section_count = Section.objects.filter(section_id=201).count()
+        self.assertGreater(section_count, 0, msg="Section not found in the database")
 
 
 class TestAdminRemoveCourse(TestCase):  # Kevin
