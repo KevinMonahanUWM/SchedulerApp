@@ -9,13 +9,10 @@ class UserObj(abc.ABC):
     @abc.abstractmethod
     def login(self, email_address, password):
         try:
-            user = User.objects.get(email_address=email_address)  # Correct field name
+            User.objects.get(email_address=email_address, password=password)  # Correct field name\
+            return True
         except User.DoesNotExist:
             return False  # display "Invalid username or password."
-        user = authenticate(username=email_address, password=password)
-        if user is not None:
-            return True
-        return False  # display "Invalid username or password."
 
     @abc.abstractmethod
     def getUsername(self):
@@ -84,7 +81,7 @@ class AdminObj(UserObj):
         if role.lower() == 'administrator':
             Administrator.objects.create(user=new_user)
         elif role.lower() == 'ta':
-            TA.objects.create(user=new_user)
+            TA.objects.create(user=new_user, grader_status=False)
         elif role.lower() == 'instructor':
             Instructor.objects.create(user=new_user)
         return new_user
