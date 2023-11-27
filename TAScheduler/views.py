@@ -1,6 +1,9 @@
 from django.shortcuts import render
 from django.views import View
 
+from TAScheduler.models import User, Administrator, Instructor, TA
+from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj
+
 
 # Mostly temporary to get basic skeleton working
 # TODO add post methods and make login screen default
@@ -59,13 +62,58 @@ class AccountManagement(View):
 class CreateAccount(View):
 
     def get(self, request):
-        return render(request, "accountManagement/create_account.html")
+        roles = ["Admin", "Instructor", "TA"]
+        return render(request, "accountManagement/create_account.html", {"roles": roles})
+
+    def post(self, request):
+        account_info = {
+            "email_address": request.POST["email_address"],
+            "password": request.POST["password"],
+            "first_name": request.POST["first_name"],
+            "last_name": request.POST["last_name"],
+            "home_address": request.POST["home_address"],
+            "phone_number": int(request.POST["phone_number"]),
+        }
+        try:
+            request.session["user"].createUser(account_info, role=request.POST["role"])
+            return render(request, "success.html", {"message": "User successfully created",
+                                                    "previous_url": "/"})
+        except:
+            return render(request, "error.html", {"message": "Bad login information",
+                                                  "previous_url": "/"})
 
 
 class DeleteAccount(View):
 
     def get(self, request):
-        return render(request, "accountManagement/delete_account.html")
+        """Temp remove"""  # TODO remove
+        request.session["user"] = "test@uwm.edu"
+        """Temp remove"""
+        users = list(map(str, Administrator.objects.all()))
+        users.extend(list(map(str, Instructor.objects.all())))
+        users.extend(list(map(str, TA.objects.all())))
+        return render(request, "accountManagement/delete_account.html", {"users": users})
+
+    def post(self, request):
+        email = request.POST["user"].split(": ", 1)[1]
+        email_role = email.split(" -  ", 1)
+        selected_user = User.objects.get(email_address=email_role[0])
+        if email_role[1].lower() == "ta":
+            user_object = TAObj(TA.objects.get(user=selected_user))
+        elif email_role[1].lower() == "instructor":
+            user_object = InstructorObj(Instructor.objects.get(user=selected_user))
+        else:
+            user_object = AdminObj(Administrator.objects.get(user=selected_user))
+        try:
+            AdminObj(Administrator.objects.get(user=User.objects.get(email_address=request.session["user"]))).removeUser(user_object)
+            return render(request, "success.html", {"message": "User successfully deleted",
+                                                    "previous_url": "home/manageaccount/delete"})
+        except RuntimeError:
+            return render(request, "error.html", {"message": "User does not exist",
+                                                  "previous_url": "home/manageaccount/delete"})
+        except TypeError:
+            return render(request, "error.html", {"message": "Input passed is not a subclass of user obj",
+                                                  "previous_url": "home/manageaccount/delete"})
 
 
 class EditAccount(View):
@@ -102,3 +150,14 @@ class AddTAToSection(View):
 
     def get(self, request):
         return render(request, "sectionManagement/add_ta_to_section.html")
+
+class Success(View):
+
+    def get(self, request):
+        return render(request, "success.html")
+
+
+class Error(View):
+
+    def get(self, request):
+        return render(request, "success.html")

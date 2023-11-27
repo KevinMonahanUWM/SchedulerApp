@@ -7,6 +7,14 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
+<form id="deleteUserFrom" action="/home/manageaccount/delete" method="post">
+{% csrf_token %}
+{% for user in users %}
+    <input id="user" type="radio" name="user" value="{{ user }}">
+    <label for="user">{{ user }}</label><br>
+{% endfor %}
+    <input type="submit">
+</form>
 
 <a href="/home/manageaccount">Cancel</a>
 </body>
