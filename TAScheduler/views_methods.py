@@ -76,14 +76,14 @@ class AdminObj(UserObj):
 
     def removeUser(self, active_user):
         if not isinstance(active_user, UserObj):
-            raise TypeError("Input passed is not a subclass of userobj")
+            raise TypeError("Input passed is not a subclass of user obj")
         elif not User.objects.filter(email_address=active_user.getUsername()).exists():
             raise RuntimeError("User does not exist")
         User.delete(active_user.database.user)
 
     def removeSection(self, active_section):
         if not isinstance(active_section, SectionObj):
-            raise TypeError("Input passed is not a subclass of sectionobj")
+            raise TypeError("Input passed is not a subclass of section obj")
         elif not Section.objects.filter(section_id=active_section.getID()).exists():
             raise RuntimeError("Section does not exist")
         Section.delete(active_section.database.section)
@@ -170,7 +170,7 @@ class AdminObj(UserObj):
 
     def editSection(self, active_section, new_info):  # new inputs
         if not isinstance(active_section, SectionObj):
-            raise TypeError("Input passed is not a subclass of sectionobj")
+            raise TypeError("Input passed is not a subclass of section obj")
         elif not Section.objects.filter(section_id=active_section.getID()).exists():
             raise RuntimeError("Section does not exist")
         if type(new_info) is not dict:
@@ -200,7 +200,7 @@ class AdminObj(UserObj):
             if new_info.get("meeting_time") is None:
                 raise KeyError
             parsed_date = parser.parse(new_info.get("meeting_time"))
-            temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
+            parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
             if new_info.get("meeting_time") == '':
                 raise KeyError
             active_section.database.section.meeting_time = new_info.get("meeting_time")
@@ -210,7 +210,7 @@ class AdminObj(UserObj):
 
     def editUser(self, active_user, new_info):  # new inputs
         if not isinstance(active_user, UserObj):
-            raise TypeError("Input passed is not a subclass of userobj")
+            raise TypeError("Input passed is not a subclass of user obj")
         elif not User.objects.filter(email_address=active_user.getUsername()).exists():
             raise RuntimeError("User does not exist")
         if type(new_info) is not dict:
