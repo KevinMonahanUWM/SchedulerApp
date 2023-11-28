@@ -340,7 +340,7 @@ class AdminObj(UserObj):
             active_user.database.user.phone_number = active_user.database.user.phone_number
         active_user.database.user.save()
         role = active_user.getRole()
-        if role == "<class 'TAScheduler.models.TA'>":
+        if role == "TA":
             try:  # grader_status
                 if new_info.get("grader_status") is None:
                     raise KeyError
@@ -358,7 +358,7 @@ class AdminObj(UserObj):
                 active_user.database.max_assignments = new_info.get("max_assignments")
             except KeyError:
                 active_user.database.max_assignments = active_user.database.max_assignments
-        elif role == "<class 'TAScheduler.models.Instructor'>":
+        elif role == "Instructor":
             try:  # max assignments
                 if new_info.get("max_assignments") is None:
                     raise KeyError

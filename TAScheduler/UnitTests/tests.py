@@ -116,9 +116,7 @@ class TestUserGetRole(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_role(self):
-        self.assertEqual(self.adminObj.getRole(), "<class 'TAScheduler.models.Administrator'>", msg="user.getRole "
-                                                                                                    "failed to "
-                                                                                                    "retrieve 'admin'")
+        self.assertEqual(self.adminObj.getRole(), "Admin", msg="user.getRole failed to retrieve 'admin'")
 
 
 class TestAdminInit(TestCase):  # Alec
@@ -549,6 +547,7 @@ class TestAdminEditAccount(TestCase):  # Kevin
     def test_success(self):
         self.admin.editUser(self.tempTA, self.new_info)
         self.assertEqual(self.new_info["first_name"], User.objects.get(first_name="Paul").first_name)
+        print(TA.objects.get(user=self.tempTA.database.user).grader_status)
         self.assertEqual(self.new_info["grader_status"], TA.objects.get(user=self.tempTA.database.user).grader_status)
 
     def test_bad_item_info(self):
