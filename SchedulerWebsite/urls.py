@@ -43,5 +43,3 @@ urlpatterns = [
     path('home/success/', Success.as_view()),
     path('forgot_password/', Forgot_Password.as_view())
 ]
-
-

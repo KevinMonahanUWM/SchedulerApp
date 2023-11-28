@@ -7,7 +7,14 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
-
+<form id="editSectionFrom" action="/home/managesection/edit" method="post">
+    {% csrf_token %}
+    {% for section in sections %}
+        <input id="section" type="radio" name="sections" value="{{ section }}">
+        <label for="section">{{ section }}</label><br>
+    {% endfor %}
+    <input type="submit">
+</form>
 <a href="/home/managesection">Cancel</a>
 </body>
 </html>

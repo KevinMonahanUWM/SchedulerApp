@@ -1,5 +1,5 @@
 import abc
-from dateutil import parser #KEEP THIS
+from dateutil import parser  # KEEP THIS
 
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
@@ -123,9 +123,24 @@ class AdminObj(UserObj):
         return new_user
 
     def createSection(self, section_info):
+        if any(value == "" for value in section_info.values()):
+            raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        new_section = Section.objects.create(**section_info)
+        if not Course.objects.filter(course_id=section_info.get('course_id')).exists():
+            raise RuntimeError("Course ID is not existing course cant create section")
+
+        courseDB = Course.objects.get(course_id=section_info.get('course_id'))
+        fields = {"section_id": section_info["section_id"],
+                  "course": courseDB,
+                  "location": section_info["location"],
+                  "meeting_time": section_info["meeting_time"]}
+        new_section = Section.objects.create(**fields)
+
+        if (section_info["section_type"] == "Lab"):
+            new_section = Lab.objects.create(section=new_section)
+        else:
+            new_section = Lecture.objects.create(section=new_section)
         return new_section
 
     def removeCourse(self, active_course):
@@ -454,14 +469,14 @@ class TAObj(UserObj):
             raise RuntimeError("Can't assign TA a lab with grader status")
 
         argLabDB = active_lab.database
-        if argLabDB.section is None: # SHOULD BE IMPOSSIBLE*
+        if argLabDB.section is None:  # SHOULD BE IMPOSSIBLE*
             raise ValueError("The provided Lab object does not have an equivalent section record in the database.")
         if not argLabDB.ta is None:
             raise ValueError("Can't assign a lab that already have a TA.")
 
         secDB = argLabDB.section
         qs = Lab.objects.filter(section=secDB, ta=self.database)
-        if qs.count()>0:
+        if qs.count() > 0:
             raise ValueError("Can't assign a lab already assigned to this TA.")
 
         argLabDB.ta = self.database
@@ -481,7 +496,7 @@ class TAObj(UserObj):
 
         argSecDB = argLecDB.section
         qs = Lecture.objects.filter(section=argSecDB, ta=self.database)
-        if qs.count()>0:
+        if qs.count() > 0:
             raise ValueError("Can't assign a lecture already assigned to this TA.")
 
         argLecDB.ta = self.database
