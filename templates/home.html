@@ -3,12 +3,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <title>Admin Home</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-<a href="/home/managecourse">Manage Courses</a>
-<a href="/home/managesection">Manage Sections</a>
-<a href="/home/manageaccount">Manage Accounts</a>
+    <header>
+        <h1>Admin Home</h1>
+    </header>
+    {% if role_admin %}
+    <nav>
+        <ul>
+            <li><a href="{{ manage_accounts }}">Account Management</a></li>
+            <li><a href="{{ manage_courses }}">Course Management</a></li>
+            <li><a href="{{ manage_sections }}">Section Management</a></li>
+        </ul>
+    </nav>
+    {% endif %}
+    <section>
+        <h2>Welcome, {{ username }}!</h2>
+        <!-- Additional section content here, if necessary -->
+    </section>
+    <footer>
+        <form action="/home/" method="post">
+            {% csrf_token %}
+            <input type="submit" name="logout" value="Logout">
+        </form>
+    </footer>
 </body>
 </html>

@@ -19,29 +19,29 @@ from django.urls import path
 
 from TAScheduler.views import Home, CourseManagement, CreateCourse, DeleteCourse, EditCourse, AddInstructorToCourse, \
     Login, AccountManagement, CreateAccount, DeleteAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
-    AddTAToSection, DeleteSection, Error, Success, AddTAToSectionSuccess
+    AddTAToSection, DeleteSection, Error, Success, Forgot_Password
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', Login.as_view()),
     path('home/', Home.as_view()),
-    path('home/managecourse', CourseManagement.as_view()),
-    path('home/managecourse/create', CreateCourse.as_view()),
-    path('home/managecourse/delete', DeleteCourse.as_view()),
-    path('home/managecourse/edit', EditCourse.as_view()),
-    path('home/managecourse/addinstructor', AddInstructorToCourse.as_view()),
-    path('home/manageaccount', AccountManagement.as_view()),
-    path('home/manageaccount/create', CreateAccount.as_view()),
-    path('home/manageaccount/delete', DeleteAccount.as_view()),
-    path('home/manageaccount/edit', EditAccount.as_view()),
-    path('home/managesection', SectionManagement.as_view()),
-    path('home/managesection/create', CreateSection.as_view()),
-    path('home/managesection/delete', DeleteSection.as_view()),
-    path('home/managesection/edit', EditSection.as_view()),
-    path('home/managesection/addta', AddTAToSection.as_view()),
-    path('home/managesection/addta/success', AddTAToSectionSuccess.as_view()),
-    path('home/error', Error.as_view()),
-    path('home/success', Success.as_view())
+    path('home/managecourse/', CourseManagement.as_view()),
+    path('home/managecourse/create/', CreateCourse.as_view()),
+    path('home/managecourse/delete/', DeleteCourse.as_view()),
+    path('home/managecourse/edit/', EditCourse.as_view()),
+    path('home/managecourse/addinstructor/', AddInstructorToCourse.as_view()),
+    path('home/manageaccount/', AccountManagement.as_view()),
+    path('home/manageaccount/create/', CreateAccount.as_view()),
+    path('home/manageaccount/delete/', DeleteAccount.as_view()),
+    path('home/manageaccount/edit/', EditAccount.as_view()),
+    path('home/managesection/', SectionManagement.as_view()),
+    path('home/managesection/create/', CreateSection.as_view()),
+    path('home/managesection/delete/', DeleteSection.as_view()),
+    path('home/managesection/edit/', EditSection.as_view()),
+    path('home/managesection/addta/', AddTAToSection.as_view()),
+    path('home/error/', Error.as_view()),
+    path('home/success/', Success.as_view()),
+    path('forgot_password/', Forgot_Password.as_view())
 ]
 
 

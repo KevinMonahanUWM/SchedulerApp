@@ -11,7 +11,7 @@ class UserObj(abc.ABC):
         self.database = None
 
     @abc.abstractmethod
-    def login(self, username, password):
+    def login(self, email_address, password):
         pass
 
     @abc.abstractmethod
@@ -52,19 +52,81 @@ class AdminObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "Admin"
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def createCourse(self, course_info):
-        pass
+        if Course.objects.filter(course_id=course_info.get('course_id')).exists():
+            raise RuntimeError("Course with this ID already exists")
+        new_course = Course.objects.create(**course_info)
+        return new_course
 
-    def createUser(self, user_info):
-        pass
+    def createUser(self, user_info, role):
+        if type(user_info) is not dict:
+            raise TypeError("Input passed is not a dictionary")
+        if User.objects.filter(email_address=user_info.get('email_address')).exists():
+            raise RuntimeError("User with this email address already exists")
+        try:
+            if user_info.get('email_address') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('password') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('first_name') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('last_name') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('home_address') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('phone_number') == 0:
+                raise RuntimeError("Not all inputs have been provided")
+            if len(str(user_info.get("phone_number"))) is not 10:
+                raise ValueError("phone_number expects an int input with a length of 10")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        if role == "" or role is None:
+            raise RuntimeError("Not all inputs have been provided")
+        new_user = User.objects.create(
+            email_address=user_info.get('email_address'),
+            password=user_info.get('password'),
+            first_name=user_info.get('first_name'),
+            last_name=user_info.get('last_name'),
+            home_address=user_info.get('home_address'),
+            phone_number=user_info.get('phone_number')
+        )
+        if role.lower() == 'admin':
+            Administrator.objects.create(user=new_user)
+        elif role.lower() == 'ta':
+            TA.objects.create(user=new_user, grader_status=False)
+        elif role.lower() == 'instructor':
+            Instructor.objects.create(user=new_user)
+        return new_user
 
     def createSection(self, section_info):
-        pass
+        if Section.objects.filter(section_id=section_info.get('section_id')).exists():
+            raise RuntimeError("Section with this ID already exists")
+        new_section = Section.objects.create(**section_info)
+        return new_section
 
     def removeCourse(self, active_course):
         if type(active_course) is not CourseObj:
@@ -269,7 +331,7 @@ class AdminObj(UserObj):
         except KeyError:  # No home_address in list that is fine don't change the database
             active_user.database.user.home_address = active_user.database.user.home_address
         try:  # phone number
-            if new_info.get("phone_number") is None:
+            if new_info.get("phone_number") is None or new_info.get("phone_number") is 0:
                 raise KeyError
             if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) is not 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
@@ -278,7 +340,7 @@ class AdminObj(UserObj):
             active_user.database.user.phone_number = active_user.database.user.phone_number
         active_user.database.user.save()
         role = active_user.getRole()
-        if role == "<class 'TAScheduler.models.TA'>":
+        if role == "TA":
             try:  # grader_status
                 if new_info.get("grader_status") is None:
                     raise KeyError
@@ -296,7 +358,7 @@ class AdminObj(UserObj):
                 active_user.database.max_assignments = new_info.get("max_assignments")
             except KeyError:
                 active_user.database.max_assignments = active_user.database.max_assignments
-        elif role == "<class 'TAScheduler.models.Instructor'>":
+        elif role == "Instructor":
             try:  # max assignments
                 if new_info.get("max_assignments") is None:
                     raise KeyError
@@ -347,7 +409,11 @@ class TAObj(UserObj):
         self.database = ta_info
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def getUsername(self):
         return self.database.user.email_address
@@ -359,7 +425,7 @@ class TAObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "TA"
 
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
@@ -381,7 +447,7 @@ class TAObj(UserObj):
 
         TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
 #
-    def assignTALab(self, active_lab): 
+    def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
         if self.database.grader_status:
@@ -401,7 +467,7 @@ class TAObj(UserObj):
         argLabDB.ta = self.database
         argLabDB.save()  # Assign the lab? Is that it?
 
-    def assignTALecture(self, active_lecture):  # new 
+    def assignTALecture(self, active_lecture):  # new
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
@@ -437,16 +503,20 @@ class TAObj(UserObj):
 class InstructorObj(UserObj):
     database = None
 
-    def __init__(self, instr_info):
+    def __init__(self, info):
         super().__init__()
-        if type(instr_info) is not Instructor:
+        if type(info) is not Instructor:
             raise TypeError("Data passed to init method is not a member of the Instructor database class")
-        elif not User.objects.filter(email_address=instr_info.user.email_address).exists():
+        elif not User.objects.filter(email_address=info.user.email_address).exists():
             raise TypeError("The instructor object does not exist in the database")
-        self.database = instr_info
+        self.database = info
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def getUsername(self):
         return self.database.user.email_address
@@ -458,7 +528,7 @@ class InstructorObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "Instructor"
 
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
@@ -516,28 +586,88 @@ class CourseObj:
         self.database = course_info
 
     def addInstructor(self, active_instr):
-        pass
+        if not isinstance(active_instr, InstructorObj):
+            raise TypeError("active_instr is not an instance of InstructorObj")
+        if not active_instr.database.user_id:
+            raise ValueError("Instructor must have a valid user associated")
+
+        if InstructorToCourse.objects.filter(instructor=active_instr.database,
+                                             course=self.database).exists():
+            raise ValueError("Instructor is already assigned to this course")
+
+        if InstructorToCourse.objects.filter(
+                instructor=active_instr.database).count() >= active_instr.database.max_assignments:
+            raise ValueError("Instructor has reached the maximum number of course assignments")
+
+        if InstructorToCourse.objects.filter(
+                course=self.database).count() >= self.database.num_of_sections:
+            raise ValueError(
+                "This course has reached the maximum number of instructors based on the number of sections")
+        if not Instructor.objects.filter(id=active_instr.database.id).exists():
+            raise ValueError("Instructor must be saved in the database before being assigned to a course")
+
+        InstructorToCourse.objects.create(instructor=active_instr.database, course=self.database)
 
     def addTa(self, active_ta):
-        pass
+        if not isinstance(active_ta, TAObj):
+            raise TypeError("active_ta is not an instance of TAObj")
+
+        if TAToCourse.objects.filter(ta=active_ta.database, course=self.database).exists():
+            raise ValueError("TA is already assigned to this course")
+
+        if TAToCourse.objects.filter(ta=active_ta.database).count() >= active_ta.database.max_assignments:
+            raise ValueError("TA has reached the maximum number of course assignments")
+
+        if TAToCourse.objects.filter(course=self.database).count() >= self.database.num_of_sections:
+            raise ValueError("This course has reached the maximum number of TAs based on the number of sections")
+
+        TAToCourse.objects.create(ta=active_ta.database, course=self.database)
 
     def removeAssignment(self, active_user):
-        pass
+        # to implement a way to determine if a user is a TA or Instructor
+        if isinstance(active_user, InstructorObj):
+            InstructorToCourse.objects.filter(
+                course=self.database,
+                instructor=active_user.database  # Corrected attribute name
+            ).delete()
+        elif isinstance(active_user, TAObj):
+            TAToCourse.objects.filter(
+                course=self.database,
+                ta=active_user.database  # Corrected attribute name
+            ).delete()
+        else:
+            raise TypeError("The active_user must be an instance of InstructorObj or TAObj")
 
     def removeCourse(self):
-        pass
+        self.database.delete()
 
     def editCourse(self, course_info):
-        pass
+        for attr, value in course_info.items():
+            setattr(self.database, attr, value)
+        self.database.full_clean()  # call the model's clean() method to validate the fields.
+        self.database.save()
 
     def getAsgmtsForCrse(self):
-        pass
+        instructor_assignments = InstructorToCourse.objects.filter(course=self.database)
+        ta_assignments = TAToCourse.objects.filter(course=self.database)
+        return {
+            'instructors': list(instructor_assignments),
+            'tas': list(ta_assignments)
+        }
 
     def getSectionsCrse(self):
-        pass
+        return list(Section.objects.filter(course=self.database))
 
     def getCrseInfo(self):
-        pass
+        return {
+            'course_id': self.database.course_id,
+            'semester': self.database.semester,
+            'name': self.database.name,
+            'description': self.database.description,
+            'num_of_sections': self.database.num_of_sections,
+            'modality': self.database.modality,
+            'credits': self.database.credits
+        }
 
 
 class SectionObj(abc.ABC):
