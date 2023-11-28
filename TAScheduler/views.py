@@ -1,5 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
+
+from TAScheduler.models import Course, Administrator
+from TAScheduler.views_methods import AdminObj, CourseObj
 
 
 # Mostly temporary to get basic skeleton working
@@ -23,6 +26,7 @@ class Home(View):
 class CourseManagement(View):
 
     def get(self, request):
+        courses = Course.objects.all()
         return render(request, "courseManagement/course_management.html")
 
 
@@ -31,17 +35,73 @@ class CreateCourse(View):
     def get(self, request):
         return render(request, "courseManagement/create_course.html")
 
+    def post(self, request):
+        # Handle the creation of a course based on form data
+        course_info = {
+            "course_id": request.POST.get("course_id"),
+            "name": request.POST.get("name"),
+            "description": request.POST.get("description"),
+            "num_of_sections": int(request.POST.get("num_of_sections")),
+            "modality": request.POST.get("modality"),
+            "credits": int(request.POST.get("credits")),
+            "semester": request.POST.get("semester")
+        }
+        try:
+            current_admin = Administrator.objects.get(user=request.user)
+            admin_obj = AdminObj(current_admin)
+            admin_obj.createCourse(course_info)
+            return redirect('/path/to/success/page')  # Redirect to a success page
+        except Exception as e:
+            # Handle any exceptions, possibly show an error page
+            return render(request, "error.html", {"message": str(e)})
+
 
 class DeleteCourse(View):
 
     def get(self, request):
+        courses = Course.objects.all()
         return render(request, "courseManagement/delete_course.html")
+
+    def post(self, request):
+        course_id = request.POST.get('course_id')
+
+        try:
+            course_to_delete = Course.objects.get(id=course_id)
+            course_obj = CourseObj(course_to_delete)
+            course_obj.removeCourse()
+            return redirect('/path/to/success/page')
+        except Course.DoesNotExist:
+            return render(request, "error.html", {"message": "Course not found"})
+        except Exception as e:
+            return render(request, "error.html", {"message": str(e)})
 
 
 class EditCourse(View):
 
     def get(self, request):
+        courses = Course.objects.all()
         return render(request, "courseManagement/edit_course.html")
+
+    def post(self, request):
+        course_id = request.POST.get('course_id')
+        new_info = {
+            "name": request.POST.get("name"),
+            "description": request.POST.get("description"),
+            "num_of_sections": int(request.POST.get("num_of_sections")),
+            "modality": request.POST.get("modality"),
+            "credits": int(request.POST.get("credits")),
+            "semester": request.POST.get("semester")
+        }
+
+        try:
+            course_to_edit = Course.objects.get(id=course_id)
+            course_obj = CourseObj(course_to_edit)
+            course_obj.editCourse(new_info)
+            return redirect('/path/to/success/page')
+        except Course.DoesNotExist:
+            return render(request, "error.html", {"message": "Course not found"})
+        except Exception as e:
+            return render(request, "error.html", {"message": str(e)})
 
 
 class AddInstructorToCourse(View):
