@@ -1,8 +1,12 @@
 import abc
+from django.contrib.auth import authenticate
+from django.shortcuts import redirect
+from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab
 from dateutil import parser #KEEP THIS
 
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
+
 
 
 class UserObj(abc.ABC):
@@ -11,7 +15,7 @@ class UserObj(abc.ABC):
         self.database = None
 
     @abc.abstractmethod
-    def login(self, username, password):
+    def login(self, email_address, password):
         pass
 
     @abc.abstractmethod
@@ -55,16 +59,42 @@ class AdminObj(UserObj):
         return str(type(self.database))
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def createCourse(self, course_info):
-        pass
+        if Course.objects.filter(course_id=course_info.get('course_id')).exists():
+            raise RuntimeError("Course with this ID already exists")
+        new_course = Course.objects.create(**course_info)
+        return new_course
 
-    def createUser(self, user_info):
-        pass
+    def createUser(self, user_info, role):
+        if User.objects.filter(email_address=user_info['email_address']).exists():
+            raise RuntimeError("User with this email address already exists")
+        new_user = User.objects.create(
+            email_address=user_info['email_address'],
+            password=user_info['password'],
+            first_name=user_info['first_name'],
+            last_name=user_info['last_name'],
+            home_address=user_info['home_address'],
+            phone_number=user_info['phone_number']
+        )
+        if role.lower() == 'administrator':
+            Administrator.objects.create(user=new_user)
+        elif role.lower() == 'ta':
+            TA.objects.create(user=new_user, grader_status=False)
+        elif role.lower() == 'instructor':
+            Instructor.objects.create(user=new_user)
+        return new_user
 
     def createSection(self, section_info):
-        pass
+        if Section.objects.filter(section_id=section_info.get('section_id')).exists():
+            raise RuntimeError("Section with this ID already exists")
+        new_section = Section.objects.create(**section_info)
+        return new_section
 
     def removeCourse(self, active_course):
         if type(active_course) is not CourseObj:

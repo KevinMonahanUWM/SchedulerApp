@@ -11,7 +11,10 @@ from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, Instru
 # Feel free to make suggestions on discord (add/remove/edit methods)!.
 # Remember: These methods were made before any coding (I was guessing) so it's likely they should be changed.
 
-class TestUserLogin(TestCase):  # Alec
+class TestUserLogin(TestCase): # Alec
+    admin_user_info = None
+    admin_info = None
+    result = None
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -25,15 +28,26 @@ class TestUserLogin(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_login_valid_credentials(self):
-        result = self.adminObj.login("test@example.com", "password123")
-        self.assertRedirects(result, '/home/', msg_prefix="login with valid credentials failed to redirect to home")
+        print("Testing with email: admin@example.com, password: adminpass")
+        result = self.adminObj.login("admin@example.com", "adminpass")
+        self.assertTrue(result, "login with valid credentials failed")
 
     def test_login_invalid_credentials(self):
-        result = self.adminObj.login("test@example.com", "wrong_password")
-        self.assertRedirects(result, '/', msg_prefix="incorrect password failed to redirect to login")
+        # Assuming the login method returns False for invalid credentials
+        result = self.adminObj.login("admin@example.com", "wrongpassword")
+        self.assertFalse(result, "login with invalid credentials should fail but didn't")
 
+    def test_login_wrong_username(self):
+        print("Testing with wrong email: wrong@example.com, correct password: adminpass")
+        result = self.adminObj.login("wrong@example.com", "adminpass")
+        self.assertFalse(result, "login with wrong username and correct password should fail but didn't")
 
-class TestUserGetID(TestCase):  # Alec
+    def test_login_no_input(self):
+        print("Testing with no email and no password")
+        result = self.adminObj.login("", "")
+        self.assertFalse(result, "login with no credentials should fail but didn't")
+
+class TestUserGetUsername(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -49,9 +63,8 @@ class TestUserGetID(TestCase):  # Alec
     def test_get_username(self):
         user_id = self.adminObj.getUsername()
         self.assertEqual(user_id, "admin@example.com", msg="user.getUsername failed to return username")
-
-
-class TestUserGetPassword(TestCase):  # Alec
+        
+class TestUserGetPassword(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -65,10 +78,10 @@ class TestUserGetPassword(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_password(self):
-        self.assertEqual(self.adminObj.getPassword(), "password123", msg="user.getPassword failed to retrieve password")
-
-
-class TestUserGetName(TestCase):  # Alec
+        self.assertEqual(self.adminObj.getPassword(), "adminpass", msg="user.getPassword failed to retrieve password")
+        
+        
+class TestUserGetName(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -82,10 +95,10 @@ class TestUserGetName(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_name(self):
-        self.assertEqual(self.adminObj.getName(), "Admin User", msg="user.getName failed to retrieve name")
-
-
-class TestUserGetRole(TestCase):  # Alec
+        user_name = self.adminObj.getName()
+        self.assertEqual(user_name, "Admin User", msg="user.getName failed to return name")
+        
+class TestUserGetRole(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -118,11 +131,8 @@ class TestAdminInit(TestCase):  # Alec
         self.adminObj = AdminObj(admin_model)
 
     def test_admin_init(self):
-        self.assertEqual(self.adminObj.database.user.email_address, "admin@example.com",
-                         msg="failed to initialize admin")
-
-
-class TestAdminCreateCourse(TestCase):  # Alec
+        self.assertEqual(self.adminObj.admin_database.user.email_address, "admin@example.com", msg="failed to initialize admin")
+class TestAdminCreateCourse(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -135,22 +145,20 @@ class TestAdminCreateCourse(TestCase):  # Alec
         admin_model = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_model)
         self.course_info = {
-            "course_id": 101,
-            "semester": 'Fall 2023',
-            "name": 'Intro to Testing',
-            "description": 'A course about unit testing',
-            "num_of_sections": 3,
-            "modality": 'Online',
-            "credits": 4
+            'course_id': 101,
+            'semester': 'Fall 2023',
+            'name': 'Intro to Testing',
+            'description': 'A course about unit testing',
+            'num_of_sections': 3,
+            'modality': 'Online',
+            'credits': 4
         }
-
     def test_create_course(self):
-        created_course = self.adminObj.createCourse(self.course_info)
-        self.assertIsNotNone(created_course)
-        self.assertEqual(created_course.name, 'Intro to Testing', msg="failed to create course")
-
-
-class TestAdminCreateUser(TestCase):  # Alec
+        self.adminObj.createCourse(self.course_info)
+        # Checking if the course has been successfully saved in the database
+        course_count = Course.objects.filter(course_id=101).count()
+        self.assertGreater(course_count, 0, msg="Course not found in the database")
+class TestAdminCreateUser(TestCase): # Alec
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -164,21 +172,18 @@ class TestAdminCreateUser(TestCase):  # Alec
         self.adminObj = AdminObj(admin_model)
 
     def test_create_user(self):
-        user_info = {"email_address": 'newuser@example.com',
-                     "password": 'password123',
-                     "first_name": 'New',
-                     "last_name": 'User',
-                     "home_address": '123 New Street',
-                     "phone_number": 9876543210,
-                     "role": "TA",
-                     "grader_status": False,
-                     "max_assignments": 4}
-        created_user = self.adminObj.createUser(user_info)
-        self.assertIsNotNone(created_user)
-        self.assertEqual(created_user.email_address, 'newuser@example.com', msg="user not created")
-
-
-class TestAdminCreateSection(TestCase):  # Alec
+        user_info = {
+            'email_address': 'newuser@example.com',
+            'password': 'password123',
+            'first_name': 'New',
+            'last_name': 'User',
+            'home_address': '123 New Street',
+            'phone_number': 9876543210
+        }
+        self.adminObj.createUser(user_info, role='TA')
+        user_count = User.objects.filter(email_address='newuser@example.com').count()
+        self.assertGreater(user_count, 0, msg="User not found in the database")
+class TestAdminCreateSection(TestCase):
     def setUp(self):
         admin_user_info = User.objects.create(
             email_address="admin@example.com",
@@ -208,9 +213,11 @@ class TestAdminCreateSection(TestCase):  # Alec
         }
 
     def test_create_section(self):
-        created_section = self.adminObj.createSection(self.section_info)
-        self.assertIsNotNone(created_section)
-        self.assertEqual(created_section.section_id, 201, msg="failed to create section")
+        self.adminObj.createSection(self.section_info)
+
+        # Check if the section has been successfully saved in the database
+        section_count = Section.objects.filter(section_id=201).count()
+        self.assertGreater(section_count, 0, msg="Section not found in the database")
 
 
 class TestAdminRemoveCourse(TestCase):  # Kevin
