@@ -32,13 +32,15 @@ class Login(View):
             if Administrator.objects.filter(user=user_database).exists():
                 user = AdminObj(Administrator.objects.get(user=user_database))
             elif Instructor.objects.filter(user=user_database).exists():
-                user = InstructorObj(Instructor.objects.get(user=user_database))
+                #user = InstructorObj(Instructor.objects.get(user=user_database))  #Can not login in with sprint one
+                raise Exception("Bad password or username")
             elif TA.objects.filter(user=user_database).exists():
-                user = TAObj(TA.objects.get(user=user_database))
+                #user = TAObj(TA.objects.get(user=user_database))  #Can not login in with sprint one
+                raise Exception("Bad password or username")
             else:
                 raise Exception("Bad password or username")
         except:
-            return render(request, "login.html", {"error": "Invalid username or password"})
+            return render(request, "login.html", {"error": "Invalid username or password (Only admins allowed)"})
 
         if user.login(username, password):
             request.session["user"] = str(user.database)
