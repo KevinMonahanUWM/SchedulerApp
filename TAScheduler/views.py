@@ -1,6 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
-
+from TAScheduler.models import User, Administrator, Instructor, TA
+from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj
+from django.urls import reverse
 
 # Mostly temporary to get basic skeleton working
 # TODO add post methods and make login screen default
@@ -9,15 +11,62 @@ from django.views import View
 
 
 class Login(View):
-
     def get(self, request):
         return render(request, "login.html")
 
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = None
+        if Administrator.objects.filter(user__email_address=username).exists():
+            admin_info = Administrator.objects.get(user__email_address=username)
+            user = AdminObj(admin_info)
+        elif TA.objects.filter(user__email_address=username).exists():
+            ta_info = TA.objects.get(user__email_address=username)
+            user = TAObj(ta_info)
+        elif Instructor.objects.filter(user__email_address=username).exists():
+            instr_info = Instructor.objects.get(user__email_address=username)
+            user = InstructorObj(instr_info)
+
+        if user and user.login(username, password):
+            return redirect('/home/')
+        else:
+            return render(request, "login.html", {"error": "Invalid username or password"})
 
 class Home(View):
 
     def get(self, request):
-        return render(request, "home.html")
+        if not request.user.login:
+            return redirect('/login/')
+
+        # Render the admin home page with context for navigation
+        context = {
+            'username': request.user.username,  # assuming the User model has a 'username' attribute
+            'manage_accounts_url': '/home/manageaccount',
+            'manage_courses_url': '/home/managecourse',
+            'manage_sections_url': '/home/managesection',
+        }
+        return render(request, 'admin_home.html', context)
+
+    def post(self, request):
+        if not request.user.login:
+            return redirect('/login/')
+
+        # Perform actions based on the posted data
+        # Assuming buttons in the admin_home.html have the name attribute set to these values
+        if 'account_management' in request.POST:
+            return redirect('/home/manageaccount')
+        elif 'course_management' in request.POST:
+            return redirect('/home/managecourse')
+        elif 'section_management' in request.POST:
+            return redirect('/home/managesection')
+        elif 'logout' in request.POST:
+            logout(request) # somehow log out (maybe reset section)
+            return redirect('/login/')  # Redirect to login page after logout
+        else:
+            # If the action is unrecognized, return to the home page with an error message
+            return render(request, 'admin_home.html', {'error': 'Unrecognized action'})
 
 
 class CourseManagement(View):
