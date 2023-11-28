@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
+
+import TAScheduler
 from TAScheduler.models import User, Administrator, Instructor, TA
 from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj
 
@@ -307,3 +309,50 @@ class Error(View):
 
     def get(self, request):
         return render(request, "success.html")
+
+
+class Forgot_Password(View):
+
+    def get(self, request):
+        return render(request, "forgot_password.html", {"recievedUser": False})
+
+    def post(self, request):
+        try:
+            user_database = User.objects.get(email_address=request.POST["username"])
+            if Administrator.objects.filter(user=user_database).exists():
+                user = AdminObj(Administrator.objects.get(user=user_database))
+            elif Instructor.objects.filter(user=user_database).exists():
+                user = InstructorObj(Instructor.objects.get(user=user_database))
+            elif TA.objects.filter(user=user_database).exists():
+                user = TAObj(TA.objects.get(user=user_database))
+            else:
+                raise Exception
+            request.session["current_edit"] = str(user.database)
+            return render(request, "forgot_password.html", {"recievedUser": True})
+        except TAScheduler.models.User.DoesNotExist:
+            return render(request, "forgot_password.html", {"recievedUser": False, "message": "Invalid email address"})
+
+        except MultiValueDictKeyError:
+            account_info = {
+                "password": request.POST.get("password"),
+            }
+            try:
+                admin_user_info = User.objects.create(
+                    email_address="admin@example.com",
+                    password="admin_pass",
+                    first_name="Admin",
+                    last_name="User",
+                    home_address="123 Admin Street",
+                    phone_number=1234567890
+                )
+                admin_model = Administrator.objects.create(user=admin_user_info)
+                adminObj = AdminObj(admin_model)
+                adminObj.editUser(determineUser(request.session["current_edit"]), account_info)
+                del request.session["current_edit"]
+                User.delete(admin_model)
+                return render(request, "success.html", {"message": "Successfully changed password",
+                                                        "previous_url": "/"})
+            except Exception as e:
+                del request.session["current_edit"]
+                return render(request, "error.html", {"message": e,
+                                                      "previous_url": "/home/manageaccount/edit"})
