@@ -12,9 +12,9 @@
     </header>
     <nav>
         <ul>
-            <li><a href="{% url 'manageaccount' %}">Account Management</a></li>
-            <li><a href="{% url 'managecourse' %}">Course Management</a></li>
-            <li><a href="{% url 'managesection' %}">Section Management</a></li>
+            <li><a href="{{ manage_account }}">Account Management</a></li>
+            <li><a href="{{ manage_course }}">Course Management</a></li>
+            <li><a href="{{ manage_section }}">Section Management</a></li>
         </ul>
     </nav>
     <section>
@@ -22,7 +22,7 @@
         <!-- Additional section content here, if necessary -->
     </section>
     <footer>
-        <form action="{% url 'home' %}" method="post">
+        <form action="/home" method="post">
             {% csrf_token %}
             <input type="submit" name="logout" value="Logout">
         </form>

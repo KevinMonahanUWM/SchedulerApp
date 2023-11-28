@@ -30,7 +30,6 @@ class Login(View):
     def post(self, request):
         username = request.POST.get('username')
         password = request.POST.get('password')
-
         try:
             user_database = User.objects.get(email_address=username, password=password)
             if Administrator.objects.filter(user=user_database).exists():
@@ -44,24 +43,27 @@ class Login(View):
         except:
             return render(request, "login.html", {"error": "Invalid username or password"})
 
-        if user and user.login(username, password):
-            return redirect('/home/')
+        if user.login(username, password):
+            request.session["user"] = str(user.database)
+            return redirect('/home')
 
 
 class Home(View):
 
     def get(self, request):
-        if not request.user.login:
+        username = determineUser(request.session["user"]).getUsername()
+        password = determineUser(request.session["user"]).getPassword()
+        if not determineUser(request.session["user"]).login(username=username, password=password):
             return redirect('/')
 
         # Render the admin home page with context for navigation
         context = {
-            'username': request.user.username,  # assuming the User model has a 'username' attribute
-            'manage_accounts_url': '/home/manageaccount',
-            'manage_courses_url': '/home/managecourse',
-            'manage_sections_url': '/home/managesection',
+            'username': username,  # assuming the User model has a 'username' attribute
+            'manage_accounts': '/home/manageaccount',
+            'manage_courses': '/home/managecourse',
+            'manage_sections': '/home/managesection',
         }
-        return render(request, 'admin_home.html', context)
+        return render(request, 'home.html', context)
 
     def post(self, request):
         if not request.user.login:
