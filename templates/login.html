@@ -7,22 +7,23 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
-    <h2>Login</h2>
-    <form id="loginForm" action="/login" method="post">
-        <div>
-            <label for="username">ID:</label>
-            <input type="text" id="username" name="username" required>
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-        <div>
-            <a href="/forgot-password">Forgot Password?</a>
-        </div>
-        <div>
-            <input type="submit" value="Login">
-        </div>
-    </form>
+<h2>Login</h2>
+<form id="loginForm" action="/" method="post">
+    {% csrf_token %}
+    <div>
+        <label for="username">ID:</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <div>
+        <a href="/forgot-password">Forgot Password?</a>
+    </div>
+    <div>
+        <input type="submit" value="Login">
+    </div>
+</form>
 </body>
 </html>
