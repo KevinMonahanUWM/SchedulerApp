@@ -16,15 +16,15 @@ class SuccessfulEdit(TestCase):
                                    home_address="Random location", phone_number=9990009999)
         self.account = Administrator.objects.create(user=temp)
         ses = self.user.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = str(self.account)
         ses.save()
         temp = User.objects.create(email_address="test@uwm.edu", password="pass", first_name="test", last_name="ignore",
                                    home_address="3400 N Maryland Ave", phone_number=4142292222)
         self.tempUser = TA.objects.create(user=temp, grader_status=False)
 
     def test_success_change(self):
-        self.user.post("/home/manageaccount/edit", {"user": str(self.tempUser)}, follow=True)
-        self.user.post("/home/manageaccount/edit", {"email_address": "",
+        self.user.post("/home/manageaccount/edit/", {"user": str(self.tempUser)}, follow=True)
+        self.user.post("/home/manageaccount/edit/", {"email_address": "",
                                                     "password": "",
                                                     "first_name": "Paul",
                                                     "last_name": "",
@@ -50,15 +50,15 @@ class InvalidFormatting(TestCase):
                                    home_address="Random location", phone_number=9990009999)
         self.account = Administrator.objects.create(user=temp)
         ses = self.user.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = str(self.account)
         ses.save()
         temp = User.objects.create(email_address="test@uwm.edu", password="pass", first_name="test", last_name="ignore",
                                    home_address="3400 N Maryland Ave", phone_number=4142292222)
         self.tempUser = TA.objects.create(user=temp, grader_status=False)
 
     def test_formatting_error(self):
-        self.user.post("/home/manageaccount/edit", {"user": self.tempUser}, follow=True)
-        resp = self.user.post("/home/manageaccount/edit", {"email_address": "",
+        self.user.post("/home/manageaccount/edit/", {"user": self.tempUser}, follow=True)
+        resp = self.user.post("/home/manageaccount/edit/", {"email_address": "",
                                                            "password": "",
                                                            "first_name": "",
                                                            "last_name": "",
@@ -70,8 +70,8 @@ class InvalidFormatting(TestCase):
                           "Changed phone number to value that does not match standard format")
 
     def test_formatting_error_ensure_no_change(self):
-        self.user.post("/home/manageaccount/edit", {"user": self.tempUser}, follow=True)
-        resp = self.user.post("/home/manageaccount/edit", {"email_address": "",
+        self.user.post("/home/manageaccount/edit/", {"user": self.tempUser}, follow=True)
+        resp = self.user.post("/home/manageaccount/edit/", {"email_address": "",
                                                            "password": "",
                                                            "first_name": "",
                                                            "last_name": "",
@@ -93,10 +93,10 @@ class NoUsers(TestCase):
                                    home_address="Random location", phone_number=9990009999)
         self.account = Administrator.objects.create(user=temp)
         ses = self.user.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = str(self.account)
         ses.save()
 
     def test_no_users(self):
-        resp = self.user.get("/home/manageaccount/edit")
+        resp = self.user.get("/home/manageaccount/edit/")
         self.assertEquals(resp.context["message"], "No existing users to edit", "Cannot go to edits accounts when "
                                                                                 "there are no users")

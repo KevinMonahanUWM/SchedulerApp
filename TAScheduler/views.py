@@ -176,7 +176,7 @@ class DeleteAccount(View):
     def post(self, request):
         user_object = determineUser(request.POST["user"])
         try:
-            determineUser(request.session["user"]).database.user.removeUser(user_object)
+            determineUser(request.session["user"]).removeUser(user_object)
             return render(request, "success.html", {"message": "User successfully deleted",
                                                     "previous_url": "/home/manageaccount/delete/"})
         except Exception as e:
@@ -214,7 +214,7 @@ class EditAccount(View):
             else:
                 number = request.POST["phone_number"]
             grader = True
-            if request.POST.get("grader_status") is None:
+            if request.POST.get("grader_status") is None or request.POST.get("grader_status") is "":
                 grader = False
             account_info = {
                 "email_address": request.POST.get("email_address"),
@@ -227,8 +227,8 @@ class EditAccount(View):
                 "max_assignments": request.POST.get("max_assignments")
             }
             try:
-                (AdminObj(Administrator.objects.get(user=User.objects.get(email_address=request.session.get("user"))))
-                 .editUser(determineUser(request.session["current_edit"]), account_info))
+                determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
+                                                                account_info)
                 del request.session["current_edit"]
                 return render(request, "success.html", {"message": "User successfully changed",
                                                         "previous_url": "/home/manageaccount/edit"})
