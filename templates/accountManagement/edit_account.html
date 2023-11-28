@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<form id="selectUserToEdit" action="/home/manageaccount/edit" method="post">
+<form id="selectUserToEdit" action="/home/manageaccount/edit/" method="post">
 {% csrf_token %}
 {% if not selected %}
 {% for user in users %}
@@ -49,6 +49,6 @@
     <input type="submit">
 </form>
 
-<a href="/home/manageaccount">Cancel</a>
+<a href="/home/manageaccount/">Cancel</a>
 </body>
 </html>

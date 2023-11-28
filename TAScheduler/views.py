@@ -45,17 +45,15 @@ class Login(View):
 
         if user.login(username, password):
             request.session["user"] = str(user.database)
-            return redirect('/home')
+            return redirect('/home/')
 
 
 class Home(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         username = determineUser(request.session["user"]).getUsername()
-        password = determineUser(request.session["user"]).getPassword()
-        if not determineUser(request.session["user"]).login(username=username, password=password):
-            return redirect('/')
-
         # Render the admin home page with context for navigation
         context = {
             'username': username,  # assuming the User model has a 'username' attribute
@@ -66,8 +64,6 @@ class Home(View):
         return render(request, 'home.html', context)
 
     def post(self, request):
-        if not request.user.login:
-            return redirect('/login/')
 
         # Perform actions based on the posted data
         # Assuming buttons in the admin_home.html have the name attribute set to these values
@@ -78,52 +74,66 @@ class Home(View):
         elif 'section_management' in request.POST:
             return redirect('/home/managesection')
         elif 'logout' in request.POST:
-            logout(request)  # somehow log out (maybe reset section)
-            return redirect('/login/')  # Redirect to login page after logout
+            del request.session["user"]
+            return redirect('/')  # Redirect to login page after logout
         else:
             # If the action is unrecognized, return to the home page with an error message
-            return render(request, 'admin_home.html', {'error': 'Unrecognized action'})
+            return render(request, 'home.html', {'error': 'Unrecognized action'})
 
 
 class CourseManagement(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "courseManagement/course_management.html")
 
 
 class CreateCourse(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "courseManagement/create_course.html")
 
 
 class DeleteCourse(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "courseManagement/delete_course.html")
 
 
 class EditCourse(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "courseManagement/edit_course.html")
 
 
 class AddInstructorToCourse(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "courseManagement/add_instructor_to_course.html")
 
 
 class AccountManagement(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "accountManagement/account_management.html")
 
 
 class CreateAccount(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         roles = ["Admin", "Instructor", "TA"]
         return render(request, "accountManagement/create_account.html", {"roles": roles})
 
@@ -142,8 +152,7 @@ class CreateAccount(View):
         }
         print(request.session["user"])
         try:
-            (AdminObj(Administrator.objects.get(user=User.objects.get(email_address=request.session.get("user")))).
-             createUser(account_info, role=request.POST["role"]))
+            determineUser(request.session["user"]).createUser(account_info, role=request.POST["role"])
             return render(request, "success.html", {"message": "User successfully created",
                                                     "previous_url": "/home/manageaccount/create"})
         except Exception as e:
@@ -154,39 +163,41 @@ class CreateAccount(View):
 class DeleteAccount(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         users = list(
-            map(str, Administrator.objects.exclude(user=User.objects.get(email_address=request.session.get("user")))))
+            map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
         users.extend(list(
-            map(str, Instructor.objects.exclude(user=User.objects.get(email_address=request.session.get("user"))))))
+            map(str, Instructor.objects.exclude(user=determineUser(request.session["user"]).database.user))))
         users.extend(
-            list(map(str, TA.objects.exclude(user=User.objects.get(email_address=request.session.get("user"))))))
+            list(map(str, TA.objects.exclude(user=determineUser(request.session["user"]).database.user))))
         if len(users) == 0:
             return render(request, "error.html", {"message": "No existing users to delete",
-                                                  "previous_url": "/home/manageaccount"})
+                                                  "previous_url": "/home/manageaccount/"})
         return render(request, "accountManagement/delete_account.html", {"users": users})
 
     def post(self, request):
         user_object = determineUser(request.POST["user"])
         try:
-            AdminObj(
-                Administrator.objects.get(user=User.objects.get(email_address=request.session.get("user")))).removeUser(
-                user_object)
+            determineUser(request.session["user"]).database.user.removeUser(user_object)
             return render(request, "success.html", {"message": "User successfully deleted",
-                                                    "previous_url": "/home/manageaccount/delete"})
+                                                    "previous_url": "/home/manageaccount/delete/"})
         except Exception as e:
             return render(request, "error.html", {"message": e,
-                                                  "previous_url": "/home/manageaccount/delete"})
+                                                  "previous_url": "/home/manageaccount/delete/"})
 
 
 class EditAccount(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         users = list(
-            map(str, Administrator.objects.exclude(user=User.objects.get(email_address=request.session.get("user")))))
+            map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
         users.extend(list(
-            map(str, Instructor.objects.exclude(user=User.objects.get(email_address=request.session.get("user"))))))
+            map(str, Instructor.objects.exclude(user=determineUser(request.session["user"]).database.user))))
         users.extend(
-            list(map(str, TA.objects.exclude(user=User.objects.get(email_address=request.session.get("user"))))))
+            list(map(str, TA.objects.exclude(user=determineUser(request.session["user"]).database.user))))
         if len(users) == 0:
             return render(request, "error.html", {"message": "No existing users to edit",
                                                   "previous_url": "/home/manageaccount"})
@@ -221,9 +232,11 @@ class EditAccount(View):
             try:
                 (AdminObj(Administrator.objects.get(user=User.objects.get(email_address=request.session.get("user"))))
                  .editUser(determineUser(request.session["current_edit"]), account_info))
+                del request.session["current_edit"]
                 return render(request, "success.html", {"message": "User successfully changed",
                                                         "previous_url": "/home/manageaccount/edit"})
             except Exception as e:
+                del request.session["current_edit"]
                 return render(request, "error.html", {"message": e,
                                                       "previous_url": "/home/manageaccount/edit"})
 
@@ -231,11 +244,15 @@ class EditAccount(View):
 class SectionManagement(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "sectionManagement/section_management.html")
 
 
 class CreateSection(View):
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "sectionManagement/create_section.html")
 
     def post(self, request):
@@ -255,27 +272,33 @@ class CreateSection(View):
             message = adminUser.createSection(secInfo)
             # WE DON'T HAVE SUCCESS URL OR SUCCESS HTML ATM.
             return render(request, "success.html", {"message": message})
-        except:
+        except Exception as e:
             # WE DON'T HAVE ERROR URL OR ERROR HTML ATM.
             # NEED A WAY TO RETURN AN INFORMATIVE MESSAGE FROM THE CREATESECTION METHOD
-            return render(request, "error.html", {"message": message})
+            return render(request, "error.html", {"message": e})
 
 
 class DeleteSection(View):
     # ad
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "sectionManagement/delete_section.html")
 
 
 class EditSection(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "sectionManagement/edit_section.html")
 
 
 class AddTAToSection(View):
 
     def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
         return render(request, "sectionManagement/add_ta_to_section.html")
 
 

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
-<form id="createUserFrom" action="/home/manageaccount/create" method="post">
+<form id="createUserFrom" action="/home/manageaccount/create/" method="post">
     {% csrf_token %}
     <label for="email_address">Email Address:</label>
     <input id="email_address" type="text" name="email_address"><br>
@@ -38,6 +38,6 @@
 
 </form>
 
-<a href="/home/manageaccount">Cancel</a>
+<a href="/home/manageaccount/">Cancel</a>
 </body>
 </html>
