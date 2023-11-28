@@ -58,10 +58,16 @@ class Section(models.Model):
     location = models.CharField(max_length=30)
     meeting_time = models.DateTimeField()
 
+    def __str__(self):
+        return str(self.section_id) + "-" + str(self.course.course_id)
+
 
 class Lab(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
     ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL, null=True)
+
+    def __str__(self):
+        return "Lab:" + self.section.__str__()
 
 
 class Lecture(models.Model):
@@ -69,6 +75,9 @@ class Lecture(models.Model):
     instructor = models.ForeignKey(Instructor, unique=True, on_delete=models.SET_NULL, null=True)
     ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL,
                            null=True)  # Graders would be assigned to lecture
+
+    def __str__(self):
+        return "Lecture:" + self.section.__str__()
 
 
 class TAToCourse(models.Model):
