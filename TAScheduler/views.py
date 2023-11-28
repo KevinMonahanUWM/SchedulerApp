@@ -1,11 +1,9 @@
-from datetime import datetime
-
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
 
 import TAScheduler
-from TAScheduler.models import User, Administrator, Instructor, TA, Lecture, Lab
+from TAScheduler.models import User, Administrator, Instructor, TA, Lecture, Lab, Section
 from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj
 
 
@@ -501,15 +499,3 @@ class Forgot_Password(View):
                 del request.session["current_edit"]
                 return render(request, "error.html", {"message": e,
                                                       "previous_url": "/"})
-
-
-class Success(View):
-
-    def get(self, request):
-        return render(request, "success.html")
-
-
-class Error(View):
-
-    def get(self, request):
-        return render(request, "success.html")
