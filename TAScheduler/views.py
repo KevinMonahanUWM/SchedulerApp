@@ -135,7 +135,7 @@ class DeleteSection(View):
 
     def get(self, request):
         sections = list(map(str, Lecture.objects.all()))  # lectures
-        sections.extend(map(str, Lecture.objects.all()))  # labs
+        sections.extend(map(str, Lab.objects.all()))  # labs
         if len(sections) == 0:
             return render(request, "error.html", {"message": "No existing sections to delete",
                                                   "previous_url": "home/managesection"})
@@ -158,7 +158,25 @@ class DeleteSection(View):
 class EditSection(View):
 
     def get(self, request):
-        return render(request, "sectionManagement/edit_section.html")
+        sections = list(map(str, Lecture.objects.all()))  # lectures
+        sections.extend(map(str, Lab.objects.all()))  # labs
+        if len(sections) == 0:
+            return render(request, "error.html", {"message": "No existing sections to edit",
+                                                  "previous_url": "home/managesection"})
+        return render(request, "sectionManagement/edit_section.html", {"sections": sections})
+
+    def post(self, request):
+        curUserEmail = request.session["user_object"]
+        curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
+        sectionType = request.POST["section"]
+        secObj = determineSec(sectionType) #sending string arg
+
+        try:
+            curUserObj.editSection(secObj)
+            return render(request, "success.html",
+                          {"message": "Successfully Editted Section", "previous_url": "home/managesection/edit"})
+        except Exception as e:
+            return render(request, "error.html", {"message": e, "previous_url": "home/managesection/edit"})
 
 
 class AddTAToSection(View):

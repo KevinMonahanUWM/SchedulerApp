@@ -1,5 +1,5 @@
 import abc
-from dateutil import parser #KEEP THIS
+from dateutil import parser #KEEP THIS - Kiran: I can't download this for some reason
 
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
