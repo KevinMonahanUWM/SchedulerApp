@@ -10,6 +10,9 @@ class User(models.Model):
     home_address = models.CharField(max_length=90)
     phone_number = models.IntegerField()
 
+    def __str__(self):
+        return self.first_name + " " + self.last_name + ": " + self.email_address
+
 
 # noinspection DuplicatedCode
 class TA(models.Model):
@@ -22,6 +25,10 @@ class TA(models.Model):
             MinValueValidator(0)
         ]
     )
+
+
+def __str__(self):
+    return self.user.__str__() + " -  TA"
 
 
 class Instructor(models.Model):
