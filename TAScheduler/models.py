@@ -26,9 +26,8 @@ class TA(models.Model):
         ]
     )
 
-
-def __str__(self):
-    return self.user.__str__() + " -  TA"
+    def __str__(self):
+        return self.user.__str__() + " -  TA"
 
 
 class Instructor(models.Model):
@@ -58,7 +57,7 @@ class Section(models.Model):
     location = models.CharField(max_length=30)
     meeting_time = models.DateTimeField()
 
-    def __str__(self):
+    def __str__(self):  # for "determineSection"
         return str(self.section_id) + "-" + str(self.course.course_id)
 
 
@@ -66,8 +65,12 @@ class Lab(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
     ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL, null=True)
 
-    def __str__(self):
+    def __str__(self):  # for "determineSection"
         return "Lab:" + self.section.__str__()
+
+    def toDict(self):  # for display
+        return {"section_type": "Lab", "section_id": self.section.section_id,
+                "course_id": self.section.course.course_id}
 
 
 class Lecture(models.Model):
@@ -76,8 +79,12 @@ class Lecture(models.Model):
     ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL,
                            null=True)  # Graders would be assigned to lecture
 
-    def __str__(self):
+    def __str__(self):  # for "determineSection"
         return "Lecture:" + self.section.__str__()
+
+    def toDict(self):  # for display
+        return {"section_type": "Lecture", "section_id": self.section.section_id,
+                "course_id": self.section.course.course_id}
 
 
 class TAToCourse(models.Model):

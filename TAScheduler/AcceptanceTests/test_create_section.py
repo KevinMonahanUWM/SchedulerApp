@@ -18,7 +18,6 @@ from TAScheduler.models import Section, Course, Lecture, Lab, Administrator, Use
 class Create(TestCase):  # 6/6 Pass
     client = None
     account = None
-    info = None
     courseList = None
     secList = None
 
@@ -106,7 +105,6 @@ class Create(TestCase):  # 6/6 Pass
 class NoCreateDupeSec(TestCase):  # 4/4 Pass
     client = None
     account = None
-    info = None
     courseList = None
     secList = None
 
@@ -170,7 +168,6 @@ class NoCreateDupeSec(TestCase):  # 4/4 Pass
 class NonexistantCourse(TestCase): # 4/4 pass
     client = None
     account = None
-    info = None
     courseList = None
     secList = None
 
