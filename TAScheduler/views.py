@@ -34,11 +34,12 @@ class Login(View):
         else:
             return render(request, "login.html", {"error": "Invalid username or password"})
 
+
 class Home(View):
 
     def get(self, request):
         if not request.user.login:
-            return redirect('/login/')
+            return redirect('/')
 
         # Render the admin home page with context for navigation
         context = {
