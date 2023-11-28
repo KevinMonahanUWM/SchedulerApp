@@ -658,25 +658,41 @@ class LectureObj(SectionObj):
         return self.database.section.section_id
 
     def getParentCourse(self):
-        pass
+        return self.database.section.course
 
     def getLectureTAAsgmt(self):  # new
-        pass
+        return self.database.ta
 
     def addTA(self, active_ta):  # new
-        pass
+        if type(active_ta) is not TA:
+            raise TypeError("Data passed to addTA method is not a TA")
+        elif not TA.objects.filter(user=active_ta.user).exists():
+            raise TypeError("The TA object does not exist in the database")
+        elif self.database.ta is not None:
+            raise RuntimeError("A TA already exists")
+        self.database.ta = active_ta
 
     def getLecInstrAsmgt(self):
-        pass
+        return self.database.instructor
 
     def addInstr(self, active_instr):
-        pass
+        if type(active_instr) is not Instructor:
+            raise TypeError("Data passed to addInstructor method is not a Instructor")
+        elif not Instructor.objects.filter(user=active_instr.user).exists():
+            raise TypeError("The Instructor object does not exist in the database")
+        elif self.database.instructor is not None:
+            raise RuntimeError("An Instructor already exists")
+        self.database.instructor = active_instr
 
     def removeInstr(self):
-        pass
+        if self.database.instructor is None:
+            raise RuntimeError("No instructor to remove")
+        self.database.instructor = None
 
     def removeTA(self):  # new
-        pass
+        if self.database.ta is None:
+            raise RuntimeError("No TA to remove")
+        self.database.ta = None
 
 
 class LabObj(SectionObj):
@@ -694,13 +710,21 @@ class LabObj(SectionObj):
         return self.database.section.section_id
 
     def getParentCourse(self):
-        pass
+        return self.database.section.course
 
     def getLabTAAsgmt(self):
-        pass
+        return self.database.ta
 
     def addTA(self, active_ta):
-        pass
+        if type(active_ta) is not TA:
+            raise TypeError("Data passed to addTA method is not a TA")
+        elif not TA.objects.filter(user=active_ta.user).exists():
+            raise TypeError("The TA object does not exist in the database")
+        elif self.database.ta is not None:
+            raise RuntimeError("A TA already exists")
+        self.database.ta = active_ta
 
     def removeTA(self):
-        pass
+        if self.database.ta is None:
+            raise RuntimeError("No TA to remove")
+        self.database.ta = None
