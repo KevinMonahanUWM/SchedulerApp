@@ -64,16 +64,49 @@ class AdminObj(UserObj):
     def createUser(self, user_info, role):
         if type(user_info) is not dict:
             raise TypeError("Input passed is not a dictionary")
-        if User.objects.filter(email_address=user_info['email_address']).exists():
+        if User.objects.filter(email_address=user_info.get('email_address')).exists():
             raise RuntimeError("User with this email address already exists")
-
+        try:
+            if user_info.get('email_address') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('password') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('first_name') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('last_name') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('home_address') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('phone_number') == 0:
+                raise RuntimeError("Not all inputs have been provided")
+            if len(str(user_info.get("phone_number"))) is not 10:
+                raise ValueError("phone_number expects an int input with a length of 10")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        if role == "" or role is None:
+            raise RuntimeError("Not all inputs have been provided")
         new_user = User.objects.create(
-            email_address=user_info['email_address'],
-            password=user_info['password'],
-            first_name=user_info['first_name'],
-            last_name=user_info['last_name'],
-            home_address=user_info['home_address'],
-            phone_number=user_info['phone_number']
+            email_address=user_info.get('email_address'),
+            password=user_info.get('password'),
+            first_name=user_info.get('first_name'),
+            last_name=user_info.get('last_name'),
+            home_address=user_info.get('home_address'),
+            phone_number=user_info.get('phone_number')
         )
         if role.lower() == 'admin':
             Administrator.objects.create(user=new_user)
@@ -288,7 +321,7 @@ class AdminObj(UserObj):
         except KeyError:  # No home_address in list that is fine don't change the database
             active_user.database.user.home_address = active_user.database.user.home_address
         try:  # phone number
-            if new_info.get("phone_number") is None:
+            if new_info.get("phone_number") is None or new_info.get("phone_number") is 0:
                 raise KeyError
             if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) is not 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
