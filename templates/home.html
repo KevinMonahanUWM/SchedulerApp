@@ -10,6 +10,7 @@
     <header>
         <h1>Admin Home</h1>
     </header>
+    {% if role_admin %}
     <nav>
         <ul>
             <li><a href="{{ manage_accounts }}">Account Management</a></li>
@@ -17,6 +18,7 @@
             <li><a href="{{ manage_sections }}">Section Management</a></li>
         </ul>
     </nav>
+    {% endif %}
     <section>
         <h2>Welcome, {{ username }}!</h2>
         <!-- Additional section content here, if necessary -->

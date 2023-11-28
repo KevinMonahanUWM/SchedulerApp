@@ -409,7 +409,11 @@ class TAObj(UserObj):
         self.database = ta_info
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def getUsername(self):
         return self.database.user.email_address
@@ -508,7 +512,11 @@ class InstructorObj(UserObj):
         self.database = info
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def getUsername(self):
         return self.database.user.email_address

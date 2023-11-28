@@ -32,15 +32,13 @@ class Login(View):
             if Administrator.objects.filter(user=user_database).exists():
                 user = AdminObj(Administrator.objects.get(user=user_database))
             elif Instructor.objects.filter(user=user_database).exists():
-                # user = InstructorObj(Instructor.objects.get(user=user_database))  #Can not login in with sprint one
-                raise Exception("Bad password or username")
+                user = InstructorObj(Instructor.objects.get(user=user_database))
             elif TA.objects.filter(user=user_database).exists():
-                # user = TAObj(TA.objects.get(user=user_database))  #Can not login in with sprint one
-                raise Exception("Bad password or username")
+                user = TAObj(TA.objects.get(user=user_database))
             else:
                 raise Exception("Bad password or username")
         except:
-            return render(request, "login.html", {"error": "Invalid username or password (Only admins allowed)"})
+            return render(request, "login.html", {"error": "Invalid username or password"})
 
         if user.login(username, password):
             request.session["user"] = str(user.database)
@@ -52,6 +50,9 @@ class Home(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        admin = False
+        if determineUser(request.session["user"]).getRole() is "Admin":
+            admin = True
         username = determineUser(request.session["user"]).getUsername()
         # Render the admin home page with context for navigation
         context = {
@@ -59,6 +60,7 @@ class Home(View):
             'manage_accounts': '/home/manageaccount',
             'manage_courses': '/home/managecourse',
             'manage_sections': '/home/managesection',
+            'role_admin': admin
         }
         return render(request, 'home.html', context)
 
@@ -85,6 +87,8 @@ class CourseManagement(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "courseManagement/course_management.html")
 
 
@@ -93,6 +97,8 @@ class CreateCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "courseManagement/create_course.html")
 
 
@@ -101,6 +107,8 @@ class DeleteCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "courseManagement/delete_course.html")
 
 
@@ -109,6 +117,8 @@ class EditCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "courseManagement/edit_course.html")
 
 
@@ -117,6 +127,8 @@ class AddInstructorToCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "courseManagement/add_instructor_to_course.html")
 
 
@@ -125,6 +137,8 @@ class AccountManagement(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "accountManagement/account_management.html")
 
 
@@ -133,6 +147,8 @@ class CreateAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         roles = ["Admin", "Instructor", "TA"]
         return render(request, "accountManagement/create_account.html", {"roles": roles})
 
@@ -164,6 +180,8 @@ class DeleteAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         users = list(
             map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
         users.extend(list(
@@ -191,6 +209,8 @@ class EditAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         users = list(
             map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
         users.extend(list(
@@ -245,6 +265,8 @@ class SectionManagement(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "sectionManagement/section_management.html")
 
 
@@ -252,6 +274,8 @@ class CreateSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "sectionManagement/create_section.html")
 
     def post(self, request):
@@ -282,6 +306,8 @@ class DeleteSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "sectionManagement/delete_section.html")
 
 
@@ -290,6 +316,8 @@ class EditSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "sectionManagement/edit_section.html")
 
 
@@ -298,6 +326,8 @@ class AddTAToSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+            return redirect("/home/")
         return render(request, "sectionManagement/add_ta_to_section.html")
 
 
