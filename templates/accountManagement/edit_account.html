@@ -8,6 +8,47 @@
 </head>
 <body>
 
+<form id="selectUserToEdit" action="/home/manageaccount/edit" method="post">
+{% csrf_token %}
+{% if not selected %}
+{% for user in users %}
+    <input id="user" type="radio" name="user" value="{{ user }}">
+    <label for="user">{{ user }}</label><br>
+{% endfor %}
+{% endif %}
+{% if selected %}
+    <label for="email_address">Email Address:</label>
+    <input id="email_address" type="text" name="email_address">
+
+    <label for="password">Password:</label>
+    <input id="password" type="text" name="password"><br>
+
+    <label for="first_name">First Name:</label>
+    <input id="first_name" type="text" name="first_name"><br>
+
+    <label for="last_name">Last Name:</label>
+    <input id="last_name" type="text" name="last_name"><br>
+
+    <label for="home_address">Home Address:</label>
+    <input id="home_address" type="text" name="home_address"><br>
+
+    <label for="phone_number">Phone Number:</label>
+    <input id="phone_number" type="text" name="phone_number"><br>
+
+    {% if role == "TA" %}
+        <label for="max_assignments">Max Assignments:</label>
+        <input type="number" name="max_assignments" id="max_assignments"><br>
+        <label for="grader_status">Grader Status:</label>
+        <input type="checkbox" id="grader_status" name="grader_status" value="True"><br>
+    {% endif %}
+    {% if role == "Instructor" %}
+        <label for="max_assignments">Max Assignments:</label>
+        <input type="number" name="max_assignments" id="max_assignments"><br>
+    {% endif %}
+    {% endif %}
+    <input type="submit">
+</form>
+
 <a href="/home/manageaccount">Cancel</a>
 </body>
 </html>
