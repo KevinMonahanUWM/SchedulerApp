@@ -31,21 +31,21 @@ class Login(View):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = None
-        if Administrator.objects.filter(user__email_address=username).exists():
-            admin_info = Administrator.objects.get(user__email_address=username)
-            user = AdminObj(admin_info)
-        elif TA.objects.filter(user__email_address=username).exists():
-            ta_info = TA.objects.get(user__email_address=username)
-            user = TAObj(ta_info)
-        elif Instructor.objects.filter(user__email_address=username).exists():
-            instr_info = Instructor.objects.get(user__email_address=username)
-            user = InstructorObj(instr_info)
+        try:
+            user_database = User.objects.get(email_address=username, password=password)
+            if Administrator.objects.filter(user=user_database).exists():
+                user = AdminObj(Administrator.objects.get(user=user_database))
+            elif Instructor.objects.filter(user=user_database).exists():
+                user = InstructorObj(Instructor.objects.get(user=user_database))
+            elif TA.objects.filter(user=user_database).exists():
+                user = TAObj(TA.objects.get(user=user_database))
+            else:
+                raise Exception("Bad password or username")
+        except:
+            return render(request, "login.html", {"error": "Invalid username or password"})
 
         if user and user.login(username, password):
             return redirect('/home/')
-        else:
-            return render(request, "login.html", {"error": "Invalid username or password"})
 
 
 class Home(View):
@@ -76,7 +76,7 @@ class Home(View):
         elif 'section_management' in request.POST:
             return redirect('/home/managesection')
         elif 'logout' in request.POST:
-            logout(request) # somehow log out (maybe reset section)
+            logout(request)  # somehow log out (maybe reset section)
             return redirect('/login/')  # Redirect to login page after logout
         else:
             # If the action is unrecognized, return to the home page with an error message
