@@ -32,10 +32,10 @@ class Login(View):
             if Administrator.objects.filter(user=user_database).exists():
                 user = AdminObj(Administrator.objects.get(user=user_database))
             elif Instructor.objects.filter(user=user_database).exists():
-                #user = InstructorObj(Instructor.objects.get(user=user_database))  #Can not login in with sprint one
+                # user = InstructorObj(Instructor.objects.get(user=user_database))  #Can not login in with sprint one
                 raise Exception("Bad password or username")
             elif TA.objects.filter(user=user_database).exists():
-                #user = TAObj(TA.objects.get(user=user_database))  #Can not login in with sprint one
+                # user = TAObj(TA.objects.get(user=user_database))  #Can not login in with sprint one
                 raise Exception("Bad password or username")
             else:
                 raise Exception("Bad password or username")
@@ -357,4 +357,4 @@ class Forgot_Password(View):
             except Exception as e:
                 del request.session["current_edit"]
                 return render(request, "error.html", {"message": e,
-                                                      "previous_url": "/home/manageaccount/edit"})
+                                                      "previous_url": "/"})
