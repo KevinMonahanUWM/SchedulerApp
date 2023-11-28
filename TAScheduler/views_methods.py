@@ -53,7 +53,7 @@ class AdminObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "Admin"
 
     def login(self, username, password):
         pass
@@ -61,8 +61,27 @@ class AdminObj(UserObj):
     def createCourse(self, course_info):
         pass
 
-    def createUser(self, user_info):
-        pass
+    def createUser(self, user_info, role):
+        if type(user_info) is not dict:
+            raise TypeError("Input passed is not a dictionary")
+        if User.objects.filter(email_address=user_info['email_address']).exists():
+            raise RuntimeError("User with this email address already exists")
+
+        new_user = User.objects.create(
+            email_address=user_info['email_address'],
+            password=user_info['password'],
+            first_name=user_info['first_name'],
+            last_name=user_info['last_name'],
+            home_address=user_info['home_address'],
+            phone_number=user_info['phone_number']
+        )
+        if role.lower() == 'admin':
+            Administrator.objects.create(user=new_user)
+        elif role.lower() == 'ta':
+            TA.objects.create(user=new_user, grader_status=False)
+        elif role.lower() == 'instructor':
+            Instructor.objects.create(user=new_user)
+        return new_user
 
     def createSection(self, section_info):
         pass
@@ -359,7 +378,7 @@ class TAObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "TA"
 
     def hasMaxAsgmts(self):
         pass
@@ -410,7 +429,7 @@ class InstructorObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "Instructor"
 
     def hasMaxAsgmts(self):
         pass
