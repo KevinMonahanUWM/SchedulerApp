@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
@@ -112,23 +114,24 @@ class CreateSection(View):
         return render(request, "sectionManagement/create_section.html", {"secs": secs})
 
     def post(self, request):
-        curUserEmail = request.session["user_object"]  # should hold unique identifier "email"
+        curUserEmail = request.session["user"]  # should hold unique identifier "email"
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
         curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
 
-        section_id = request.POST.get('section_id')
         course_id = request.POST.get('course_id')
+        section_id = request.POST.get('section_id')
         section_type = request.POST.get('section_type')
-        location = request.POST.get('location')
         meeting_time = request.POST.get('meeting_time')
-        secInfo = {'section_id': section_id, 'course_id': course_id,
-                   'section_type': section_type, 'location': location, 'meeting_time': meeting_time}
+        location = request.POST.get('location')
+
+        secInfo = {'course_id': course_id, 'section_id': section_id,
+                   'section_type': section_type, 'meeting_time': meeting_time, 'location': location}
         try:
             curUserObj.createSection(secInfo)
             return render(request, "success.html", {"message": "Successfully Created Section",
-                                                    "previous_url": "home/managesection/create"})
+                                                    "previous_url": "/home/managesection/create"})
         except Exception as e:  # THIS TAKES THE MESSAGE INSIDE OF THE EXCEPTION AND STORES AS e, ValueError("me") <- "me"
-            return render(request, "error.html", {"message": e, "previous_url": "home/managesection/create"})
+            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/create"})
 
 
 class DeleteSection(View):
@@ -145,7 +148,7 @@ class DeleteSection(View):
         curUserEmail = request.session["user_object"]
         curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
         sectionType = request.POST["section"]
-        secObj = determineSec(sectionType) #sending string arg
+        secObj = determineSec(sectionType)  # sending string arg
 
         try:
             curUserObj.removeSection(secObj)
@@ -169,7 +172,7 @@ class EditSection(View):
         curUserEmail = request.session["user_object"]
         curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
         sectionType = request.POST["section"]
-        secObj = determineSec(sectionType) #sending string arg
+        secObj = determineSec(sectionType)  # sending string arg
 
         try:
             curUserObj.editSection(secObj)
@@ -183,3 +186,15 @@ class AddTAToSection(View):
 
     def get(self, request):
         return render(request, "sectionManagement/add_ta_to_section.html")
+
+
+class Success(View):
+
+    def get(self, request):
+        return render(request, "success.html")
+
+
+class Error(View):
+
+    def get(self, request):
+        return render(request, "success.html")

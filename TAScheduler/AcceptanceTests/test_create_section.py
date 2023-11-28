@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.test import TestCase, Client
 
-from TAScheduler.models import Section, Course, Lecture, Lab
+from TAScheduler.models import Section, Course, Lecture, Lab, Administrator, User
 
 
 # Ideas for other tests...
@@ -16,63 +16,119 @@ from TAScheduler.models import Section, Course, Lecture, Lab
 
 # AC1] - Success (Inputs/Course Exists, Unique ID)
 class Create(TestCase):
+    client = None
+    account = None
+    info = None
+    courseList = None
+    secList = None
+
     def setUp(self):
         self.client = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(email_address="testadmin@uwm.edu", password="pass", first_name="Test",
+                                     last_name="Test",
+                                     home_address="Random location", phone_number=9990009999))
+        ses = self.client.session
+        ses["user"] = "testadmin@uwm.edu"  # should be done at login
+        ses.save()
         self.courseList = list()  # holding list of test courses so easier to call later
         self.secList = list()
-        for i in [1, 2, 3]: # Creating 3 Courses: hardcoded "numSec","modality","credits"
+        for i in [1, 2, 3]:  # Creating 3 Courses: hardcoded "numSec","modality","credits"
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credts=3, )
+                                modality="Remote", credits=3)
             testCourse.save()
-            self.courseList = self.courseList.append(testCourse)
-        for i in [1, 2, 3]: # Creating 3 Sections: hardcoded "meetingTime"
+            self.courseList.append(testCourse)
+        for i in [1, 2, 3]:  # Creating 3 Sections: hardcoded "meetingTime"
             testSection = Section(section_id=i, course=self.courseList[i - 1], location="location" + str(i),
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
-            self.secList = self.secList.append(testSection)
-        self.lec1 = Lecture(section=self.secList[0]).save #I probs don't need these, but they're here for later
-        self.lab1 = Lab(section=self.secList[0]).save # Course1: Lecture + Lab
-        self.lec2 = Lecture(section=self.secList[1]).save # Course2: Lecture
-        self.lab2 = Lab(sectoin=self.secList[2]) # Course3: Lab
+            self.secList.append(testSection)
+        self.lec1 = Lecture(section=self.secList[0]).save()  # Course1: Lecture
+        self.lec2 = Lecture(section=self.secList[1]).save()  # Course2: Lecture
+        self.lab2 = Lab(section=self.secList[2]).save()  # Course3: Lab
+
         # For user's input ...
-        self.lecInfo = {"section_id": 4, "course": self.courseList[2], "location": "location" + 4,
-                        "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "secType": "Lecture"}
-        self.labInfo = {"section_id": 4, "course": self.courseList[2], "location": "location" + 4,
-                        "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "secType": "Lab"}
+        self.lecInfo = {"course_id": self.courseList[2].course_id, "section_id": 4, "section_type": "Lecture",
+                        "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "location": "location" + str(4)
+                        }
+        self.labInfo = {"course_id": self.courseList[2].course_id, "section_id": 4, "section_type": "Lab",
+                        "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "location": "location" + str(4)
+                        }
 
-    # 1] Creating Unique Lecture: Existing course & all inputs
+    # [1] Creating Unique Lecture:
     def test_SuccessfulLecCreation(self):
-        resp = self.client.post("home/managecourse/create", data=self.lecInfo)
-        self.assertTrue(Lecture.objects.filter(section_id=4).count() is 1,
+        origDBSecCount = Section.objects.all().count()
+        resp = self.client.post("/home/managesection/create", data=self.lecInfo)
+        newDBSecCount = Section.objects.all().count()
+        newSecDB = Section.objects.get(section_id=4)
+        newLecDBQS = Lecture.objects.filter(section=newSecDB)
+        self.assertTrue(newLecDBQS.count() == 1,
                         msg="should have found the newly added lecture in db")
+        self.assertTrue(newDBSecCount == (origDBSecCount + 1),
+                        msg="there needs to be an extra section when creating a section")
 
-    # 2] Creating Unique Lab: Existing course & all inputs
+    # [2] Creating Unique Lab
     def test_SuccessfulLabCreation(self):
-        resp = self.client.post("home/managecourse/create", data=self.labInfo)
-        self.assertTrue(Lab.objects.filter(section_id=4).count() is 1,
+        origDBSecCount = Section.objects.all().count()
+        resp = self.client.post("/home/managesection/create", data=self.labInfo)
+        newDBSecCount = Section.objects.all().count()
+        newSecDB = Section.objects.get(section_id=4)
+        newLabDBQS = Lab.objects.filter(section=newSecDB)
+        self.assertTrue(newLabDBQS.count() is 1,
                         msg="should have found the newly added lab in db")
+        self.assertTrue(newDBSecCount == (origDBSecCount + 1),
+                        msg="there needs to be an extra section when creating a section")
 
-    # 3] Confirmation message for lecture
+    # [3] Confirmation message for lecture
     def test_ConfirmLec(self):
-        resp = self.client.post("home/managecourse/create", data=self.lecInfo)
-        self.assertEquals(resp.context["message"], "successfully created Lecture",
-                          "Should've returned confirmation message for creating lecture")
+        resp = self.client.post("/home/managesection/create", data=self.lecInfo)
+        self.assertContains(resp, "Successfully Created Section",
+                            status_code=200)  # couldn't find "message" in ".context" so doing this way
 
-    # 4] Confirmation message for lab
+    # [4] Confirmation message for lab
     def test_ConfirmLab(self):
-        resp = self.client.post("home/managecourse/create", data=self.labInfo)
-        self.assertEquals(resp.context["message"], "successfully created Lab",
-                          "Should've returned confirmation message for creating lab")
+        resp = self.client.post("/home/managesection/create", data=self.labInfo)
+        self.assertContains(resp, "Successfully Created Section", status_code=200)
 
-    # 5] Redirect for Lecture - CHANGE to "self.assertRedirects" WHEN CORRECT URL ADDED!
-    def test_RedirectLecture(self):
-        resp = self.client.post("home/managecourse/create", data=self.lecInfo)
-        self.assertEqual(resp.status_code, 302, "Should have redirected upon successful lecture creation")
+    # [5] Creating NON-unique Lecture: id=1
+    def test_dupeSectionToLecture(self):
+        origDBSecCount = Section.objects.all().count()
+        dupSec = self.secList[0]
+        dupSecInfo = {"course_id": dupSec.course.course_id,
+                      "section_id": dupSec.section_id,
+                      "section_type": "Lecture",
+                      "meeting_time": dupSec.meeting_time,
+                      "location": dupSec.location}
+        resp = self.client.post("/home/managesection/create", data=dupSecInfo)
+        newDBSecCount = Section.objects.all().count()
+        self.assertContains(resp, "Section with this ID already exists")
+        self.assertTrue(newDBSecCount == origDBSecCount,
+                        msg="should not have changed the amount of sections when creating dupe sec")
 
-    # 6] Redirect for Lab
-    def test_RedirectLab(self):
-        resp = self.client.post("home/managecourse/create", data=self.labInfo)
-        self.assertEqual(resp.status_code, 302, "Should have redirected upon successful lab creation")
+    # [6] Creating NON-unique Lab: id=1
+    def test_dupeSectionToLab(self):
+        origDBSecCount = Section.objects.all().count()
+        dupSec = self.secList[0]
+        dupSecInfo = {"course_id": dupSec.course.course_id,
+                      "section_id": dupSec.section_id,
+                      "section_type": "Lab",
+                      "meeting_time": dupSec.meeting_time,
+                      "location": dupSec.location}
+        resp = self.client.post("/home/managesection/create", data=dupSecInfo)
+        newDBSecCount = Section.objects.all().count()
+        self.assertContains(resp, "Section with this ID already exists")
+        self.assertTrue(newDBSecCount == origDBSecCount,
+                    msg="should not have changed the amount of sections when creating dupe sec")
+
+    # [7] Creating missing input
+    def test_missingInput(self):
+        invalidSecInfo = {"course_id": "",
+                      "section_id": "",
+                      "section_type": "",
+                      "meeting_time": "",
+                      "location": ""}
+        resp = self.client.post("/home/managesection/create", data=invalidSecInfo)
+        self.assertContains(resp, "No missing section fields allowed")
 
 
 # AC2] - Duplicate Section (not unique in the database)
@@ -163,7 +219,8 @@ class NonexistantCourse(TestCase):
         resp = self.client.post("home/managecourse/create", data=self.badCrsIDLecInfo)
         self.assertEquals(resp.context["message"], "BAD HOST COURSE ID: COURSE DOES NOT EXIST",
                           msg="can't instantiate lecture already existing")
-#
+
+    #
     # 2] No DB Change: # of secs same ("adding" lec)
     def test_NoDBChangeNoExistCourse(self):
         oldNumSecs = Section.objects.count()
@@ -171,11 +228,11 @@ class NonexistantCourse(TestCase):
         newNumSecs = Section.objects.count()
         self.assertEquals(oldNumSecs, newNumSecs,
                           msg="adding bad host couse ID'ed lecture shouldn't have incremented number of secs")
+
     # 3] No redirect
     def test_NoRedirectLec(self):
         resp = self.client.post("home/managecourse/create", data=self.badCrsIDLecInfo)
         self.assertEqual(resp.status_code, 200, "Should not have redirected upon successful lec creation")
-
 
     # 3] repeat 1] for lab#
     # 4] repeat 2] for lab

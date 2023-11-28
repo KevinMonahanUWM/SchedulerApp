@@ -1,5 +1,5 @@
 import abc
-from dateutil import parser #KEEP THIS - Kiran: I can't download this for some reason
+from dateutil import parser  # KEEP THIS
 
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
@@ -11,7 +11,7 @@ class UserObj(abc.ABC):
         self.database = None
 
     @abc.abstractmethod
-    def login(self, username, password):
+    def login(self, email_address, password):
         pass
 
     @abc.abstractmethod
@@ -55,16 +55,57 @@ class AdminObj(UserObj):
         return str(type(self.database))
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def createCourse(self, course_info):
-        pass
+        if Course.objects.filter(course_id=course_info.get('course_id')).exists():
+            raise RuntimeError("Course with this ID already exists")
+        new_course = Course.objects.create(**course_info)
+        return new_course
 
-    def createUser(self, user_info):
-        pass
+    def createUser(self, user_info, role):
+        if User.objects.filter(email_address=user_info['email_address']).exists():
+            raise RuntimeError("User with this email address already exists")
+        new_user = User.objects.create(
+            email_address=user_info['email_address'],
+            password=user_info['password'],
+            first_name=user_info['first_name'],
+            last_name=user_info['last_name'],
+            home_address=user_info['home_address'],
+            phone_number=user_info['phone_number']
+        )
+        if role.lower() == 'administrator':
+            Administrator.objects.create(user=new_user)
+        elif role.lower() == 'ta':
+            TA.objects.create(user=new_user, grader_status=False)
+        elif role.lower() == 'instructor':
+            Instructor.objects.create(user=new_user)
+        return new_user
 
     def createSection(self, section_info):
-        pass
+        if any(value == "" for value in section_info.values()):
+            raise RuntimeError("No missing section fields allowed")
+        if Section.objects.filter(section_id=section_info.get('section_id')).exists():
+            raise RuntimeError("Section with this ID already exists")
+        if not Course.objects.filter(course_id=section_info.get('course_id')).exists():
+            raise RuntimeError("Course ID is not existing course, can't create section")
+
+        courseDB = Course.objects.get(course_id=section_info.get('course_id'))
+        fields = {"section_id": section_info["section_id"],
+                  "course": courseDB,
+                  "location": section_info["location"],
+                  "meeting_time": section_info["meeting_time"]}
+        new_section = Section.objects.create(**fields)
+
+        if (section_info["section_type"] == "Lab"):
+            new_section = Lab.objects.create(section=new_section)
+        else:
+            new_section = Lecture.objects.create(section=new_section)
+        return new_section
 
     def removeCourse(self, active_course):
         if type(active_course) is not CourseObj:
@@ -379,29 +420,30 @@ class TAObj(UserObj):
         if self.hasMaxAsgmts():  # not sure what error this is
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
-        TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
-#
-    def assignTALab(self, active_lab): 
+        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
+
+    #
+    def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
         if self.database.grader_status:
             raise RuntimeError("Can't assign TA a lab with grader status")
 
         argLabDB = active_lab.database
-        if argLabDB.section is None: # SHOULD BE IMPOSSIBLE*
+        if argLabDB.section is None:  # SHOULD BE IMPOSSIBLE*
             raise ValueError("The provided Lab object does not have an equivalent section record in the database.")
         if not argLabDB.ta is None:
             raise ValueError("Can't assign a lab that already have a TA.")
 
         secDB = argLabDB.section
         qs = Lab.objects.filter(section=secDB, ta=self.database)
-        if qs.count()>0:
+        if qs.count() > 0:
             raise ValueError("Can't assign a lab already assigned to this TA.")
 
         argLabDB.ta = self.database
         argLabDB.save()  # Assign the lab? Is that it?
 
-    def assignTALecture(self, active_lecture):  # new 
+    def assignTALecture(self, active_lecture):  # new
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
@@ -415,7 +457,7 @@ class TAObj(UserObj):
 
         argSecDB = argLecDB.section
         qs = Lecture.objects.filter(section=argSecDB, ta=self.database)
-        if qs.count()>0:
+        if qs.count() > 0:
             raise ValueError("Can't assign a lecture already assigned to this TA.")
 
         argLecDB.ta = self.database
@@ -437,13 +479,13 @@ class TAObj(UserObj):
 class InstructorObj(UserObj):
     database = None
 
-    def __init__(self, instr_info):
+    def __init__(self, info):
         super().__init__()
-        if type(instr_info) is not Instructor:
+        if type(info) is not Instructor:
             raise TypeError("Data passed to init method is not a member of the Instructor database class")
-        elif not User.objects.filter(email_address=instr_info.user.email_address).exists():
+        elif not User.objects.filter(email_address=info.user.email_address).exists():
             raise TypeError("The instructor object does not exist in the database")
-        self.database = instr_info
+        self.database = info
 
     def login(self, username, password):
         pass
@@ -516,28 +558,88 @@ class CourseObj:
         self.database = course_info
 
     def addInstructor(self, active_instr):
-        pass
+        if not isinstance(active_instr, InstructorObj):
+            raise TypeError("active_instr is not an instance of InstructorObj")
+        if not active_instr.database.user_id:
+            raise ValueError("Instructor must have a valid user associated")
+
+        if InstructorToCourse.objects.filter(instructor=active_instr.database,
+                                             course=self.database).exists():
+            raise ValueError("Instructor is already assigned to this course")
+
+        if InstructorToCourse.objects.filter(
+                instructor=active_instr.database).count() >= active_instr.database.max_assignments:
+            raise ValueError("Instructor has reached the maximum number of course assignments")
+
+        if InstructorToCourse.objects.filter(
+                course=self.database).count() >= self.database.num_of_sections:
+            raise ValueError(
+                "This course has reached the maximum number of instructors based on the number of sections")
+        if not Instructor.objects.filter(id=active_instr.database.id).exists():
+            raise ValueError("Instructor must be saved in the database before being assigned to a course")
+
+        InstructorToCourse.objects.create(instructor=active_instr.database, course=self.database)
 
     def addTa(self, active_ta):
-        pass
+        if not isinstance(active_ta, TAObj):
+            raise TypeError("active_ta is not an instance of TAObj")
+
+        if TAToCourse.objects.filter(ta=active_ta.database, course=self.database).exists():
+            raise ValueError("TA is already assigned to this course")
+
+        if TAToCourse.objects.filter(ta=active_ta.database).count() >= active_ta.database.max_assignments:
+            raise ValueError("TA has reached the maximum number of course assignments")
+
+        if TAToCourse.objects.filter(course=self.database).count() >= self.database.num_of_sections:
+            raise ValueError("This course has reached the maximum number of TAs based on the number of sections")
+
+        TAToCourse.objects.create(ta=active_ta.database, course=self.database)
 
     def removeAssignment(self, active_user):
-        pass
+        # to implement a way to determine if a user is a TA or Instructor
+        if isinstance(active_user, InstructorObj):
+            InstructorToCourse.objects.filter(
+                course=self.database,
+                instructor=active_user.database  # Corrected attribute name
+            ).delete()
+        elif isinstance(active_user, TAObj):
+            TAToCourse.objects.filter(
+                course=self.database,
+                ta=active_user.database  # Corrected attribute name
+            ).delete()
+        else:
+            raise TypeError("The active_user must be an instance of InstructorObj or TAObj")
 
     def removeCourse(self):
-        pass
+        self.database.delete()
 
     def editCourse(self, course_info):
-        pass
+        for attr, value in course_info.items():
+            setattr(self.database, attr, value)
+        self.database.full_clean()  # call the model's clean() method to validate the fields.
+        self.database.save()
 
     def getAsgmtsForCrse(self):
-        pass
+        instructor_assignments = InstructorToCourse.objects.filter(course=self.database)
+        ta_assignments = TAToCourse.objects.filter(course=self.database)
+        return {
+            'instructors': list(instructor_assignments),
+            'tas': list(ta_assignments)
+        }
 
     def getSectionsCrse(self):
-        pass
+        return list(Section.objects.filter(course=self.database))
 
     def getCrseInfo(self):
-        pass
+        return {
+            'course_id': self.database.course_id,
+            'semester': self.database.semester,
+            'name': self.database.name,
+            'description': self.database.description,
+            'num_of_sections': self.database.num_of_sections,
+            'modality': self.database.modality,
+            'credits': self.database.credits
+        }
 
 
 class SectionObj(abc.ABC):
@@ -569,25 +671,41 @@ class LectureObj(SectionObj):
         return self.database.section.section_id
 
     def getParentCourse(self):
-        pass
+        return self.database.section.course
 
     def getLectureTAAsgmt(self):  # new
-        pass
+        return self.database.ta
 
     def addTA(self, active_ta):  # new
-        pass
+        if type(active_ta) is not TA:
+            raise TypeError("Data passed to addTA method is not a TA")
+        elif not TA.objects.filter(user=active_ta.user).exists():
+            raise TypeError("The TA object does not exist in the database")
+        elif self.database.ta is not None:
+            raise RuntimeError("A TA already exists")
+        self.database.ta = active_ta
 
     def getLecInstrAsmgt(self):
-        pass
+        return self.database.instructor
 
     def addInstr(self, active_instr):
-        pass
+        if type(active_instr) is not Instructor:
+            raise TypeError("Data passed to addInstructor method is not a Instructor")
+        elif not Instructor.objects.filter(user=active_instr.user).exists():
+            raise TypeError("The Instructor object does not exist in the database")
+        elif self.database.instructor is not None:
+            raise RuntimeError("An Instructor already exists")
+        self.database.instructor = active_instr
 
     def removeInstr(self):
-        pass
+        if self.database.instructor is None:
+            raise RuntimeError("No instructor to remove")
+        self.database.instructor = None
 
     def removeTA(self):  # new
-        pass
+        if self.database.ta is None:
+            raise RuntimeError("No TA to remove")
+        self.database.ta = None
 
 
 class LabObj(SectionObj):
@@ -605,13 +723,21 @@ class LabObj(SectionObj):
         return self.database.section.section_id
 
     def getParentCourse(self):
-        pass
+        return self.database.section.course
 
     def getLabTAAsgmt(self):
-        pass
+        return self.database.ta
 
     def addTA(self, active_ta):
-        pass
+        if type(active_ta) is not TA:
+            raise TypeError("Data passed to addTA method is not a TA")
+        elif not TA.objects.filter(user=active_ta.user).exists():
+            raise TypeError("The TA object does not exist in the database")
+        elif self.database.ta is not None:
+            raise RuntimeError("A TA already exists")
+        self.database.ta = active_ta
 
     def removeTA(self):
-        pass
+        if self.database.ta is None:
+            raise RuntimeError("No TA to remove")
+        self.database.ta = None
