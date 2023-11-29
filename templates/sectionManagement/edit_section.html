@@ -7,7 +7,26 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
+<form id="editSectionFrom" action="/home/managesection/edit/" method="post">
+    {% csrf_token %}
+    {% if not selected %}
+        {% for section in sections %}
+            <input id="section" type="radio" name="sections" value="{{ section }}">
+            <label for="section">{{ section }}</label><br>
+        {% endfor %}
+    {% endif %}
+    {% if selected %}
+        <label for="section_id">Section ID:</label>
+        <input id="section_id" type="number" name="section_id">
 
+        <label for="location">Location:</label>
+        <input id="location" type="text" name="location"><br>
+
+        <label for="meeting_time">Meeting Times:</label>
+        <input id="meeting_time" type="datetime-local" name="meeting_time"><br>
+    {% endif %}
+    <input type="submit">
+</form>
 <a href="/home/managesection">Cancel</a>
 </body>
 </html>
