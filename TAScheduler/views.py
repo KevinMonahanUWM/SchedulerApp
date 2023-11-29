@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
 
-from TAScheduler.models import Course, Administrator
+from TAScheduler.models import Course, Administrator, User
 from TAScheduler.views_methods import AdminObj, CourseObj
 
 
@@ -36,8 +36,10 @@ class CreateCourse(View):
         return render(request, "courseManagement/create_course.html")
 
     def post(self, request):
+        curUserEmail = request.session["user"]
+        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
+        admin_obj = AdminObj(current_admin)
 
-        # Handle the creation of a course based on form data
         course_info = {
             "course_id": request.POST.get("course_id"),
             "name": request.POST.get("name"),
@@ -48,9 +50,12 @@ class CreateCourse(View):
             "semester": request.POST.get("semester")
         }
 
-        current_admin = Administrator.objects.get(user=request.user)
-        admin_obj = AdminObj(current_admin)
-        admin_obj.createCourse(course_info)
+        try:
+            admin_obj.createCourse(course_info)
+            return render(request, "success.html", {"message": "Course successfully created",
+                                                    "previous_url": "/home/managecourse/create"})
+        except Exception as e:
+            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create"})
 
 
 
