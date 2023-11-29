@@ -4,7 +4,7 @@ from django.views import View
 
 import TAScheduler
 from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, Course
-from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj
+from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj, CourseObj
 
 
 # Mostly temporary to get basic skeleton working
@@ -70,7 +70,7 @@ class Home(View):
         if request.session.get("user") is None:
             return redirect("/")
         admin = False
-        if determineUser(request.session["user"]).getRole() is "Admin":
+        if determineUser(request.session["user"]).getRole() == "Admin":
             admin = True
         username = determineUser(request.session["user"]).getUsername()
         # Render the admin home page with context for navigation
@@ -106,7 +106,7 @@ class CourseManagement(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         courses = Course.objects.all()
         return render(request, "courseManagement/course_management.html")
@@ -117,7 +117,7 @@ class CreateCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         return render(request, "courseManagement/create_course.html")
 
@@ -133,13 +133,13 @@ class CreateCourse(View):
             "semester": request.POST.get("semester")
         }
         try:
-            current_admin = Administrator.objects.get(user=request.user)
-            admin_obj = AdminObj(current_admin)
-            admin_obj.createCourse(course_info)
-            return redirect('/path/to/success/page')  # Redirect to a success page
+            determineUser(request.session["user"]).createCourse(course_info)
+            return render(request, "success.html", {"message": "Course successfully created",
+                                                    "previous_url": "/home/managecourse/create"})
         except Exception as e:
             # Handle any exceptions, possibly show an error page
-            return render(request, "error.html", {"message": str(e)})
+            return render(request, "error.html", {"message": str(e),
+                                                  "previous_url": "/home/managecourse/create"})
 
 
 class DeleteCourse(View):
@@ -147,7 +147,7 @@ class DeleteCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         courses = Course.objects.all()
         return render(request, "courseManagement/delete_course.html")
@@ -171,7 +171,7 @@ class EditCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         courses = Course.objects.all()
         return render(request, "courseManagement/edit_course.html")
@@ -203,7 +203,7 @@ class AddInstructorToCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         return render(request, "courseManagement/add_instructor_to_course.html")
 
@@ -213,7 +213,7 @@ class AccountManagement(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         return render(request, "accountManagement/account_management.html")
 
@@ -223,7 +223,7 @@ class CreateAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         roles = ["Admin", "Instructor", "TA"]
         return render(request, "accountManagement/create_account.html", {"roles": roles})
@@ -256,7 +256,7 @@ class DeleteAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         users = list(
             map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
@@ -285,7 +285,7 @@ class EditAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         users = list(
             map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
@@ -312,7 +312,7 @@ class EditAccount(View):
             else:
                 number = request.POST["phone_number"]
             grader = True
-            if request.POST.get("grader_status") is None or request.POST.get("grader_status") is "":
+            if request.POST.get("grader_status") is None or request.POST.get("grader_status") == "":
                 grader = False
             account_info = {
                 "email_address": request.POST.get("email_address"),
@@ -341,7 +341,7 @@ class SectionManagement(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         return render(request, "sectionManagement/section_management.html")
 
@@ -350,7 +350,7 @@ class CreateSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         secs = ["Lab", "Lecture"]  # For dropdown
         return render(request, "sectionManagement/create_section.html", {"secs": secs})
@@ -381,7 +381,7 @@ class DeleteSection(View):
         # Different that Kevin's approach (it's for displaying:"Lecture- Section ID:#, Course ID:#")
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         sections = list()
         for lecture in Lecture.objects.all():
@@ -416,7 +416,7 @@ class EditSection(View):
         # Ya know, probably should've just stuck with the map(str) :P
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         sections = list()
         for lecture in Lecture.objects.all():
@@ -457,7 +457,7 @@ class AddTAToSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
+        if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         return render(request, "sectionManagement/add_ta_to_section.html")
 
