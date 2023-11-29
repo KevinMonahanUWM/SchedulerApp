@@ -52,7 +52,7 @@ class AdminObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "Admin"
 
     def login(self, username, password):
         try:
@@ -68,17 +68,53 @@ class AdminObj(UserObj):
         return new_course
 
     def createUser(self, user_info, role):
-        if User.objects.filter(email_address=user_info['email_address']).exists():
+        if type(user_info) is not dict:
+            raise TypeError("Input passed is not a dictionary")
+        if User.objects.filter(email_address=user_info.get('email_address')).exists():
             raise RuntimeError("User with this email address already exists")
+        try:
+            if user_info.get('email_address') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('password') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('first_name') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('last_name') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('home_address') == "":
+                raise RuntimeError("Not all inputs have been provided")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        try:
+            if user_info.get('phone_number') == 0:
+                raise RuntimeError("Not all inputs have been provided")
+            if len(str(user_info.get("phone_number"))) is not 10:
+                raise ValueError("phone_number expects an int input with a length of 10")
+        except KeyError:
+            raise RuntimeError("Not all inputs have been provided")
+        if role == "" or role is None:
+            raise RuntimeError("Not all inputs have been provided")
         new_user = User.objects.create(
-            email_address=user_info['email_address'],
-            password=user_info['password'],
-            first_name=user_info['first_name'],
-            last_name=user_info['last_name'],
-            home_address=user_info['home_address'],
-            phone_number=user_info['phone_number']
+            email_address=user_info.get('email_address'),
+            password=user_info.get('password'),
+            first_name=user_info.get('first_name'),
+            last_name=user_info.get('last_name'),
+            home_address=user_info.get('home_address'),
+            phone_number=user_info.get('phone_number')
         )
-        if role.lower() == 'administrator':
+        if role.lower() == 'admin':
             Administrator.objects.create(user=new_user)
         elif role.lower() == 'ta':
             TA.objects.create(user=new_user, grader_status=False)
@@ -311,7 +347,7 @@ class AdminObj(UserObj):
         except KeyError:  # No home_address in list that is fine don't change the database
             active_user.database.user.home_address = active_user.database.user.home_address
         try:  # phone number
-            if new_info.get("phone_number") is None:
+            if new_info.get("phone_number") is None or new_info.get("phone_number") is 0:
                 raise KeyError
             if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) is not 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
@@ -320,7 +356,7 @@ class AdminObj(UserObj):
             active_user.database.user.phone_number = active_user.database.user.phone_number
         active_user.database.user.save()
         role = active_user.getRole()
-        if role == "<class 'TAScheduler.models.TA'>":
+        if role == "TA":
             try:  # grader_status
                 if new_info.get("grader_status") is None:
                     raise KeyError
@@ -338,7 +374,7 @@ class AdminObj(UserObj):
                 active_user.database.max_assignments = new_info.get("max_assignments")
             except KeyError:
                 active_user.database.max_assignments = active_user.database.max_assignments
-        elif role == "<class 'TAScheduler.models.Instructor'>":
+        elif role == "Instructor":
             try:  # max assignments
                 if new_info.get("max_assignments") is None:
                     raise KeyError
@@ -389,7 +425,11 @@ class TAObj(UserObj):
         self.database = ta_info
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def getUsername(self):
         return self.database.user.email_address
@@ -401,7 +441,7 @@ class TAObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "TA"
 
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
@@ -421,9 +461,8 @@ class TAObj(UserObj):
         if self.hasMaxAsgmts():  # not sure what error this is
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
-        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
-
-    #
+        TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
+#
     def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
@@ -489,7 +528,11 @@ class InstructorObj(UserObj):
         self.database = info
 
     def login(self, username, password):
-        pass
+        try:
+            User.objects.get(email_address=username, password=password)  # Correct field name\
+            return True
+        except User.DoesNotExist:
+            return False  # display "Invalid username or password."
 
     def getUsername(self):
         return self.database.user.email_address
@@ -501,7 +544,7 @@ class InstructorObj(UserObj):
         return self.database.user.first_name + " " + self.database.user.last_name
 
     def getRole(self):
-        return str(type(self.database))
+        return "Instructor"
 
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments

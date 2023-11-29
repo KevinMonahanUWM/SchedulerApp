@@ -40,6 +40,9 @@ class Instructor(models.Model):
         ]
     )
 
+    def __str__(self):
+        return self.user.__str__() + " -  Instructor"
+
 
 class Course(models.Model):
     course_id = models.IntegerField()
@@ -99,3 +102,6 @@ class InstructorToCourse(models.Model):
 
 class Administrator(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+
+    def __str__(self):
+        return self.user.__str__() + " -  Administrator"
