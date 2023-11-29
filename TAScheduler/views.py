@@ -36,6 +36,7 @@ class CreateCourse(View):
         return render(request, "courseManagement/create_course.html")
 
     def post(self, request):
+
         # Handle the creation of a course based on form data
         course_info = {
             "course_id": request.POST.get("course_id"),
@@ -46,14 +47,11 @@ class CreateCourse(View):
             "credits": int(request.POST.get("credits")),
             "semester": request.POST.get("semester")
         }
-        try:
-            current_admin = Administrator.objects.get(user=request.user)
-            admin_obj = AdminObj(current_admin)
-            admin_obj.createCourse(course_info)
-            return redirect('/path/to/success/page')  # Redirect to a success page
-        except Exception as e:
-            # Handle any exceptions, possibly show an error page
-            return render(request, "error.html", {"message": str(e)})
+
+        current_admin = Administrator.objects.get(user=request.user)
+        admin_obj = AdminObj(current_admin)
+        admin_obj.createCourse(course_info)
+
 
 
 class DeleteCourse(View):

@@ -47,7 +47,7 @@ class AdminCreateCourseTestCase(TestCase):
 
     def test_create_course_success(self):
         # Test that admin can create a new course successfully
-        response = self.client.post(reverse('create_course'), {
+        response = self.client.post('/home/managecourse/create', {
             'course_id': 101,
             'semester': 'Fall 2023',
             'name': 'Introduction to Testing',
@@ -61,7 +61,7 @@ class AdminCreateCourseTestCase(TestCase):
 
     def test_create_course_duplicate(self):
         # Try to create another course with the same course_id
-        response = self.client.post(reverse('create_course'), {
+        response = self.client.post('/home/managecourse/create',{
             'course_id': 101,
             'semester': 'Spring 2024',
             'name': 'Advanced Testing',
