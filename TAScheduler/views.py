@@ -73,24 +73,15 @@ class Home(View):
         # Render the admin home page with context for navigation
         context = {
             'username': username,  # assuming the User model has a 'username' attribute
-            'manage_accounts': '/home/manageaccount',
-            'manage_courses': '/home/managecourse',
-            'manage_sections': '/home/managesection',
+            'manage_accounts': '/home/manageaccount/',
+            'manage_courses': '/home/managecourse/',
+            'manage_sections': '/home/managesection/',
             'role_admin': admin
         }
         return render(request, 'home.html', context)
 
     def post(self, request):
-
-        # Perform actions based on the posted data
-        # Assuming buttons in the admin_home.html have the name attribute set to these values
-        if 'account_management' in request.POST:
-            return redirect('/home/manageaccount')
-        elif 'course_management' in request.POST:
-            return redirect('/home/managecourse')
-        elif 'section_management' in request.POST:
-            return redirect('/home/managesection')
-        elif 'logout' in request.POST:
+        if 'logout' in request.POST:
             del request.session["user"]
             return redirect('/')  # Redirect to login page after logout
         else:
@@ -105,7 +96,6 @@ class CourseManagement(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
-        courses = Course.objects.all()
         return render(request, "courseManagement/course_management.html")
 
 
@@ -130,10 +120,9 @@ class CreateCourse(View):
             "semester": request.POST.get("semester")
         }
         try:
-            current_admin = Administrator.objects.get(user=request.user)
-            admin_obj = AdminObj(current_admin)
-            admin_obj.createCourse(course_info)
-            return redirect('/path/to/success/page')  # Redirect to a success page
+            determineUser(request.session["user"]).createCourse(course_info)
+            return render(request, "success.html", {"message": "User successfully created",
+                                                    "previous_url": "/home/managecourse/create/"})
         except Exception as e:
             # Handle any exceptions, possibly show an error page
             return render(request, "error.html", {"message": str(e)})
@@ -147,10 +136,10 @@ class DeleteCourse(View):
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
         courses = Course.objects.all()
-        return render(request, "courseManagement/course_management.html")
+        return render(request, "courseManagement/delete_course.html")
 
 
-def post(self, request):
+    def post(self, request):
         course_id = request.POST.get('course_id')
 
         try:
@@ -172,10 +161,9 @@ class EditCourse(View):
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
         courses = Course.objects.all()
-        return render(request, "courseManagement/course_management.html")
+        return render(request, "courseManagement/edit_course.html")
 
-
-def post(self, request):
+    def post(self, request):
         course_id = request.POST.get('course_id')
         new_info = {
             "name": request.POST.get("name"),
@@ -244,10 +232,10 @@ class CreateAccount(View):
         try:
             determineUser(request.session["user"]).createUser(account_info, role=request.POST["role"])
             return render(request, "success.html", {"message": "User successfully created",
-                                                    "previous_url": "/home/manageaccount/create"})
+                                                    "previous_url": "/home/manageaccount/create/"})
         except Exception as e:
             return render(request, "error.html", {"message": e,
-                                                  "previous_url": "/home/manageaccount/create"})
+                                                  "previous_url": "/home/manageaccount/create/"})
 
 
 class DeleteAccount(View):
@@ -294,7 +282,7 @@ class EditAccount(View):
             list(map(str, TA.objects.exclude(user=determineUser(request.session["user"]).database.user))))
         if len(users) == 0:
             return render(request, "error.html", {"message": "No existing users to edit",
-                                                  "previous_url": "/home/manageaccount"})
+                                                  "previous_url": "/home/manageaccount/"})
         return render(request, "accountManagement/edit_account.html", {"users": users,
                                                                        "selected": False, "role": "Admin"})
 
@@ -328,11 +316,11 @@ class EditAccount(View):
                                                                 account_info)
                 del request.session["current_edit"]
                 return render(request, "success.html", {"message": "User successfully changed",
-                                                        "previous_url": "/home/manageaccount/edit"})
+                                                        "previous_url": "/home/manageaccount/edit/"})
             except Exception as e:
                 del request.session["current_edit"]
                 return render(request, "error.html", {"message": e,
-                                                      "previous_url": "/home/manageaccount/edit"})
+                                                      "previous_url": "/home/manageaccount/edit/"})
 
 
 class SectionManagement(View):
@@ -354,8 +342,7 @@ class CreateSection(View):
         secs = ["Lab", "Lecture"]  # For dropdown
         return render(request, "sectionManagement/create_section.html", {"secs": secs})
 
-
-def post(self, request):
+    def post(self, request):
         curUserEmail = request.session["user"]  # should hold unique identifier "email"
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
         curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
@@ -371,9 +358,9 @@ def post(self, request):
         try:
             curUserObj.createSection(secInfo)
             return render(request, "success.html", {"message": "Successfully Created Section",
-                                                    "previous_url": "/home/managesection/create"})
+                                                    "previous_url": "/home/managesection/create/"})
         except Exception as e:  # THIS TAKES THE MESSAGE INSIDE OF THE EXCEPTION AND STORES AS e, ValueError("me") <- "me"
-            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/create"})
+            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/create/"})
 
 
 class DeleteSection(View):
@@ -395,7 +382,7 @@ class DeleteSection(View):
                 d["section_type"] + "- Section ID:" + str(d["section_id"]) + ", Course ID:" + str(d["course_id"]))
         if len(sections) == 0:
             return render(request, "error.html", {"message": "No existing sections to delete",
-                                                  "previous_url": "/home/managesection"})
+                                                  "previous_url": "/home/managesection/"})
         return render(request, "sectionManagement/delete_section.html", {"sections": sections})
 
     def post(self, request):
@@ -407,9 +394,9 @@ class DeleteSection(View):
             secObj = determineSec(formattedSecStr)  # sending string arg
             curUserObj.removeSection(secObj)
             return render(request, "success.html",
-                          {"message": "Successfully Deleted Section", "previous_url": "/home/managesection/delete"})
+                          {"message": "Successfully Deleted Section", "previous_url": "/home/managesection/delete/"})
         except Exception as e:
-            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/delete"})
+            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/delete/"})
 
 
 class EditSection(View):
@@ -423,7 +410,7 @@ class EditSection(View):
         sections.extend(map(str, Lab.objects.all()))  # labs
         if len(sections) == 0:
             return render(request, "error.html", {"message": "No existing sections to edit",
-                                                  "previous_url": "home/managesection"})
+                                                  "previous_url": "/home/managesection/"})
         return render(request, "sectionManagement/edit_section.html", {"sections": sections})
 
     def post(self, request):
@@ -435,9 +422,9 @@ class EditSection(View):
         try:
             curUserObj.editSection(secObj)
             return render(request, "success.html",
-                          {"message": "Successfully Editted Section", "previous_url": "home/managesection/edit"})
+                          {"message": "Successfully Editted Section", "previous_url": "/home/managesection/edit/"})
         except Exception as e:
-            return render(request, "error.html", {"message": e, "previous_url": "home/managesection/edit"})
+            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/edit/"})
 
 
 class AddTAToSection(View):
@@ -451,7 +438,7 @@ class AddTAToSection(View):
         if len(users) == 0:
             return render(request,
                           "error.html",
-                          {"message": "No TAs to display", "previous_url": "home/managesection/"})
+                          {"message": "No TAs to display", "previous_url": "/home/managesection/"})
 
         return render(request, "sectionManagement/add_ta_to_section.html", {"users": users})
 
@@ -468,7 +455,7 @@ class AddTAToSection(View):
         if len(courses) == 0:
             return render(request,
                           "error.html",
-                          {"message": "No Courses to display", "previous_url": "home/managesection/"})
+                          {"message": "No Courses to display", "previous_url": "/home/managesection/"})
 
         chosenuser = request.POST["ta"].user.email_address
         return render(request,
@@ -487,7 +474,8 @@ class AddTAToSectionSuccess(View):
             if not request.POST["chosen"].grader_status:
                 return render(request,
                               "error.html",
-                              {"message": "Non-Grader TA cannot be in a lecture", "previous_url": "home/managesection/"})
+                              {"message": "Non-Grader TA cannot be in a lecture",
+                               "previous_url": "home/managesection/"})
 
         if isinstance(request.POST["course"], LabObj):
             if request.POST["chosen"].grader_status:
