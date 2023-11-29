@@ -3,8 +3,9 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
 
 import TAScheduler
-from TAScheduler.models import User, Administrator, Instructor, TA
-from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj
+from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture
+from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj
+
 
 # Mostly temporary to get basic skeleton working
 # TODO add post methods and make login screen default
@@ -298,9 +299,8 @@ class CreateSection(View):
         return render(request, "sectionManagement/create_section.html", {"secs": secs})
 
     def post(self, request):
-        curUserEmail = request.session["user"]  # should hold unique identifier "email"
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
-        curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
+        curUserObj = determineUser(request.session["user"])
 
         course_id = request.POST.get('course_id')
         section_id = request.POST.get('section_id')
@@ -341,8 +341,7 @@ class DeleteSection(View):
         return render(request, "sectionManagement/delete_section.html", {"sections": sections})
 
     def post(self, request):
-        curUserEmail = request.session["user"]
-        curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
+        curUserObj = determineUser(request.session["user"])
         formattedSecStr = request.POST["sections"]
 
         try:
@@ -377,21 +376,23 @@ class EditSection(View):
         return render(request, "sectionManagement/edit_section.html", {"sections": sections})
 
     def post(self, request):
-        curUserEmail = request.session["user"]
-        curUserObj = AdminObj(Administrator(user=User.objects.get(email_address=curUserEmail)))
-        formattedSecStr = request.POST["sections"]
-
+        curUserObj = determineUser(request.session["user"])
         try:
-            secObj = determineSec(formattedSecStr)  # sending string arg
-            id = int(request.POST.get("section_id")) #causing me lots of problems
-            editInput = {"section_id": id,
-                         "location": request.POST.get("location",),
-                         "meeting_time": request.POST.get("meeting_time",)}
-            curUserObj.editSection(secObj, editInput)
-            return render(request, "success.html",
-                          {"message": "Successfully Editted Section", "previous_url": "/home/managesection/edit"})
-        except Exception as e:
-            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/edit"})
+            formattedSecStr = request.POST["sections"]
+            request.session["current_edit"] = formattedSecStr
+            return render(request, "sectionManagement/edit_section.html", {"selected": True})
+        except MultiValueDictKeyError:
+            try:
+                secObj = determineSec(request.session["current_edit"])  # sending string arg
+                editInput = {"section_id": int(request.POST.get("section_id")),
+                             "location": request.POST.get("location",),
+                             "meeting_time": request.POST.get("meeting_time",)}
+                del request.session["current_edit"]
+                curUserObj.editSection(secObj, editInput)
+                return render(request, "success.html",
+                              {"message": "Successfully Editted Section", "previous_url": "/home/managesection/edit/"})
+            except Exception as e:
+                return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/edit/"})
 
 
 class AddTAToSection(View):

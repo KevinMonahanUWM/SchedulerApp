@@ -7,7 +7,7 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
-<form id="createSecFrom" action="/home/managesection/create" method="post">
+<form id="createSecFrom" action="/home/managesection/create/" method="post">
     {% csrf_token %}
     <label for="courseID">Unique Host Course ID:</label>
     <input id="courseID" type="text" name="course_id"><br>
@@ -26,6 +26,8 @@
 
     <label for="location">Location:</label>
     <input id="location" type="text" name="location"><br>
+
+    <input type="submit" value="Create Course">
 </form>
 <a href="/home/managesection">Cancel</a>
 </body>
