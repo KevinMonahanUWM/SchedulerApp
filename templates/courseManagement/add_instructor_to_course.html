@@ -4,10 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Add Instructor to Course</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
+    <h2>Add Instructor to Course</h2>
+    <form action="/link to django" method="post">
+        {% csrf_token %}
 
-<a href="/home/managecourse">Cancel</a>
+        <label for="courseSelect">Select Course:</label>
+        <select id="courseSelect" name="course_id">
+            <!-- Dynamically load course options here -->
+            {% for course in courses %}
+                <option value="{{ course.id }}">{{ course.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label for="instructorSelect">Select Instructor:</label>
+        <select id="instructorSelect" name="instructor_id">
+            <!-- Dynamically load instructor options here -->
+            {% for instructor in instructors %}
+                <option value="{{ instructor.id }}">{{ instructor.name }}</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Add Instructor">
+    </form>
+
+    <a href="/home/managecourse">Cancel</a>
 </body>
 </html>

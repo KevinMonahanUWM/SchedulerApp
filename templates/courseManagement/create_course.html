@@ -4,11 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Course</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
 <body>
-
-
-<a href="/home/managecourse">Cancel</a>
+    <header class="header">
+        <h1>Create Course</h1>
+    </header>
+    <form action="/path-to-create-course" method="post" class="course-form">
+        <div>
+            <label for="courseId">Course ID:</label>
+            <input type="text" id="courseId" name="course_id">
+        </div>
+        <div>
+            <label for="courseName">Course Name:</label>
+            <input type="text" id="courseName" name="name">
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea>
+        </div>
+        <div>
+            <label for="sections">Number of Sections:</label>
+            <input type="number" id="sections" name="num_of_sections">
+        </div>
+        <div>
+            <label for="modality">Modality:</label>
+            <select id="modality" name="modality">
+                <option value="Online">Online</option>
+                <option value="In-person">In-person</option>
+                <option value="Hybrid">Hybrid</option>
+            </select>
+        </div>
+        <div>
+            <label for="credits">Credits:</label>
+            <input type="number" id="credits" name="credits">
+        </div>
+        <div>
+            <input type="submit" value="Create Course">
+        </div>
+    </form>
+    <nav class="navigation">
+        <a href="/home/managecourse">Cancel</a>
+    </nav>
 </body>
 </html>

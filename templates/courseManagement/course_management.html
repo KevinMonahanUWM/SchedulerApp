@@ -1,16 +1,22 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Course Management</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+<meta charset="utf-8">
+<title>course_management</title>
+<link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
+
 <body>
-<a href="/home/managecourse/create">Create Course</a><br>
-<a href="/home/managecourse/delete">Delete Course</a><br>
-<a href="/home/managecourse/edit">Edit Course</a><br>
-<a href="/home/managecourse/addinstructor">Add Instructor to Course</a><br>
-<a href="/home">Home</a>
+    <header class="header">
+        <h1>Course Management</h1>
+    </header>
+    <nav class="navigation">
+        <a href="/home/managecourse/create">Create Course</a>
+        <a href="/home/managecourse/delete">Delete Course</a>
+        <a href="/home/managecourse/edit">Edit Course</a>
+        <a href="/home/managecourse/addinstructor">Add Instructor to Course</a>
+        <a href="/home">Home</a>
+    </nav>
 </body>
 </html>
