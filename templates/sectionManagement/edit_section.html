@@ -8,11 +8,23 @@
 </head>
 <body>
 <form id="editSectionFrom" action="/home/managesection/edit" method="post">
-    {% csrf_token %}
-    {% for section in sections %}
-        <input id="section" type="radio" name="sections" value="{{ section }}">
-        <label for="section">{{ section }}</label><br>
-    {% endfor %}
+    % csrf_token %}
+    {% if not selected %}
+        {% for section in sections %}
+            <input id="section" type="radio" name="sections" value="{{ section }}">
+            <label for="section">{{ section }}</label><br>
+        {% endfor %}
+    {% endif %}
+    {% if selected %}
+        <label for="section_id">Section ID:</label>
+        <input id="section_id" type="text" name="section_id">
+
+        <label for="location">Location:</label>
+        <input id="location" type="datetime-local" name="location"><br>
+
+        <label for="meeting_time">Meeting Times:</label>
+        <input id="meeting_time" type="datetime-local" name="meeting_time"><br>
+    {% endif %}
     <input type="submit">
 </form>
 <a href="/home/managesection">Cancel</a>

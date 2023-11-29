@@ -219,31 +219,32 @@ class AdminObj(UserObj):
 
         try:  # section_id
             if new_info.get("section_id") is None:
-                raise KeyError
+                raise KeyError("missing field")
             if type(new_info.get("section_id")) is not int or new_info.get("section_id") < 0:
                 raise ValueError("section_id expects an int")
-            if Section.objects.filter(section_id=new_info.get("section_id")).exists():
+            if Section.objects.filter(section_id=new_info.get("section_id")).exists() and (
+                    new_info.get("section_id") != active_section.database.section.section_id):
                 raise RuntimeError("Can not have two sections with the same section number")
             active_section.database.section.section_id = new_info.get("section_id")
         except KeyError:  # No course_id in list that is fine don't change the database
             active_section.database.section.section_id = active_section.database.section.section_id
         try:  # location
             if new_info.get("location") is None:
-                raise KeyError
+                raise KeyError("missing field")
             if type(new_info.get("location")) is not str or len(new_info.get("location")) > 30:
                 raise ValueError("location expects a str")
             if new_info.get("location") == '':
-                raise KeyError
+                raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
         except KeyError:
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
-                raise KeyError
+                raise KeyError("missing field")
             parsed_date = parser.parse(new_info.get("meeting_time"))
             temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
             if new_info.get("meeting_time") == '':
-                raise KeyError
+                raise KeyError("missing field")
             active_section.database.section.meeting_time = new_info.get("meeting_time")
         except KeyError:
             active_section.database.section.meeting_time = active_section.database.section.meeting_time
