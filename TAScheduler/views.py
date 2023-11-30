@@ -103,9 +103,8 @@ class CreateCourse(View):
         return render(request, "courseManagement/create_course.html")
 
     def post(self, request):
-        curUserObj = determineUser(request.session["user"])
+        admin_obj = determineUser(request.session["user"])
 
-        course_id = int(request.POST.get('course_id'))
         course_info = {
             "course_id": request.POST.get("course_id"),
             "name": request.POST.get("name"),
@@ -122,8 +121,9 @@ class CreateCourse(View):
                                                   "previous_url": "/home/managecourse/create"})
 
         try:
-            curUserObj.createCourse(course_info)
-            return redirect("/home/success/")  # Redirect to a success page
+            admin_obj.createCourse(course_info)
+            return render(request, "success.html", {"message": "Successfully created course",
+                                                  "previous_url": "/home/managecourse/create/"})
         except Exception as e:
             return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create/"})
 
@@ -135,20 +135,22 @@ class DeleteCourse(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
-        return render(request, "courseManagement/delete_course.html")
-        courses = Course.objects.all()
+        courses = list(map(str, Course.objects.all()))
         return render(request, "courseManagement/delete_course.html", {"courses": courses})
 
     def post(self, request):
         curUserObj = determineUser(request.session["user"])
 
-        course_id = int(request.POST.get('course_id'))
+        course = request.POST.get('course')
+        course_id = int(course.split(": ", 1)[0])
         try:
             course_to_delete = CourseObj(Course.objects.get(course_id=course_id))
             curUserObj.removeCourse(course_to_delete)
-            return redirect("/home/success/")  # Redirect to a success page
+            return render(request, "success.html", {"message": "Successfully deleted course",
+                                                    "previous_url": "/home/managecourse/delete/"})
         except Exception as e:
-            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create/"})
+            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/delete/"})
+
 
 
 class EditCourse(View):
@@ -157,32 +159,33 @@ class EditCourse(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
-        return render(request, "courseManagement/edit_course.html")
         courses = Course.objects.all()
         return render(request, "courseManagement/edit_course.html", {"courses": courses})
 
     def post(self, request):
-        curUserObj = determineUser(request.session["user"])
-
-        course_id = int(request.POST.get('course_id'))
-        new_info = {
-            "name": request.POST.get("name"),
-            "description": request.POST.get("description"),
-            "num_of_sections": int(request.POST.get("num_of_sections", 0)),  # Default to 0 or any sensible default
-            "modality": request.POST.get("modality"),
-            "credits": int(request.POST.get("credits")),
-            "semester": request.POST.get("semester")
-        }
-
+        admin_obj = determineUser(request.session["user"])
         try:
-            course_to_edit = CourseObj(Course.objects.get(course_id=course_id))
-            curUserObj.editCourse(course_to_edit, new_info)
-            return redirect("/home/success/")
-        except Course.DoesNotExist:
-            return render(request, "error.html",
-                          {"message": "Course not found", "previous_url": "/home/managecourse/edit/"})
-        except Exception as e:
-            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/edit/"})
+            course_id = request.POST.get('course_id')
+            return render(request, "courseManagement/edit_course.html", {"selected": True})
+        except MultiValueDictKeyError:
+            new_info = {
+                "name": request.POST.get("name"),
+                "description": request.POST.get("description"),
+                "num_of_sections": int(request.POST.get("num_of_sections", 0)),  # Default to 0 or any sensible default
+                "modality": request.POST.get("modality"),
+                "credits": int(request.POST.get("credits")),
+                "semester": request.POST.get("semester")
+            }
+
+            try:
+                course_to_edit = Course.objects.get(course_id=course_id)
+                admin_obj.editCourse(course_to_edit, new_info)
+                return redirect("/home/success/")
+            except Course.DoesNotExist:
+                return render(request, "error.html",
+                              {"message": "Course not found", "previous_url": "/home/managecourse/edit/"})
+            except Exception as e:
+                return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/edit/"})
 
 
 class AddInstructorToCourse(View):
