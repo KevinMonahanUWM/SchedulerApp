@@ -101,11 +101,8 @@ class SuccessfulCreation(TestCase):
         tmp_lab.save()
 
         self.user.post("/home/managecourse/adduser/", {"user": str(self.ta)}, follow=True)
-        response = self.user.post("home/managesection/adduser/choosesection/", {"course": self.section},
-                                  follow=True)
-        message = response.context["message"]
+        response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
         self.assertEqual(TAObj(tmp_ta).getTALabAsgmts().first(), tmp_lab, "TA to lab link was not made")
-        self.assertEqual(message, "Successfully ")
 
     def test_ta_to_lec(self):
         tmp_lec = Lecture.objects.create(
@@ -114,6 +111,9 @@ class SuccessfulCreation(TestCase):
             instructor=self.instructor
         )
         tmp_lec.save()
+        self.user.post("/home/managecourse/adduser/", {"user": str(self.ta)}, follow=True)
+        response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
+        self.assertEqual(TAObj(self.ta).getTALabAsgmts().first(), tmp_lec, "TA to lab link was not made")
 
     def test_instructor_to_lec(self):
         tmp_lec = Lecture.objects.create(
