@@ -8,14 +8,24 @@
 </head>
 <body>
 <h1>Delete Section</h1>
-<form id="deleteSectionFrom" action="/home/managesection/delete/" method="post">
-    {% csrf_token %}
-    {% for section in sections %}
-        <input id="section" type="radio" name="sections" value="{{ section }}">
-        <label for="section">{{ section }}</label><br>
-    {% endfor %}
-    <input type="submit" value = "Delete Section">
-</form>
-<a href="/home/managesection">Cancel</a>
+<table>
+    <form id="deleteSectionFrom" action="/home/managesection/delete/" method="post">
+        {% csrf_token %}
+        {% for section in sections %}
+            <tr>
+                <td>
+                    <input id="section" type="radio" name="sections" value="{{ section }}">
+                    <label for="section">{{ section }}</label><br>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td><input type="submit" value="Delete Section"></td>
+        </tr>
+    </form>
+    <tr>
+        <td><a href="/home/managesection">Cancel</a></td>
+    </tr>
+</table>
 </body>
 </html>

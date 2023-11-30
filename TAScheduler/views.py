@@ -344,9 +344,7 @@ class DeleteSection(View):
         return render(request, "sectionManagement/delete_section.html", {"sections": sections})
 
     def post(self, request):
-        tempUser = User.objects.get(email_address=request.session["user"])
-        tempAdminDB = Administrator.objects.create(user=tempUser)
-        curUserObj = AdminObj(tempAdminDB)
+        curUserObj = determineUser(request.session["user"])
         formattedSecStr = request.POST["sections"]
 
         try:
@@ -380,21 +378,11 @@ class EditSection(View):
         return render(request, "sectionManagement/edit_section.html", {"sections": sections})
 
     def post(self, request):
-        tempUser = User.objects.get(email_address=request.session["user"])
-        tempAdminDB = Administrator.objects.create(user=tempUser)
-        curUserObj = AdminObj(tempAdminDB)
+        curUserObj = determineUser(request.session["user"])
         try:
             formattedSecStr = request.POST["sections"]
             request.session["current_edit"] = formattedSecStr
-            id = int(request.POST.get("section_id"))
-            loc = request.POST.get("location")
-            mt = request.POST.get("meeting_time")
 
-            inpData = {"section_id": id,
-                       "location": loc,
-                       "meeting_time": mt}
-            curSecObj = determineSec(formattedSecStr)
-            curUserObj.editSection(curSecObj, inpData)
             return render(request, "sectionManagement/edit_section.html",
                           {"message": "Successfully Editted Section", "selected": True})
         except MultiValueDictKeyError:

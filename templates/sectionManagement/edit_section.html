@@ -8,26 +8,56 @@
 </head>
 <body>
 <h1>Edit Section</h1>
-<form id="editSectionFrom" action="/home/managesection/edit/" method="post">
-    {% csrf_token %}
-    {% if not selected %}
-        {% for section in sections %}
-            <input id="section" type="radio" name="sections" value="{{ section }}">
-            <label for="section">{{ section }}</label><br>
-        {% endfor %}
-    {% endif %}
-    {% if selected %}
-        <label for="section_id">Section ID:</label>
-        <input id="section_id" type="number" name="section_id">
-
-        <label for="location">Location:</label>
-        <input id="location" type="text" name="location"><br>
-
-        <label for="meeting_time">Meeting Times:</label>
-        <input id="meeting_time" type="datetime-local" name="meeting_time"><br>
-    {% endif %}
-    <input type="submit" value = "Edit Section">
-</form>
-<a href="/home/managesection">Cancel</a>
+<table>
+    <form id="editSectionFrom" action="/home/managesection/edit/" method="post">
+        {% csrf_token %}
+        {% if not selected %}
+            {% for section in sections %}
+                <tr>
+                    <td>
+                        <input id="section" type="radio" name="sections" value="{{ section }}">
+                        <label for="section">{{ section }}</label><br>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endif %}
+        {% if selected %}
+            <tr>
+                <td>
+                    <label for="section_id">Section ID:</label>
+                </td>
+                <td>
+                    <input id="section_id" type="number" name="section_id">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="location">Location:</label>
+                </td>
+                <td>
+                    <input id="location" type="text" name="location"><br>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="meeting_time">Meeting Times:</label>
+                </td>
+                <td>
+                    <input id="meeting_time" type="datetime-local" name="meeting_time"><br>
+                </td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td>
+                <input type="submit" value="Edit Section">
+            </td>
+        </tr>
+    </form>
+    <tr>
+        <td>
+            <a href="/home/managesection">Cancel</a>
+        </td>
+    </tr>
+</table>
 </body>
 </html>

@@ -20,7 +20,7 @@ class SuccessDelete(TestCase):
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()
@@ -85,7 +85,7 @@ class FailDelete(TestCase):
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         # Creating 3 Courses
         for i in [1, 2, 3]:  # Creating 3 Courses
