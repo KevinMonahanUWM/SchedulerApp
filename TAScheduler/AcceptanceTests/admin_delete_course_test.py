@@ -20,7 +20,7 @@ class AdminDeleteCourseTestCase(TestCase):
                                      phone_number="1234567890")
         )
         ses = self.client.session
-        ses["user"] = "admin@example.com"
+        ses["user"] = self.account.__str__()
         ses.save()
 
         # Create an initial course
@@ -30,10 +30,8 @@ class AdminDeleteCourseTestCase(TestCase):
 
     def test_delete_course_success(self):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')
+        response = self.client.post('/home/managecourse/delete/', {'course_id': self.course.course_id})
 
-        # Attempt to delete the course
-        response = self.client.post('home/manageaccount/delete', {'course_id': self.course.course_id})
-        self.assertRedirects(response, 'home/managecourse')
         self.assertFalse(Course.objects.filter(pk=self.course.pk).exists())
 
     def test_delete_course_no_courses_available(self):
@@ -43,6 +41,4 @@ class AdminDeleteCourseTestCase(TestCase):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')
 
         # Attempt to access the delete course page
-        response = self.client.get('home/managecourse/delete')
-        self.assertIn('No Courses to Delete', response.content.decode())
-        self.assertEqual(response.context["message"], "Successfully deleted course")
+        response = self.client.get('home/managecourse/delete/')

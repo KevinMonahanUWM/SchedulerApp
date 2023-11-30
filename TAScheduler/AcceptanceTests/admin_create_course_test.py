@@ -36,7 +36,7 @@ class AdminCreateCourseTestCase(TestCase):
                               modality='Online', credits=4)
 
     def test_create_course_success(self):
-        response = self.client.post('/home/managecourse/create', {
+        response = self.client.post('/home/managecourse/create/', {
             'course_id': 102,
             'semester': 'Fall 2023',
             'name': 'Advanced Testing',
@@ -49,7 +49,7 @@ class AdminCreateCourseTestCase(TestCase):
         self.assertTrue(Course.objects.filter(course_id=102).exists())
 
     def test_create_course_duplicate(self):
-        response = self.client.post('/home/managecourse/create', {
+        response = self.client.post('/home/managecourse/create/', {
             'course_id': 101,
             'semester': 'Spring 2024',
             'name': 'Advanced Testing',
