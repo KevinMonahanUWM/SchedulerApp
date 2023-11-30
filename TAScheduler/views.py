@@ -163,7 +163,8 @@ class DeleteCourse(View):
     def post(self, request):
         curUserObj = determineUser(request.session["user"])
 
-        course = request.POST.get('course_id')
+        course = request.POST.get('course')
+
         course_id = int(course.split(": ", 1)[0])
         try:
             course_to_delete = CourseObj(Course.objects.get(course_id=course_id))

@@ -226,9 +226,10 @@ class TestAdminCreateSection(TestCase):
             modality='Online',
             credits=4
         )
+
         self.section_info = {
             'section_id': 201,
-            'course': self.course,
+            'course': Course.objects.get(course_id=self.course.course_id),
             'location': 'Room 101',
             'meeting_time': "2000-1-1 12:00:00"
         }
