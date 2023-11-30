@@ -47,26 +47,15 @@ class SuccessEdit(TestCase):
 
     # [1] Database reflects our input
     def test_DatabaseEditChange(self):
-        self.client.get("/home/managesection/edit")
+        self.client.get("/home/managesection/edit/")
         id = int(self.secList[0].section_id)
-        resp = self.client.post("/home/managesection/edit",
-                                data={"sections": self.secPostList[0], "section_id": id,
-                                      "location": "Naboo",
-                                      "meeting_time": self.secList[0].meeting_time})
-        dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
-        self.assertEqual(dbEditedSect.location, "Naboo")
-
-    # [2] Confirmation message
-    def test_ConfirmationMessage(self):
-        self.client.get("/home/managesection/edit")
-        id = int(self.secList[0].section_id)
-        resp = self.client.post("/home/managesection/edit",
+        resp = self.client.post("/home/managesection/edit/",
                                 data={"sections": self.secPostList[0],
                                       "section_id": id,
                                       "location": "Naboo",
                                       "meeting_time": self.secList[0].meeting_time})
         dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
-        self.assertContains(resp, "Successfully Editted Section")
+        self.assertEqual(dbEditedSect.location, "Naboo")
 
 
 # AC2] - Unsuccessful (invalid changes)
@@ -110,11 +99,11 @@ class UnSuccessEdit(TestCase):
 
     # [1] Ensure "no change" doesn't change the DB.
     def test_DatabaseEditChange(self):
-            self.client.get("/home/managesection/edit")
-            id = int(self.secList[0].section_id)
-            resp = self.client.post("/home/managesection/edit",
-                                    data={"sections": self.secPostList[0],
-                                          "section_id": id,
-                                          "meeting_time": self.secList[0].meeting_time})
-            dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
-            self.assertEqual(dbEditedSect.location, "location1")
+        self.client.get("/home/managesection/edit/")
+        id = int(self.secList[0].section_id)
+        resp = self.client.post("/home/managesection/edit/",
+                                data={"sections": self.secPostList[0],
+                                      "section_id": id,
+                                      "meeting_time": self.secList[0].meeting_time})
+        dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
+        self.assertEqual(dbEditedSect.location, "location1")

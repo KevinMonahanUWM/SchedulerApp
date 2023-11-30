@@ -46,7 +46,7 @@ class SuccessDelete(TestCase):
 
     # [1] Section not found in the section list
     def test_CorrectDelete(self):
-        resp = self.client.post("/home/managesection/delete", data={"sections": self.secPostList[0]})
+        resp = self.client.post("/home/managesection/delete/", data={"sections": self.secPostList[0]})
         allSecs = Section.objects.all()
         self.assertNotIn(self.secList[0], allSecs,
                          msg="The 1st section should no longer be in the database.")
@@ -54,20 +54,20 @@ class SuccessDelete(TestCase):
     # [2] Number of sections should have decreased if deleted properly
     def test_CorrectNumSec(self):
         oldNumSecs = Section.objects.count()
-        resp = self.client.post("/home/managesection/delete", data={"sections": self.secPostList[0]})
+        resp = self.client.post("/home/managesection/delete/", data={"sections": self.secPostList[0]})
         newNumSecs = Section.objects.count()
         self.assertEqual(newNumSecs, oldNumSecs - 1,
                          msg="deleting a section should have decremented the number of sections in the database.")
 
     # [3] Success Message
     def test_confirmDelete(self):
-        resp = self.client.post("/home/managesection/delete", data={"sections": self.secPostList[0]})
+        resp = self.client.post("/home/managesection/delete/", data={"sections": self.secPostList[0]})
         self.assertContains(resp, "Successfully Deleted Section")
 
     # [4] Ensure course isn't deleted, only section is
     def test_noCourseRemoved(self):
         deletedSecsCrse = self.secList[0].course
-        resp = self.client.post("home/managesection/delete", data={"section": self.secList[0]})
+        resp = self.client.post("home/managesection/delete/", data={"section": self.secList[0]})
         allCrse = Course.objects.all()
         self.assertIn(deletedSecsCrse, allCrse,
                       msg="the course should still be in the database after removing section.")
@@ -99,7 +99,7 @@ class FailDelete(TestCase):
 
     # 1] No sections to delete
     def test_noSectionsInDBDelete(self):
-        resp = self.client.get("/home/managesection/delete")
+        resp = self.client.get("/home/managesection/delete/")
         self.assertContains(resp, "No existing sections to delete")
 
     # 2] Delete non existant section shouldn't change the database
@@ -108,6 +108,6 @@ class FailDelete(TestCase):
                                            meeting_time=datetime(2023, 1, 1, 1, 1, 1))
         Lecture.objects.create(section=tempSecDB)  # Course1: Lecture
         oldNumSecs = Section.objects.count()
-        resp = self.client.post("/home/managesection/delete", data={"sections": "Lecture- Section ID:2, Course ID:2"})
+        resp = self.client.post("/home/managesection/delete/", data={"sections": "Lecture- Section ID:2, Course ID:2"})
         newNumSecs = Section.objects.count()
         self.assertContains(resp, "Section does not exist in Database")

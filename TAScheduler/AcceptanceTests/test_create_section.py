@@ -56,7 +56,7 @@ class Create(TestCase):  # 6/6 Pass
     # [1] Creating Unique Lecture:
     def test_SuccessfulLecCreation(self):
         origDBSecCount = Section.objects.all().count()
-        resp = self.client.post("/home/managesection/create", data=self.lecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.lecInfo)
         newDBSecCount = Section.objects.all().count()
         newSecDB = Section.objects.get(section_id=4)
         newLecDBQS = Lecture.objects.filter(section=newSecDB)
@@ -67,7 +67,7 @@ class Create(TestCase):  # 6/6 Pass
 
     # [2] Creating Unique Lab
     def test_SuccessfulLabCreation(self):
-        resp = self.client.post("/home/managesection/create", data=self.labInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.labInfo)
         newSecDB = Section.objects.get(section_id=4)
         newLabDBQS = Lab.objects.filter(section=newSecDB)
         self.assertTrue(newLabDBQS.count() is 1,
@@ -76,7 +76,7 @@ class Create(TestCase):  # 6/6 Pass
     # [3] DB Change: # of secs incremented ("adding" lec)
     def test_additionalLec(self):
         origDBSecCount = Section.objects.all().count()
-        resp = self.client.post("/home/managesection/create", data=self.lecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.lecInfo)
         newDBSecCount = Section.objects.all().count()
         self.assertTrue(newDBSecCount == (origDBSecCount + 1),
                         msg="there needs to be an extra section when creating a section")
@@ -84,20 +84,20 @@ class Create(TestCase):  # 6/6 Pass
     # [4] DB Change: # of secs incremented ("adding" lab)
     def test_additionalLab(self):
         origDBSecCount = Section.objects.all().count()
-        resp = self.client.post("/home/managesection/create", data=self.labInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.labInfo)
         newDBSecCount = Section.objects.all().count()
         self.assertTrue(newDBSecCount == (origDBSecCount + 1),
                         msg="there needs to be an extra section when creating a section")
 
     # [5] Confirmation message for lecture
     def test_ConfirmLec(self):
-        resp = self.client.post("/home/managesection/create", data=self.lecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.lecInfo)
         self.assertContains(resp, "Successfully Created Section",
                             status_code=200)  # couldn't find "message" in ".context" so doing this way
 
     # [6] Confirmation message for lab
     def test_ConfirmLab(self):
-        resp = self.client.post("/home/managesection/create", data=self.labInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.labInfo)
         self.assertContains(resp, "Successfully Created Section", status_code=200)
 
 
@@ -139,18 +139,18 @@ class NoCreateDupeSec(TestCase):  # 4/4 Pass
 
     # [1] Creating NON-unique Lecture: id=1
     def test_dupeSectionToLecture(self):
-        resp = self.client.post("/home/managesection/create", data=self.dupedLecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.dupedLecInfo)
         self.assertContains(resp, "Section with this ID already exists")
 
     # [2] Creating NON-unique Lab: id=1
     def test_dupeSectionToLab(self):
-        resp = self.client.post("/home/managesection/create", data=self.dupedLabInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.dupedLabInfo)
         self.assertContains(resp, "Section with this ID already exists")
 
     # [3] No DB Change: # of secs same ("adding" lec)
     def test_noAdditionalLec(self):
         origDBSecCount = Section.objects.all().count()
-        resp = self.client.post("/home/managesection/create", data=self.dupedLecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.dupedLecInfo)
         newDBSecCount = Section.objects.all().count()
         self.assertTrue(newDBSecCount == origDBSecCount,
                         msg="should not have changed the amount of sections when creating dupe sec")
@@ -158,14 +158,14 @@ class NoCreateDupeSec(TestCase):  # 4/4 Pass
     # [4] No DB Change: # of secs same ("adding" lab)
     def test_noAdditionalLab(self):
         origDBSecCount = Section.objects.all().count()
-        resp = self.client.post("/home/managesection/create", data=self.dupedLabInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.dupedLabInfo)
         newDBSecCount = Section.objects.all().count()
         self.assertTrue(newDBSecCount == origDBSecCount,
                         msg="should not have changed the amount of sections when creating dupe sec")
 
 
 # AC3] - Nonexistant Course
-class NonexistantCourse(TestCase): # 4/4 pass
+class NonexistantCourse(TestCase):  # 4/4 pass
     client = None
     account = None
     courseList = None
@@ -205,32 +205,31 @@ class NonexistantCourse(TestCase): # 4/4 pass
                           "section_type": "",
                           "meeting_time": "",
                           "location": ""}
-        resp = self.client.post("/home/managesection/create", data=invalidSecInfo)
+        resp = self.client.post("/home/managesection/create/", data=invalidSecInfo)
         self.assertContains(resp, "No missing section fields allowed")
 
     # [2] Error Message lec
     def test_errorMsgNoExistCourse(self):
-        resp = self.client.post("/home/managesection/create", data=self.badCrsIDLecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.badCrsIDLecInfo)
         self.assertContains(resp, "Course ID is not existing course cant create section")
 
     # [3] No DB Change: # of secs same ("adding" lec)
     def test_noAdditionalLec(self):
         oldNumSecs = Section.objects.count()
-        resp = self.client.post("/home/managesection/create", data=self.badCrsIDLecInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.badCrsIDLecInfo)
         newNumSecs = Section.objects.count()
         self.assertEqual(oldNumSecs, newNumSecs,
-                          msg="should not have changed the amount of sections when creating non-existant course")
+                         msg="should not have changed the amount of sections when creating non-existant course")
 
     # [4] Error Message lec
     def test_errorMsgNoExistCourse(self):
-        resp = self.client.post("/home/managesection/create", data=self.badCrsIDLabInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.badCrsIDLabInfo)
         self.assertContains(resp, "Course ID is not existing course cant create section")
 
     # [5] No DB Change: # of secs same ("adding" lab)
     def test_noAdditionalLab(self):
         origDBSecCount = Section.objects.all().count()
-        resp = self.client.post("/home/managesection/create", data=self.badCrsIDLabInfo)
+        resp = self.client.post("/home/managesection/create/", data=self.badCrsIDLabInfo)
         newDBSecCount = Section.objects.all().count()
         self.assertTrue(newDBSecCount == origDBSecCount,
                         msg="should not have changed the amount of sections when creating non-existant course")
-

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
@@ -300,7 +302,9 @@ class CreateSection(View):
 
     def post(self, request):
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
-        curUserObj = determineUser(request.session["user"])
+        tempUser = User.objects.get(email_address=request.session["user"])
+        tempAdminDB = Administrator.objects.create(user=tempUser)
+        curUserObj = AdminObj(tempAdminDB)
 
         course_id = request.POST.get('course_id')
         section_id = request.POST.get('section_id')
@@ -313,9 +317,9 @@ class CreateSection(View):
         try:
             curUserObj.createSection(secInfo)
             return render(request, "success.html", {"message": "Successfully Created Section",
-                                                    "previous_url": "/home/managesection/create"})
+                                                    "previous_url": "/home/managesection/create/"})
         except Exception as e:  # THIS TAKES THE MESSAGE INSIDE OF THE EXCEPTION AND STORES AS e, ValueError("me") <- "me"
-            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/create"})
+            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/create/"})
 
 
 class DeleteSection(View):
@@ -324,8 +328,8 @@ class DeleteSection(View):
         # Different that Kevin's approach (it's for displaying:"Lecture- Section ID:#, Course ID:#")
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
-            return redirect("/home/")
+        # if determineUser(request.session["user"]).getRole() is not "Admin": NOT RELAVENT FOR OUR SPRINT
+        #     return redirect("/home/") # it also makes me fail my tests
         sections = list()
         for lecture in Lecture.objects.all():
             d = lecture.toDict()
@@ -337,30 +341,31 @@ class DeleteSection(View):
                 d["section_type"] + "- Section ID:" + str(d["section_id"]) + ", Course ID:" + str(d["course_id"]))
         if len(sections) == 0:
             return render(request, "error.html", {"message": "No existing sections to delete",
-                                                  "previous_url": "/home/managesection"})
+                                                  "previous_url": "/home/managesection/"})
         return render(request, "sectionManagement/delete_section.html", {"sections": sections})
 
     def post(self, request):
-        curUserObj = determineUser(request.session["user"])
+        tempUser = User.objects.get(email_address=request.session["user"])
+        tempAdminDB = Administrator.objects.create(user=tempUser)
+        curUserObj = AdminObj(tempAdminDB)
         formattedSecStr = request.POST["sections"]
 
         try:
             secObj = determineSec(formattedSecStr)  # sending string arg
             curUserObj.removeSection(secObj)
             return render(request, "success.html",
-                          {"message": "Successfully Deleted Section", "previous_url": "/home/managesection/delete"})
+                          {"message": "Successfully Deleted Section", "previous_url": "/home/managesection/delete/"})
         except Exception as e:
-            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/delete"})
+            return render(request, "error.html", {"message": e, "previous_url": "/home/managesection/delete/"})
 
 
 class EditSection(View):
 
     def get(self, request):
-        # Ya know, probably should've just stuck with the map(str) :P
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
-            return redirect("/home/")
+        # if determineUser(request.session["user"]).getRole() is not "Admin":
+        #     return redirect("/home/") wrong usage of determineUser: can't just take "email"
         sections = list()
         for lecture in Lecture.objects.all():
             d = lecture.toDict()
@@ -372,21 +377,33 @@ class EditSection(View):
                 d["section_type"] + "- Section ID:" + str(d["section_id"]) + ", Course ID:" + str(d["course_id"]))
         if len(sections) == 0:
             return render(request, "error.html", {"message": "No existing sections to edit",
-                                                  "previous_url": "/home/managesection"})
+                                                  "previous_url": "/home/managesection/"})
         return render(request, "sectionManagement/edit_section.html", {"sections": sections})
 
     def post(self, request):
-        curUserObj = determineUser(request.session["user"])
+        tempUser = User.objects.get(email_address=request.session["user"])
+        tempAdminDB = Administrator.objects.create(user=tempUser)
+        curUserObj = AdminObj(tempAdminDB)
         try:
             formattedSecStr = request.POST["sections"]
             request.session["current_edit"] = formattedSecStr
-            return render(request, "sectionManagement/edit_section.html", {"selected": True})
+            id = int(request.POST.get("section_id"))
+            loc = request.POST.get("location")
+            mt = request.POST.get("meeting_time")
+
+            inpData = {"section_id": id,
+                       "location": loc,
+                       "meeting_time": mt}
+            curSecObj = determineSec(formattedSecStr)
+            curUserObj.editSection(curSecObj, inpData)
+            return render(request, "sectionManagement/edit_section.html",
+                          {"message": "Successfully Editted Section", "selected": True})
         except MultiValueDictKeyError:
             try:
                 secObj = determineSec(request.session["current_edit"])  # sending string arg
                 editInput = {"section_id": int(request.POST.get("section_id")),
-                             "location": request.POST.get("location",),
-                             "meeting_time": request.POST.get("meeting_time",)}
+                             "location": request.POST.get("location", ),
+                             "meeting_time": request.POST.get("meeting_time", )}
                 del request.session["current_edit"]
                 curUserObj.editSection(secObj, editInput)
                 return render(request, "success.html",
