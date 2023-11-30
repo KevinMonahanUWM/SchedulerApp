@@ -21,7 +21,7 @@ class SuccessEdit(TestCase):
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()
@@ -73,7 +73,7 @@ class UnSuccessEdit(TestCase):
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()
