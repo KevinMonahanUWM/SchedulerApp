@@ -347,29 +347,32 @@ class AddUserToSection(View):
                       {"users": users, "message": "Please select a user to assign"})
 
     def post(self, request):
-        selecteduser = request.POST["user"]
+        selecteduser = determineUser(request.POST.get("user"))
+        role=selecteduser.getRole()
         if selecteduser is None or selecteduser == '':
-            users = request.POST["users"]
+            users = list(map(str, TA.objects.all()))
+            users.extend(list(map(str, Instructor.objects.all())))
             return render(request,
                           "sectionManagement/add_user_to_section.html",
                           {"users": users,
                            "message": "Choose a User"})
 
-        courses = None
-        if isinstance(selecteduser, TA):
-            if selecteduser.grader_status:
+        courses = list()
+        if role == "TA":
+            if selecteduser.getGraderStatus():
                 courses = list(map(str, Lecture.objects.all()))
             else:
                 courses = list(map(str, Lab.objects.all()))
-        if isinstance(selecteduser, Instructor):
+        if role == "Instructor":
             courses = list(map(str, Lecture.objects.all()))
 
         if len(courses) == 0:
             return render(request,
                           "error.html",
-                          {"message": "No Courses to display", "previous_url": "/home/managesection/"})
+                          {"message": "Error: No Courses to display", "previous_url": "/home/managesection/"})
 
-        chosenuser = determineUser(request.POST["user"]).getUsername()
+        chosenuser = determineUser(request.POST.get("user")).getUsername()
+        request.session["Chosenuser"] = request.POST.get("user")
         return render(request,
                       "sectionManagement/choose_section_add_user.html",
                       {"chosen": chosenuser, "courses": courses})
@@ -377,25 +380,25 @@ class AddUserToSection(View):
 
 class ChooseSectionForUser(View):
     def get(self, request):
-        #
-        chosenuser = request.POST["chosen"]
-        chosencourse = request.POST["course"]
+        chosenuser = request.session["Chosenuser"]
+        del request.session["Chosenuser"]
+        chosencourse = request.GET["course"]
         if chosencourse is None:
-            courses = request.POST["courses"]
+            courses = request.GET["courses"]
             return render(request,
                           "sectionManagement/choose_section_add_user.html",
                           {"chosen": chosenuser,
                            "courses": courses,
                            "message": "Choose a course"})
 
-        user_database = User.objects.get(email_address=request.POST["username"])
+        user_database = determineUser(chosenuser)
         if isinstance(chosencourse, Lecture):
             chosencourse = LectureObj(chosencourse)
-            if Instructor.user.objects.filter(email_address=chosenuser).exists():
-                user = Instructor.objects.get(user=user_database)
+            if Instructor.user.objects.filter(email_address=chosenuser.getUsername()).exists():
+                user = Instructor.objects.get(user=user_database.database)
                 chosencourse.addInstr(user)
-            elif TA.user.objects.filter(email_address=chosenuser).exists():
-                user = TA.objects.get(user=user_database)
+            elif TA.user.objects.filter(email_address=chosenuser.getUsername()).exists():
+                user = TA.objects.get(user=user_database.database)
                 chosencourse.addTA(user)
             else:
                 return render(request, "error.html", {"message": "Could not find user",
@@ -403,8 +406,8 @@ class ChooseSectionForUser(View):
 
         if isinstance(chosencourse, Lab):
             chosencourse = LabObj(chosencourse)
-            if TA.user.objects.filter(email_address=chosenuser).exists():
-                user = TA.objects.get(user=user_database)
+            if TA.user.objects.filter(email_address=chosenuser.getUsername()).exists():
+                user = TA.objects.get(user=user_database.database)
                 chosencourse.addTA(user)
             else:
                 return render(request, "error.html", {"message": "Could not find user",

@@ -7,7 +7,6 @@
     <link rel="stylesheet" href= {% static 'style.css' %}>
 </head>
 <body>
-
 <form id="ta_selection" action="/home/managesection/adduser/" method="post">
 {% csrf_token %}
 {% for user in users %}
