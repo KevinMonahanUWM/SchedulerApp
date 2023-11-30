@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<form id="ta_selection" action="home/managesection/adduser" method="post">
+<form id="ta_selection" action="/home/managesection/adduser/" method="post">
 {% csrf_token %}
 {% for user in users %}
     <input id="user" type="radio" name="user" value="{{ user }}">
@@ -18,6 +18,6 @@
 {{ message }}<br>
 </form>
 
-<a href="/home/managesection">Cancel</a>
+<a href="/home/managesection/">Cancel</a>
 </body>
 </html>

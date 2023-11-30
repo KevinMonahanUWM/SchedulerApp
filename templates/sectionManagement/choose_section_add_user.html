@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<form id="section_selection" action="home/managesection/adduser/choosesection" method="get">
+<form id="section_selection" action="home/managesection/adduser/choosesection/" method="get">
 {% csrf_token %}
 {{ chosen }}<br>
 {% for course in courses %}
@@ -19,6 +19,6 @@
 {{ message }}<br>
 </form>
 
-<a href="/home/managesection">Cancel</a>
+<a href="/home/managesection/">Cancel</a>
 </body>
 </html>
