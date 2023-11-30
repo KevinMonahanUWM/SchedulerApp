@@ -3,11 +3,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
 
 import TAScheduler
-from TAScheduler.AcceptanceTests.admin_edit_course import course_id
-from TAScheduler.models import User, Administrator, Instructor, TA, Course
-from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, CourseObj
-from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, TAToCourse, Course, \
-    InstructorToCourse
+from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, Course
 from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj, CourseObj
 
 
