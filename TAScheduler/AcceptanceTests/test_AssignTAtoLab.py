@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 
-from TAScheduler.models import User, TA, Course, TAToCourse
+from TAScheduler.models import User, TA, Course, TAToCourse, Administrator
 
 
 class SuccessfulCreation(TestCase):
@@ -12,6 +12,19 @@ class SuccessfulCreation(TestCase):
     # noinspection DuplicatedCode
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.str()  # should be done at login
+        ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()
@@ -41,6 +54,19 @@ class NoTA(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.str()  # should be done at login
+        ses.save()
 
     def test_no_ta(self):
         response = self.user.get("/home/managecourse/addta")
@@ -53,6 +79,19 @@ class NoCourse(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.str()  # should be done at login
+        ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()
@@ -71,6 +110,19 @@ class TANoRoom(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.str()  # should be done at login
+        ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()
@@ -90,6 +142,19 @@ class SuccessfulTransfer(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.str()  # should be done at login
+        ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()

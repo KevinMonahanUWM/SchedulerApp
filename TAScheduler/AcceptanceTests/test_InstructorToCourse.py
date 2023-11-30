@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 
-from TAScheduler.models import User, Instructor, Course, InstructorToCourse
+from TAScheduler.models import User, Instructor, Course, InstructorToCourse, Administrator
 
 
 class SuccessfulCreation(TestCase):
@@ -12,6 +12,19 @@ class SuccessfulCreation(TestCase):
     # noinspection DuplicatedCode
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.__str__()  # should be done at login
+        ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()
@@ -27,12 +40,12 @@ class SuccessfulCreation(TestCase):
 
     # /home/managecourse/addinstructor
     def test_creation(self):
-        self.user.post("/home/managecourse/addinstructor", {"selection", self.instructor}, follow=True)
-        response = self.user.post("/home/managecourse/addinstructor/course-select", {"selection", self.course},
+        self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor}, follow=True)
+        response = self.user.post("/home/managecourse/addinstructor/course-select/", {"course": self.course},
                                   follow=True)
-        self.assertEquals(self.instructorToCourse, User.objects.get(self.instructorToCourse),
+        self.assertEquals(self.instructor, Course(self.course).instructortocourse_set,
                           "Instructor to Course link was not made")
-        self.assertRedirects(response, '/home/managecourse/addinstructor/course-select/success')
+        self.assertRedirects(response, '/home/managecourse/addinstructor/course-select/success/')
 
 
 class NoInstructor(TestCase):
@@ -40,6 +53,19 @@ class NoInstructor(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.__str__()  # should be done at login
+        ses.save()
 
     def test_no_instructor(self):
         resp = self.user.get("/home/managecourse/addinstructor")
@@ -53,6 +79,19 @@ class NoCourse(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.__str__()  # should be done at login
+        ses.save()
 
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
@@ -73,6 +112,19 @@ class InstructorNoRoom(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.__str__()  # should be done at login
+        ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()
@@ -92,6 +144,20 @@ class SuccessfulTransfer(TestCase):
 
     def setUp(self):
         self.user = Client()
+        self.account = Administrator.objects.create(
+            user=User.objects.create(
+                email_address="test@uwm.edu",
+                password="pass",
+                first_name="test",
+                last_name="test",
+                home_address="home",
+                phone_number=1234567890
+            )
+        )
+        ses = self.client.session
+        ses["user"] = self.account.__str__()  # should be done at login
+        ses.save()
+
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
                     home_address="Your mom's house", phone_number=1234567890)
         temp.save()

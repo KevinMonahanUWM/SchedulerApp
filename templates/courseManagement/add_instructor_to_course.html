@@ -3,12 +3,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Instructor to Course</title>
+    <title>Choose User to Add to Section</title>
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>Add Instructor to Course</h1>
+<form id="ta_selection" action="/home/managecourse/addinstructor/" method="post">
+{% csrf_token %}
+{% for user in users %}
+    <input id="user" type="radio" name="user" value="{{ user }}">
+    <label for="user">{{ user }}</label><br>
+{% endfor %}
+    <input type="submit">
+{{ message }}<br>
+</form>
 
-<a href="/home/managecourse">Cancel</a>
+<a href="/home/managecourse/">Cancel</a>
 </body>
 </html>

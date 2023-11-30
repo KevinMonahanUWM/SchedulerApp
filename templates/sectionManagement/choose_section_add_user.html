@@ -4,10 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Choose section to add User to</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-
+<h1>Delete Account</h1>
 <form id="section_selection" action="/home/managesection/adduser/choosesection/" method="get">
 {% csrf_token %}
 {{ chosen }}<br>
@@ -20,5 +20,27 @@
 </form>
 
 <a href="/home/managesection/">Cancel</a>
+</body>
+</html>
+
+
+<body>
+
+<table>
+    <form id="deleteUserFrom" action="/home/manageaccount/delete/" method="post">
+        {% csrf_token %}
+        {% for user in users %}
+            <tr>
+                <td>
+                    <input id="user" type="radio" name="user" value="{{ user }}">
+                    <label for="user">{{ user }}</label>
+                </td>
+            </tr>
+        {% endfor %}
+    <tr><td><input type="submit"></td></tr>
+</form>
+<tr><td><a href="/home/manageaccount/">Cancel</a>
+</td></tr>
+</table>
 </body>
 </html>
