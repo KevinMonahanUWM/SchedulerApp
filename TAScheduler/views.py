@@ -178,6 +178,7 @@ class AddUserToSection(View):
 
 class ChooseSectionForUser(View):
     def get(self, request):
+        #
         chosenuser = request.POST["chosen"]
         chosencourse = request.POST["course"]
         if chosencourse is None:
