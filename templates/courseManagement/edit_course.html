@@ -11,19 +11,17 @@
     <table>
         <form action='/home/managecourse/edit/' method="post">
         {% csrf_token %}
+        {% if not selected %}
         <tr><td>
             <label for="courseSelect">Select Course:</label>
-            <select id="courseSelect" name="course_id" onchange="this.form.submit()">
+            <select id="courseSelect" name="course">
                 {% for course in courses %}
-                    <option value="{{ course.id }}">{{ course.name }}</option>
+                    <option value={{ course }}>{{ course }}</option>
                 {% endfor %}
             </select>
         </td></tr>
-        <tr><td><input type="submit"></td></tr>
-    </form>
-    {% if selected_course %}
-        <form action='/home/managecourse/edit/' method="post">
-            {% csrf_token %}
+        {% endif %}
+        {% if selected %}
             <input type="hidden" name="course_id" value="{{ selected_course.id }}">
 
             <label for="name">Course Name:</label>
@@ -45,9 +43,12 @@
             <label for="credits">Credits:</label>
             <input type="number" id="credits" name="credits" value="{{ selected_course.credits }}"><br>
 
-            <input type="submit" value="Submit Changes">
-        </form>
+
+
     {% endif %}
+        <tr><td><input type="submit"></td></tr>
+    </form>
+
 
 
         <tr><td><a href="/home/managecourse">Cancel</a></td></tr>

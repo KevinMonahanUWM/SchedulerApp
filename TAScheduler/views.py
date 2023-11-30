@@ -159,16 +159,18 @@ class EditCourse(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
-        courses = Course.objects.all()
+        courses = list(map(str, Course.objects.all()))
         return render(request, "courseManagement/edit_course.html", {"courses": courses})
 
     def post(self, request):
         admin_obj = determineUser(request.session["user"])
         try:
-            course_id = request.POST.get('course_id')
+            course_id = request.POST['course']
+            request.session["course_id"] = course_id
             return render(request, "courseManagement/edit_course.html", {"selected": True})
         except MultiValueDictKeyError:
             new_info = {
+
                 "name": request.POST.get("name"),
                 "description": request.POST.get("description"),
                 "num_of_sections": int(request.POST.get("num_of_sections", 0)),  # Default to 0 or any sensible default
@@ -178,9 +180,13 @@ class EditCourse(View):
             }
 
             try:
-                course_to_edit = Course.objects.get(course_id=course_id)
-                admin_obj.editCourse(course_to_edit, new_info)
-                return redirect("/home/success/")
+                course = request.session["course_id"]
+                course_id = int(course.split(":", 1)[0])
+                course_to_edit = Course.objects.get(course_id=int(course_id))
+                del request.session["course_id"]
+                admin_obj.editCourse(CourseObj(course_to_edit), new_info)
+                return render(request, "success.html", {"message": "Successfully editted course",
+                                                        "previous_url": "/home/managecourse/edit/"})
             except Course.DoesNotExist:
                 return render(request, "error.html",
                               {"message": "Course not found", "previous_url": "/home/managecourse/edit/"})
