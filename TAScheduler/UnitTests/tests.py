@@ -29,22 +29,19 @@ class TestUserLogin(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_login_valid_credentials(self):
-        print("Testing with email: admin@example.com, password: admin_pass")
         result = self.adminObj.login("admin@example.com", "admin_pass")
         self.assertTrue(result, "login with valid credentials failed")
 
     def test_login_invalid_credentials(self):
         # Assuming the login method returns False for invalid credentials
-        result = self.adminObj.login("admin@example.com", "wrongpassword")
+        result = self.adminObj.login("admin@example.com", "wrong_password")
         self.assertFalse(result, "login with invalid credentials should fail but didn't")
 
     def test_login_wrong_username(self):
-        print("Testing with wrong email: wrong@example.com, correct password: adminpass")
-        result = self.adminObj.login("wrong@example.com", "adminpass")
+        result = self.adminObj.login("wrong@example.com", "admin_pass")
         self.assertFalse(result, "login with wrong username and correct password should fail but didn't")
 
     def test_login_no_input(self):
-        print("Testing with no email and no password")
         result = self.adminObj.login("", "")
         self.assertFalse(result, "login with no credentials should fail but didn't")
 
@@ -116,9 +113,7 @@ class TestUserGetRole(TestCase):  # Alec
         self.adminObj = AdminObj(admin_info)
 
     def test_get_role(self):
-        self.assertEqual(self.adminObj.getRole(), "<class 'TAScheduler.models.Administrator'>", msg="user.getRole "
-                                                                                                    "failed to "
-                                                                                                    "retrieve 'admin'")
+        self.assertEqual(self.adminObj.getRole(), "Admin", msg="user.getRole failed to retrieve 'admin'")
 
 
 class TestAdminInit(TestCase):  # Alec
@@ -778,7 +773,7 @@ class TestTAHasMaxAssignments(TestCase):  # Kiran
         self.taDB = TA.objects.create(user=self.user, grader_status=False, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -803,7 +798,7 @@ class TestTAHasMaxAssignments(TestCase):  # Kiran
                          msg="TA has 1 max assignments & assigned 1 course: @ max cap")
 
     # [2] TA w/ 0 course assignment
-    def test_0Crse1MaxCap(self):
+    def test_0Course1MaxCap(self):
         self.assertEqual(self.taObj.hasMaxAsgmts(), False,
                          msg="TA has 1 max assignments & not assigned 1 course: not @ max cap")
 
@@ -850,8 +845,8 @@ class TestTAAssignTACourse(TestCase):  # Kiran
     def test_ExistCourse(self):
         self.taObj.assignTACourse(self.courseList[0])
         self.assertEqual(self.courseDBList[0],
-                         TAToCourse.objects.filter(course=self.courseDBList[0], ta=self.taDB)[0].course
-                         , "Should have linked course and TA together")  # NEEDED [0]
+                         TAToCourse.objects.filter(course=self.courseDBList[0], ta=self.taDB)[0].course,
+                         "Should have linked course and TA together")  # NEEDED [0]
 
     # [2] Adding Course not existing in DB TESTING WHY THIS IS WORKING
     def test_NotExistCourse(self):
@@ -904,7 +899,7 @@ class TestTAGetTACourseAssignments(TestCase):  # Kiran
         self.taDB = TA.objects.create(user=self.user, grader_status=False, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -925,21 +920,21 @@ class TestTAGetTACourseAssignments(TestCase):  # Kiran
     # [1] 1 assignment
     def test_1Assignment(self):
         TAToCourse.objects.create(course=self.courseDB, ta=self.taDB)
-        self.assertQuerysetEqual(TAToCourse.objects.filter(ta=self.taDB)
-                                 , self.taObj.getTACrseAsgmts(), msg="should be 1 assigment")
+        self.assertQuerysetEqual(TAToCourse.objects.filter(ta=self.taDB),
+                                 self.taObj.getTACrseAsgmts(), msg="should be 1 assigment")
 
     # [2] 0 assignment
     def test_0Assignment(self):
-        self.assertQuerysetEqual(TAToCourse.objects.filter(ta=self.taDB)
-                                 , self.taObj.getTACrseAsgmts(), msg="should be 0 assigments")
+        self.assertQuerysetEqual(TAToCourse.objects.filter(ta=self.taDB),
+                                 self.taObj.getTACrseAsgmts(), msg="should be 0 assignments")
 
     # [3] 1->0 Assignment
     # using views method: same reasons above^
     def test_1to0Assignment(self):
         self.taObj.assignTACourse(self.course)
         self.adminObj.removeCourse(self.course)
-        self.assertQuerysetEqual(TAToCourse.objects.filter(ta=self.taDB)
-                                 , self.taObj.getTACrseAsgmts(), msg="added then removed course, should be 0")
+        self.assertQuerysetEqual(TAToCourse.objects.filter(ta=self.taDB),
+                                 self.taObj.getTACrseAsgmts(), msg="added then removed course, should be 0")
 
 
 class TestAssignTALab(TestCase):
@@ -1002,8 +997,8 @@ class TestAssignTALab(TestCase):
     # [3] Adding TA to Lab @ max cap
     def test_OverCap(self):
         temp_userDB = User.objects.create(
-            email_address='TA2@example.com',  # different than "TA@example.com'
-            password='TApassword',
+            email_address='TA2@example.com',  # different from "TA@example.com"
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1061,7 +1056,7 @@ class TestTAGetTALabAssignments(TestCase):  # Kiran
         self.taDB = TA.objects.create(user=self.user, grader_status=False, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -1097,7 +1092,7 @@ class TestTAGetTALabAssignments(TestCase):  # Kiran
     def test_0Assignment(self):
         qs = Lab.objects.filter(ta=self.taDB)
         self.assertQuerysetEqual(qs, self.taObj.getTALabAsgmts(),
-                                 msg="should be 0 assigments")
+                                 msg="should be 0 assignments")
 
     # [3] 1->0 lab Assignment
     # Using views method: I know not good practice but this is still a good check for both of the assign/remove methods.
@@ -1154,7 +1149,6 @@ class TestAssignTALec(TestCase):  # Kiran
     # [1] Success TA->Lec
     def test_ExistLLec(self):
         self.taObj.assignTALecture(self.lecList[0])
-        lab_query = Lecture.objects.filter(section=self.lecDBList[0].section, ta=self.taDB, instructor=None)
         self.assertEqual(self.lecDBList[0].ta, self.taDB, "Should have linked lec and TA together")
 
     # [2] Adding duplicate lec: (don't know why this would happen but might as well test it :P)
@@ -1167,8 +1161,8 @@ class TestAssignTALec(TestCase):  # Kiran
     # [3] Adding TA to Lecture @ max cap
     def test_OverCap(self):
         temp_userDB = User.objects.create(
-            email_address='TA2@example.com',  # different than "TA@example.com'
-            password='TApassword',
+            email_address='TA2@example.com',  # different from "TA@example.com"
+            password='TA_password',
             first_name='TA',
             last_name='User',
             home_address='123 TA St',
@@ -1192,15 +1186,15 @@ class TestAssignTALec(TestCase):  # Kiran
                 with self.assertRaises(TypeError, msg="Shouldn't be allowed to assign TA to non-course"):
                     self.taObj.assignTALecture(invalid_input)
 
-    # 5] Assigning lec TA w/o grader status
+    # [5] Assigning lec TA w/o grader status
     def test_GraderStatus(self):
-        temp_user = User.objects.create(email_address='NOgrader@gmail.com', password='TApassword',
+        temp_user = User.objects.create(email_address='NOgrader@gmail.com', password='TA_password',
                                         first_name='TA',
                                         last_name='User',
                                         home_address='123 TA St',
                                         phone_number='1234567890')  # HOPEFULLY DON'T NEED ALL FIELDS?
         tempTa = TA.objects.create(user=temp_user, max_assignments=2, grader_status=False)  # w/o GraderStatus
-        tempTAObj = TAObj(tempTa)  # reassigning instance variab
+        tempTAObj = TAObj(tempTa)  # reassigning instance variable
         with self.assertRaises(RuntimeError, msg="TA can't assign to lec when grader"):
             tempTAObj.assignTALecture(self.lecList[0])
 
@@ -1224,7 +1218,7 @@ class TestTAGetTALecAssignments(TestCase):  # Kiran
                                       max_assignments=1)  # True gs,max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -1259,7 +1253,7 @@ class TestTAGetTALecAssignments(TestCase):  # Kiran
     # [2] 0 lab assignment
     def test_0Assignment(self):
         self.assertQuerysetEqual(Lecture.objects.filter(ta=self.taDB), self.taObj.getTALecAsgmts(),
-                                 msg="should be 0 assigments")
+                                 msg="should be 0 assignments")
 
     # [3] 1->0 lab Assignment
     # Using views method: I know not good practice but this is still a good check for both of the assign/remove methods.
@@ -1330,7 +1324,7 @@ class TestInstructorInit(TestCase):
     def test_success(self):
         self.instrObj = InstructorObj(self.instructorDB)
         self.assertEqual(self.instrObj.database, self.instructorDB,
-                         msg="insrtuctor object should be saved in the database reference")
+                         msg="instructor object should be saved in the database reference")
 
         self.courseDB = Course.objects.create(
             course_id=101,
@@ -1362,7 +1356,7 @@ class TestInstructorHasMaxAssignments(TestCase):  # Kiran
         self.instrDB = Instructor.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.instrObj = InstructorObj(self.instrDB)
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -1386,7 +1380,7 @@ class TestInstructorHasMaxAssignments(TestCase):  # Kiran
                          msg="instructor has 1 max assignments & assigned 1 course: @ max cap")
 
     # [2] Instr w/ 0 course assignment
-    def test_0Crse1MaxCap(self):
+    def test_0Course1MaxCap(self):
         self.assertEqual(self.instrObj.hasMaxAsgmts(), False,
                          msg="instructor has 1 max assignments & not assigned 1 course: not @ max cap")
 
@@ -1434,9 +1428,9 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
     def test_ExistCourse(self):
         self.instrObj.assignInstrCourse(self.courseList[0])
         self.assertEqual(self.courseDBList[0],
-                         InstructorToCourse.objects.filter(course=self.courseDBList[0], instructor=self.instrDB)[
-                             0].course
-                         , "Should have linked course and instructor together")
+                         InstructorToCourse.objects.filter(course=self.courseDBList[0],
+                                                           instructor=self.instrDB)[0].course,
+                         "Should have linked course and instructor together")
 
     # [2] Adding Course not existing in DB
     def test_NotExistCourse(self):
@@ -1473,7 +1467,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
         self.assertEquals(self.instrObj.getInstrCrseAsgmts().count(), 0, msg="should be 0 assignments")
 
 
-class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
+class TestInstructorGetInstrCourseAssignments(TestCase):  # Kiran
     instrDB = None
     courseDB = None
     course = None
@@ -1484,7 +1478,7 @@ class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='instr@example.com',
-            password='instrpassword',
+            password='instr_password',
             first_name='instr',
             last_name='User',
             home_address='123 instr St',
@@ -1493,7 +1487,7 @@ class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
         self.instrDB = Instructor.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.instrObj = InstructorObj(self.instrDB)
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -1514,21 +1508,21 @@ class TestInstructorGetInstrCrseAsgmts(TestCase):  # Kiran
     # [1] 1 assignment
     def test_1Assignment(self):
         InstructorToCourse.objects.create(course=self.courseDB, instructor=self.instrDB)  # creating assignment?
-        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB)
-                                 , self.instrObj.getInstrCrseAsgmts(), msg="should be 1 assigment")
+        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB),
+                                 self.instrObj.getInstrCrseAsgmts(), msg="should be 1 assigment")
 
     # [2] 0 assignment
     def test_0Assignment(self):
-        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB)
-                                 , self.instrObj.getInstrCrseAsgmts(), msg="should be 0 assigments")
+        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB),
+                                 self.instrObj.getInstrCrseAsgmts(), msg="should be 0 assignments")
 
     # [3] 1->0 Assignment
     # using views methods: same reasoning given ^
     def test_1to0Assignment(self):
         self.instrObj.assignInstrCourse(self.course)
         self.adminObj.removeCourse(self.course)
-        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB)
-                                 , self.instrObj.getInstrCrseAsgmts(), msg="added then removed course, should be 0")
+        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB),
+                                 self.instrObj.getInstrCrseAsgmts(), msg="added then removed course, should be 0")
 
 
 class TestInstructorAssignInstrLec(TestCase):  # Kiran
@@ -1576,7 +1570,6 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
     # [1] Success Instructor->Lec
     def test_ExistLec(self):
         self.instrObj.assignInstrLecture(self.lecList[0])
-        lab_query = Lecture.objects.filter(section=self.lecDBList[0].section, instructor=self.instrDB, ta=None)
         self.assertEqual(self.lecDBList[0].instructor, self.instrDB, "Should have linked lec and instructor together")
 
     # [2] Adding duplicate lecture: (don't know why this would happen but might as well test it :P)
@@ -1589,8 +1582,8 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
     # [3] Adding Instructor to lecture @ max cap
     def test_OverCap(self):
         temp_userDB = User.objects.create(
-            email_address='Instr2@example.com',  # different than "Instr@example.com'
-            password='Instrpassword',
+            email_address='Instr2@example.com',  # different from "Instr@example.com"
+            password='Instr_password',
             first_name='Instr',
             last_name='User',
             home_address='123 Instr St',
@@ -1626,7 +1619,7 @@ class TestInstructorGetInstrLecAssignments(TestCase):  # Kiran
     def setUp(self):
         self.user = User.objects.create(
             email_address='Instr@example.com',
-            password='Instrpassword',
+            password='Instr_password',
             first_name='Instr',
             last_name='User',
             home_address='123 Instr St',
@@ -1635,7 +1628,7 @@ class TestInstructorGetInstrLecAssignments(TestCase):  # Kiran
         self.instrDB = Instructor.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
         self.instrObj = InstructorObj(self.instrDB)
         temp_userForAdmin = User.objects.create(email_address='admin@example.com',
-                                                password='adminpassword',
+                                                password='admin_password',
                                                 first_name='Admin',
                                                 last_name='User',
                                                 home_address='123 Admin St',
@@ -1726,7 +1719,7 @@ class TestCourseAddInstructor(TestCase):  # Randall
             instructor_obj = InstructorObj(instructor_model)
             self.tempCourse.addInstructor(instructor_obj)
 
-        # Attempt to add an additional instructor
+        # Attempt to add another instructor
         extra_instructor_user = User.objects.create(
             email_address='extra_instructor@example.com',
             password='password',
@@ -1814,7 +1807,7 @@ class TestCourseAddTA(TestCase):  # Randall
             ta_obj = TAObj(ta_model)
             self.tempCourse.addTa(ta_obj)
 
-        # Attempt to add an additional TA
+        # Attempt to add another TA
         extra_ta_user = User.objects.create(
             email_address='extra_ta@example.com',
             password='password',
