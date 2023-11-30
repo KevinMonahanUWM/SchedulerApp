@@ -2,7 +2,7 @@ from django.db.models import QuerySet
 from django.test import TestCase, Client
 
 from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture, Lab, Administrator
-from TAScheduler.views_methods import TAObj
+from TAScheduler.views_methods import TAObj, InstructorObj
 
 
 class SuccessfulCreation(TestCase):
@@ -113,7 +113,7 @@ class SuccessfulCreation(TestCase):
         tmp_lec.save()
         self.user.post("/home/managecourse/adduser/", {"user": str(self.ta)}, follow=True)
         response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
-        self.assertEqual(TAObj(self.ta).getTALabAsgmts().first(), tmp_lec, "TA to lab link was not made")
+        self.assertEqual(TAObj(self.ta).getTALecAsgmts().first(), tmp_lec, "TA to lab link was not made")
 
     def test_instructor_to_lec(self):
         tmp_lec = Lecture.objects.create(
@@ -122,7 +122,9 @@ class SuccessfulCreation(TestCase):
             instructor=self.instructor
         )
         tmp_lec.save()
-
+        self.user.post("/home/managecourse/adduser/", {"user": str(self.instructor)}, follow=True)
+        response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
+        self.assertEqual(InstructorObj(self.instructor).getInstrLecAsgmts().first(), tmp_lec, "TA to lab link was not made")
 
 class NoUsers(TestCase):
     section = None
