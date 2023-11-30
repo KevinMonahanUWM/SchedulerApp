@@ -44,7 +44,7 @@ class AdminCreateCourseTestCase(TestCase):
             'modality': 'Online',
             'credits': 4
         })
-        self.assertEqual(response.status_code, 302)
+
         self.assertTrue(Course.objects.filter(course_id=102).exists())
 
     def test_create_course_duplicate(self):

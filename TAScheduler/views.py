@@ -125,7 +125,7 @@ class CreateCourse(View):
             return render(request, "success.html", {"message": "Successfully created course",
                                                   "previous_url": "/home/managecourse/create/"})
         except Exception as e:
-            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create/"})
+            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/delete/"})
 
 
 class DeleteCourse(View):
