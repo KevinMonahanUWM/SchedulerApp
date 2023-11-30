@@ -27,8 +27,8 @@ class SuccessfulCreation(TestCase):
 
     # /home/managecourse/addinstructor
     def test_creation(self):
-        self.user.post("/home/managecourse/addinstructor", {"selection", self.instructor}, follow=True)
-        response = self.user.post("/home/managecourse/addinstructor/course-select", {"selection", self.course},
+        self.user.post("/home/managecourse/addinstructor/", {"selection", self.instructor}, follow=True)
+        response = self.user.post("/home/managecourse/addinstructor/course-select/", {"selection", self.course},
                                   follow=True)
         self.assertEquals(self.instructorToCourse, User.objects.get(self.instructorToCourse),
                           "Instructor to Course link was not made")
