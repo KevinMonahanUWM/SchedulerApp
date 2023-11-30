@@ -1,5 +1,5 @@
 import abc
-from dateutil import parser #KEEP THIS
+from dateutil import parser  # KEEP THIS
 
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
@@ -123,9 +123,24 @@ class AdminObj(UserObj):
         return new_user
 
     def createSection(self, section_info):
+        if any(value == "" for value in section_info.values()):
+            raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        new_section = Section.objects.create(**section_info)
+        if not Course.objects.filter(course_id=section_info.get('course_id')).exists():
+            raise RuntimeError("Course ID is not existing course cant create section")
+
+        courseDB = Course.objects.get(course_id=section_info.get('course_id'))
+        fields = {"section_id": section_info["section_id"],
+                  "course": courseDB,
+                  "location": section_info["location"],
+                  "meeting_time": section_info["meeting_time"]}
+        new_section = Section.objects.create(**fields)
+
+        if (section_info["section_type"] == "Lab"):
+            new_section = Lab.objects.create(section=new_section)
+        else:
+            new_section = Lecture.objects.create(section=new_section)
         return new_section
 
     def removeCourse(self, active_course):
@@ -240,31 +255,32 @@ class AdminObj(UserObj):
 
         try:  # section_id
             if new_info.get("section_id") is None:
-                raise KeyError
+                raise KeyError("missing field")
             if type(new_info.get("section_id")) is not int or new_info.get("section_id") < 0:
                 raise ValueError("section_id expects an int")
-            if Section.objects.filter(section_id=new_info.get("section_id")).exists():
+            if Section.objects.filter(section_id=new_info.get("section_id")).exists() and (
+                    new_info.get("section_id") != active_section.database.section.section_id):
                 raise RuntimeError("Can not have two sections with the same section number")
             active_section.database.section.section_id = new_info.get("section_id")
         except KeyError:  # No course_id in list that is fine don't change the database
             active_section.database.section.section_id = active_section.database.section.section_id
         try:  # location
             if new_info.get("location") is None:
-                raise KeyError
+                raise KeyError("missing field")
             if type(new_info.get("location")) is not str or len(new_info.get("location")) > 30:
                 raise ValueError("location expects a str")
             if new_info.get("location") == '':
-                raise KeyError
+                raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
         except KeyError:
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
-                raise KeyError
+                raise KeyError("missing field")
             parsed_date = parser.parse(new_info.get("meeting_time"))
             temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
             if new_info.get("meeting_time") == '':
-                raise KeyError
+                raise KeyError("missing field")
             active_section.database.section.meeting_time = new_info.get("meeting_time")
         except KeyError:
             active_section.database.section.meeting_time = active_section.database.section.meeting_time
@@ -454,14 +470,14 @@ class TAObj(UserObj):
             raise RuntimeError("Can't assign TA a lab with grader status")
 
         argLabDB = active_lab.database
-        if argLabDB.section is None: # SHOULD BE IMPOSSIBLE*
+        if argLabDB.section is None:  # SHOULD BE IMPOSSIBLE*
             raise ValueError("The provided Lab object does not have an equivalent section record in the database.")
         if not argLabDB.ta is None:
             raise ValueError("Can't assign a lab that already have a TA.")
 
         secDB = argLabDB.section
         qs = Lab.objects.filter(section=secDB, ta=self.database)
-        if qs.count()>0:
+        if qs.count() > 0:
             raise ValueError("Can't assign a lab already assigned to this TA.")
 
         argLabDB.ta = self.database
@@ -481,7 +497,7 @@ class TAObj(UserObj):
 
         argSecDB = argLecDB.section
         qs = Lecture.objects.filter(section=argSecDB, ta=self.database)
-        if qs.count()>0:
+        if qs.count() > 0:
             raise ValueError("Can't assign a lecture already assigned to this TA.")
 
         argLecDB.ta = self.database

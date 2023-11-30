@@ -15,6 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
 from TAScheduler.views import Home, CourseManagement, CreateCourse, DeleteCourse, EditCourse, AddInstructorToCourse, \
@@ -45,4 +46,4 @@ urlpatterns = [
     path('forgot_password/', Forgot_Password.as_view())
 ]
 
-
+urlpatterns += staticfiles_urlpatterns()
