@@ -7,7 +7,28 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
+<form id="createSecFrom" action="/home/managesection/create/" method="post">
+    {% csrf_token %}
+    <label for="courseID">Unique Host Course ID:</label>
+    <input id="courseID" type="text" name="course_id"><br>
 
+    <label for="secID">Unique Section ID:</label>
+    <input id="secID" type="text" name="section_id"><br>
+
+    <select name="section_type">
+        {% for type in secs %}
+            <option value="{{ type }}">{{ type }}</option>
+        {% endfor %}
+    </select><br>
+
+    <label for="meetingTime">Meeting Days:</label>
+    <input id="meetingTime" type="datetime-local" name="meeting_time"><br>
+
+    <label for="location">Location:</label>
+    <input id="location" type="text" name="location"><br>
+
+    <input type="submit" value="Create Section">
+</form>
 <a href="/home/managesection">Cancel</a>
 </body>
 </html>

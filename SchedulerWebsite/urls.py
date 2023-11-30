@@ -45,5 +45,4 @@ urlpatterns = [
     path('forgot_password/', Forgot_Password.as_view())
 ]
 
-
 urlpatterns += staticfiles_urlpatterns()
