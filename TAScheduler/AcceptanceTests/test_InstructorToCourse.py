@@ -36,16 +36,22 @@ class SuccessfulCreation(TestCase):
                                             num_of_sections=3, modality="online", credits=3)
         self.course.save()
 
-        self.instructorToCourse = InstructorToCourse.objects.create(instructor=self.instructor, course=self.course)
 
     # /home/managecourse/addinstructor
     def test_creation(self):
-        self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor}, follow=True)
-        response = self.user.post("/home/managecourse/addinstructor/course-select/", {"course": self.course},
+        response = self.user.post("/home/managecourse/addinstructor/choosecourse/",
+                                  {"chosen": self.instructor, "course": self.course},
                                   follow=True)
-        self.assertEquals(self.instructor, Course(self.course).instructortocourse_set,
-                          "Instructor to Course link was not made")
-        self.assertRedirects(response, '/home/managecourse/addinstructor/course-select/success/')
+        self.assertTrue(InstructorToCourse.objects.filter(instructor=self.instructor, course=self.course).exists(),
+                        "Instructor to Course link was not made")
+
+    def test_successful_instructor_to_course_creation(self):
+        # Simulate successful creation of an InstructorToCourse object
+        response = self.client.post('/home/managecourse/addinstructor/', {'user': self.instructor})
+
+        # Assert that the response is a success (HTTP 200 OK) and check if the expected InstructorToCourse object exists
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(InstructorToCourse.objects.filter(instructor=self.instructor).exists())
 
 
 class NoInstructor(TestCase):
