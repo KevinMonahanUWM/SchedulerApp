@@ -27,7 +27,7 @@ class AdminCreateCourseTestCase(TestCase):
                                      phone_number="1234567890")
         )
         ses = self.client.session
-        ses["user"] = "admin@example.com"  # Assuming this is how your session management works
+        ses["user"] = "admin@example.com"
         ses.save()
 
         # Create an initial course

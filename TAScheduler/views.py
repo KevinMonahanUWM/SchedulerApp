@@ -31,7 +31,6 @@ class CourseManagement(View):
 
 
 class CreateCourse(View):
-
     def get(self, request):
         return render(request, "courseManagement/create_course.html")
 
@@ -50,42 +49,52 @@ class CreateCourse(View):
             "semester": request.POST.get("semester")
         }
 
+        # Check if course already exists
+        if Course.objects.filter(course_id=course_info["course_id"]).exists():
+            return render(request, "error.html", {"message": "A course with this ID already exists",
+                                                  "previous_url": "/home/managecourse/create"})
+
         try:
             admin_obj.createCourse(course_info)
-            return render(request, "success.html", {"message": "Course successfully created",
-                                                    "previous_url": "/home/managecourse/create"})
+            return redirect("/home/success")  # Redirect to a success page
         except Exception as e:
             return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create"})
-
 
 
 class DeleteCourse(View):
 
     def get(self, request):
         courses = Course.objects.all()
-        return render(request, "courseManagement/delete_course.html")
+        return render(request, "courseManagement/delete_course.html", {"courses": courses})
 
     def post(self, request):
+        curUserEmail = request.session["user"]
+        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
+        admin_obj = AdminObj(current_admin)
+
         course_id = request.POST.get('course_id')
 
         try:
-            course_to_delete = Course.objects.get(id=course_id)
-            course_obj = CourseObj(course_to_delete)
-            course_obj.removeCourse()
-            return redirect('/path/to/success/page')
+            course_to_delete = Course.objects.get(course_id=course_id)
+            admin_obj.removeCourse(course_to_delete)
+            return redirect("/home/success")
         except Course.DoesNotExist:
-            return render(request, "error.html", {"message": "Course not found"})
+            return render(request, "error.html",
+                          {"message": "Course not found", "previous_url": "/home/managecourse/delete"})
         except Exception as e:
-            return render(request, "error.html", {"message": str(e)})
+            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/delete"})
 
 
 class EditCourse(View):
-
     def get(self, request):
         courses = Course.objects.all()
-        return render(request, "courseManagement/edit_course.html")
+        return render(request, "courseManagement/edit_course.html", {"courses": courses})
 
     def post(self, request):
+        curUserEmail = request.session["user"]
+        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
+        admin_obj = AdminObj(current_admin)
+
         course_id = request.POST.get('course_id')
         new_info = {
             "name": request.POST.get("name"),
@@ -97,16 +106,14 @@ class EditCourse(View):
         }
 
         try:
-            course_to_edit = Course.objects.get(id=course_id)
-            course_obj = CourseObj(course_to_edit)
-            course_obj.editCourse(new_info)
-            return redirect('/path/to/success/page')
+            course_to_edit = Course.objects.get(course_id=course_id)
+            admin_obj.editCourse(course_to_edit, new_info)
+            return redirect("/home/success")
         except Course.DoesNotExist:
-            return render(request, "error.html", {"message": "Course not found"})
+            return render(request, "error.html",
+                          {"message": "Course not found", "previous_url": "/home/managecourse/edit"})
         except Exception as e:
-            return render(request, "error.html", {"message": str(e)})
-
-
+            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/edit"})
 class AddInstructorToCourse(View):
 
     def get(self, request):
@@ -186,3 +193,15 @@ class AddTAToSection(View):
 
     def get(self, request):
         return render(request, "sectionManagement/add_ta_to_section.html")
+
+
+class Success(View):
+
+    def get(self, request):
+        return render(request, "success.html")
+
+
+class Error(View):
+
+    def get(self, request):
+        return render(request, "success.html")
