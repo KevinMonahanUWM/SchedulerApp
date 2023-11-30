@@ -39,9 +39,12 @@ class SuccessfulCreation(TestCase):
 
     # /home/managecourse/addinstructor
     def test_creation(self):
+        response = self.user.post("/home/managecourse/addinstructor/", {"chosen": self.instructor}, follow=True)
+        self.assertEquals(response.context["user"], "Success", "Instructor to Course was not made")
         response = self.user.post("/home/managecourse/addinstructor/choosecourse/",
                                   {"chosen": self.instructor, "course": self.course},
                                   follow=True)
+        self.assertEquals(response.context["message"], "Success", "Instructor to Course was not made")
         self.assertTrue(InstructorToCourse.objects.filter(instructor=self.instructor, course=self.course).exists(),
                         "Instructor to Course link was not made")
 
