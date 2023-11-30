@@ -1,3 +1,4 @@
+from django.db.models import QuerySet
 from django.test import TestCase, Client
 
 from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture, Lab, Administrator
@@ -99,11 +100,12 @@ class SuccessfulCreation(TestCase):
         )
         tmp_lab.save()
 
-        self.user.get("/home/managecourse/adduser/", {"user", self.ta}, follow=True)
-        response = self.user.post("home/managesection/adduser/choosesection/", {"course", self.section},
+        self.user.post("/home/managecourse/adduser/", {"user": str(self.ta)}, follow=True)
+        response = self.user.post("home/managesection/adduser/choosesection/", {"course": self.section},
                                   follow=True)
-        self.assertEquals(TAObj(tmp_ta).getTALabAsgmts(), tmp_lab, "TA to lab link was not made")
-        self.assertRedirects(response, '/home/success/')
+        message = response.context["message"]
+        self.assertEqual(TAObj(tmp_ta).getTALabAsgmts().first(), tmp_lab, "TA to lab link was not made")
+        self.assertEqual(message, "Successfully ")
 
     def test_ta_to_lec(self):
         tmp_lec = Lecture.objects.create(
