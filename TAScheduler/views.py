@@ -79,6 +79,7 @@ class Home(View):
         username = determineUser(request.session["user"]).getUsername()
         # Render the admin home page with context for navigation
         context = {
+            'role_name': determineUser(request.session["user"]).getRole(),
             'username': username,  # assuming the User model has a 'username' attribute
             'manage_accounts': '/home/manageaccount',
             'manage_courses': '/home/managecourse',
@@ -428,8 +429,8 @@ class EditSection(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        # if determineUser(request.session["user"]).getRole() is not "Admin":
-        #     return redirect("/home/") wrong usage of determineUser: can't just take "email"
+        if determineUser(request.session["user"]).getRole() is not "Admin":
+             return redirect("/home/")  # wrong usage of determineUser: can't just take "email"
         sections = list()
         for lecture in Lecture.objects.all():
             d = lecture.toDict()
@@ -517,7 +518,8 @@ class AddUserToSection(View):
         if len(courses) == 0:
             return render(request,
                           "error.html",
-                          {"message": "Error: No Courses to display", "previous_url": "/home/managesection/"})
+                          {"message": "No sections available to add to this user",
+                           "previous_url": "/home/managesection/"})
 
         chosenuser = determineUser(request.POST.get("user")).getUsername()
         request.session["Chosenuser"] = request.POST.get("user")
