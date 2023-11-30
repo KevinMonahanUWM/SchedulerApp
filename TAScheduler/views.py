@@ -49,6 +49,7 @@ class Login(View):
         username = request.POST.get('username')
         password = request.POST.get('password')
         try:
+            print(list(map(str,User.objects.all())))
             user_database = User.objects.get(email_address=username, password=password)
             if Administrator.objects.filter(user=user_database).exists():
                 user = AdminObj(Administrator.objects.get(user=user_database))
@@ -302,9 +303,7 @@ class CreateSection(View):
 
     def post(self, request):
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
-        tempUser = User.objects.get(email_address=request.session["user"])
-        tempAdminDB = Administrator.objects.create(user=tempUser)
-        curUserObj = AdminObj(tempAdminDB)
+        curUserObj = determineUser(request.session["user"])
 
         course_id = request.POST.get('course_id')
         section_id = request.POST.get('section_id')

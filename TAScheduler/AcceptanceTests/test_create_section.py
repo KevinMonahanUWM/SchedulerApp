@@ -28,7 +28,7 @@ class Create(TestCase):  # 6/6 Pass
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"  # should be done at login
+        ses["user"] = self.account.__str__() # should be done at login
         ses.save()
         self.courseList = list()  # holding list of test courses so easier to call later
         self.secList = list()
@@ -115,7 +115,7 @@ class NoCreateDupeSec(TestCase):  # 4/4 Pass
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"  # should be done at login
+        ses["user"] = self.account.__str__()   # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()
@@ -178,7 +178,7 @@ class NonexistantCourse(TestCase):  # 4/4 pass
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"  # should be done at login
+        ses["user"] = self.account.__str__()   # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()
