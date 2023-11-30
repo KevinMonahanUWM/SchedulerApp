@@ -7,6 +7,7 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
+<h1>Delete Account</h1>>
 <form id="deleteUserFrom" action="/home/manageaccount/delete/" method="post">
 {% csrf_token %}
 {% for user in users %}
