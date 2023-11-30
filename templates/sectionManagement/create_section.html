@@ -14,6 +14,7 @@
         <tr>
             <td>
                 <label for="courseID">Unique Host Course ID:</label>
+                <input id="courseID" type="text" name="course_id">
             </td>
             <td>
                 <input id="courseID" type="text" name="course_id"><br>
@@ -21,7 +22,6 @@
         </tr>
         <tr>
             <td>
-                <label for="secID">Unique Section ID:</label>
             </td>
             <td>
                 <input id="secID" type="text" name="section_id"><br>
@@ -32,12 +32,11 @@
                     {% for type in secs %}
                         <option value="{{ type }}">{{ type }}</option>
                     {% endfor %}
-                </select><br>
             </td>
         </tr>
         <tr>
             <td>
-                <label for="meetingTime">Meeting Days:</label>
+              <label for="meetingTime">Meeting Days:</label>
             </td>
             <td>
                 <input id="meetingTime" type="datetime-local" name="meeting_time"><br>
@@ -60,7 +59,6 @@
             <a href="/home/managesection">Cancel</a>
         </td>
     </tr>
-
 </table>
 </body>
 </html>

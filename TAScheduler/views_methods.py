@@ -724,9 +724,9 @@ class LectureObj(SectionObj):
         if type(active_ta) is not TA:
             raise TypeError("Data passed to addTA method is not a TA")
         elif not TA.objects.filter(user=active_ta.user).exists():
-            raise TypeError("The TA object does not exist in the database")
+            raise RuntimeError("The TA object does not exist in the database")
         elif self.database.ta is not None:
-            raise RuntimeError("A TA already exists")
+            raise RuntimeError("A TA already exists in lecture")
         self.database.ta = active_ta
 
     def getLecInstrAsmgt(self):
@@ -736,19 +736,19 @@ class LectureObj(SectionObj):
         if type(active_instr) is not Instructor:
             raise TypeError("Data passed to addInstructor method is not a Instructor")
         elif not Instructor.objects.filter(user=active_instr.user).exists():
-            raise TypeError("The Instructor object does not exist in the database")
+            raise RuntimeError("The Instructor object does not exist in the database")
         elif self.database.instructor is not None:
-            raise RuntimeError("An Instructor already exists")
+            raise RuntimeError("An Instructor already exists in lecture")
         self.database.instructor = active_instr
 
     def removeInstr(self):
         if self.database.instructor is None:
-            raise RuntimeError("No instructor to remove")
+            raise RuntimeError("No instructor to remove from lecture")
         self.database.instructor = None
 
     def removeTA(self):  # new
         if self.database.ta is None:
-            raise RuntimeError("No TA to remove")
+            raise RuntimeError("No TA to remove from lecture")
         self.database.ta = None
 
 
@@ -776,12 +776,12 @@ class LabObj(SectionObj):
         if type(active_ta) is not TA:
             raise TypeError("Data passed to addTA method is not a TA")
         elif not TA.objects.filter(user=active_ta.user).exists():
-            raise TypeError("The TA object does not exist in the database")
+            raise RuntimeError("The TA object does not exist in the database")
         elif self.database.ta is not None:
-            raise RuntimeError("A TA already exists")
+            raise RuntimeError("A TA already exists in lab")
         self.database.ta = active_ta
 
     def removeTA(self):
         if self.database.ta is None:
-            raise RuntimeError("No TA to remove")
+            raise RuntimeError("No TA to remove from lab")
         self.database.ta = None
