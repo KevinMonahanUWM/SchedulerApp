@@ -103,9 +103,7 @@ class CreateCourse(View):
         return render(request, "courseManagement/create_course.html")
 
     def post(self, request):
-        curUserEmail = request.session["user"]
-        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
-        admin_obj = AdminObj(current_admin)
+        admin_obj = determineUser(request.session["user"])
 
         course_info = {
             "course_id": request.POST.get("course_id"),
@@ -124,7 +122,8 @@ class CreateCourse(View):
 
         try:
             admin_obj.createCourse(course_info)
-            return redirect("/home/success/")  # Redirect to a success page
+            return render(request, "success.html", {"message": "Successfully created course",
+                                                  "previous_url": "/home/managecourse/create"})
         except Exception as e:
             return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create/"})
 
@@ -137,13 +136,13 @@ class DeleteCourse(View):
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
         return render(request, "courseManagement/delete_course.html")
-        courses = Course.objects.all()
+        courses = list(map(str, Course.objects.all()))
         return render(request, "courseManagement/delete_course.html", {"courses": courses})
 
     def post(self, request):
         curUserObj = determineUser(request.session["user"])
 
-        course_id = int(request.POST.get('course_id'))
+        course = request.POST.get('course')
         try:
             course_to_delete = CourseObj(Course.objects.get(course_id=course_id))
             curUserObj.removeCourse(course_to_delete)
@@ -164,9 +163,7 @@ class EditCourse(View):
         return render(request, "courseManagement/edit_course.html", {"courses": courses})
 
     def post(self, request):
-        curUserEmail = request.session["user"]
-        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
-        admin_obj = AdminObj(current_admin)
+        admin_obj = determineUser(request.session["user"])
 
         course_id = request.POST.get('course_id')
         new_info = {

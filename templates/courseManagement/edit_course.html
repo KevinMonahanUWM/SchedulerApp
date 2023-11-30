@@ -8,16 +8,19 @@
 </head>
 <body>
     <h2>Edit Course</h2>
-    <form action='home/managecourse/edit' method="post">
+    <table>
+        <form action='home/managecourse/edit' method="post">
         {% csrf_token %}
-        <label for="courseSelect">Select Course:</label>
-        <select id="courseSelect" name="course_id" onchange="this.form.submit()">
-            {% for course in courses %}
-                <option value="{{ course.id }}">{{ course.name }}</option>
-            {% endfor %}
-        </select>
+        <tr><td>
+            <label for="courseSelect">Select Course:</label>
+            <select id="courseSelect" name="course_id" onchange="this.form.submit()">
+                {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </td></tr>
+        <tr><td><input type="submit"></td></tr>
     </form>
-
     {% if selected_course %}
         <form action='home/managecourse/edit' method="post">
             {% csrf_token %}
@@ -46,6 +49,11 @@
         </form>
     {% endif %}
 
-    <a href="/home/managecourse">Cancel</a>
+
+        <tr><td><a href="/home/managecourse">Cancel</a></td></tr>
+    </table>
+
+
+
 </body>
 </html>

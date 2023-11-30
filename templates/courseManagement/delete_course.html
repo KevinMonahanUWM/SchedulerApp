@@ -13,7 +13,7 @@
         <label for="courseSelect">Select Course:</label>
         <select id="courseSelect" name="course_id">
             {% for course in courses %}
-                <option value="{{ course.id }}">{{ course.name }}</option>
+                <option value="course">{{ course }}</option>
             {% endfor %}
         </select>
         <input type="submit" value="Delete Course">
