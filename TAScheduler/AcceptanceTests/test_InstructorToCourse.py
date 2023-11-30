@@ -74,9 +74,8 @@ class NoInstructor(TestCase):
         ses.save()
 
     def test_no_instructor(self):
-        resp = self.user.get("/home/managecourse/addinstructor")
-        self.assertEquals(resp.context["message"], "No Existing Instructors to Assign",
-                          "Cannot assign instructor when none exist")
+        resp = self.user.get("/home/managecourse/addinstructor", follow=True)
+        self.assertEquals(len(Instructor.objects.filter()), 0, "Cannot assign instructor when none exist")
 
 
 class NoCourse(TestCase):
@@ -107,8 +106,8 @@ class NoCourse(TestCase):
         self.instructor.save()
 
     def test_no_course(self):
-        resp = self.user.post("/home/managecourse/addinstructor", {"selection", self.instructor}, follow=True)
-        self.assertEquals(resp.context["message"], "No existing Courses to assign",
+        resp = self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor}, follow=True)
+        self.assertEquals(resp.context["message"], "Error: No Courses to display",
                           "Cannot assign courses when none exist")
 
 
