@@ -20,7 +20,7 @@ class AdminDeleteCourseTestCase(TestCase):
                                      phone_number="1234567890")
         )
         ses = self.client.session
-        ses["user"] = self.account.__str__()
+        ses["user"] = self.admin_user.__str__()
         ses.save()
 
         # Create an initial course
@@ -31,8 +31,8 @@ class AdminDeleteCourseTestCase(TestCase):
     def test_delete_course_success(self):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')
         response = self.client.post('/home/managecourse/delete/', {'course_id': self.course.course_id})
-
-        self.assertFalse(Course.objects.filter(pk=self.course.pk).exists())
+        qs = Course.objects.filter(pk=self.course.pk)
+        self.assertFalse(qs.exists())
 
     def test_delete_course_no_courses_available(self):
         # Make sure no courses are present
