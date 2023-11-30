@@ -3,25 +3,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Home</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <title>{{ role_name }} Home</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
     <header>
-        <h1>Admin Home</h1>
+        <h1>{{ role_name }} Home</h1>
     </header>
     {% if role_admin %}
     <nav>
-        <ul>
-            <li><a href="{{ manage_accounts }}">Account Management</a></li>
-            <li><a href="{{ manage_courses }}">Course Management</a></li>
-            <li><a href="{{ manage_sections }}">Section Management</a></li>
-        </ul>
+        <table>
+            <tr>
+                <td>
+                    <a href="{{ manage_accounts }}">Account Management</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ manage_courses }}">Course Management</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ manage_sections }}">Section Management</a>
+                </td>
+            </tr>
+        </table>
+
+
+
     </nav>
     {% endif %}
     <section>
         <h2>Welcome, {{ username }}!</h2>
-        <!-- Additional section content here, if necessary -->
     </section>
     <footer>
         <form action="/home/" method="post">

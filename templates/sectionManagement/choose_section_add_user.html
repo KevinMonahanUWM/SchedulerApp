@@ -1,0 +1,31 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Choose section to add User to</title>
+    <link rel="stylesheet" href= {% static 'css/style.css' %}>
+</head>
+<body>
+<h1>Choose Section</h1>
+<table>
+    <tr><td>{{ chosen }}</td></tr>
+    <tr><td>{{ message }}</td></tr>
+    <form id="section_selection" action="/home/managesection/adduser/choosesection/" method="post">
+    {% csrf_token %}
+
+    {% for course in courses %}
+        <tr>
+        <td>
+            <input id="course" type="radio" name="course" value="{{ course }}">
+            <label for="course">{{ course }}</label>
+        </td>
+        </tr>
+
+    {% endfor %}
+        <tr><td><input type="submit"></td></tr>
+    </form>
+    <tr><td><a href="/home/managesection/">Cancel</a></td></tr>
+</table>
+</body>
+</html>

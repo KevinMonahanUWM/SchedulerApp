@@ -4,18 +4,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Delete Account</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<form id="deleteUserFrom" action="/home/manageaccount/delete/" method="post">
-{% csrf_token %}
-{% for user in users %}
-    <input id="user" type="radio" name="user" value="{{ user }}">
-    <label for="user">{{ user }}</label><br>
-{% endfor %}
-    <input type="submit">
+<h1>Delete Account</h1>
+<table>
+    <form id="deleteUserFrom" action="/home/manageaccount/delete/" method="post">
+        {% csrf_token %}
+        {% for user in users %}
+            <tr>
+                <td>
+                    <input id="user" type="radio" name="user" value="{{ user }}">
+                    <label for="user">{{ user }}</label>
+                </td>
+            </tr>
+        {% endfor %}
+    <tr><td><input type="submit"></td></tr>
 </form>
-
-<a href="/home/manageaccount/">Cancel</a>
+<tr><td><a href="/home/manageaccount/">Cancel</a>
+</td></tr>
+</table>
 </body>
 </html>

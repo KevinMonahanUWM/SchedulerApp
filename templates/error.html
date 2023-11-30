@@ -4,11 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <title>Error</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
 <h1>{{ message }}</h1>
-<a href="/home">Home</a>
-<a href={{ previous_url }}>Return</a>
+<table>
+    <tr>
+        <td>
+            <a href="/home">Home</a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href={{ previous_url }}>Return</a>
+        </td>
+    </tr>
+</table>
 </body>
 </html>

@@ -4,10 +4,61 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Section</title>
-    <link rel="stylesheet" href= {% static 'style.css' %}>
+    <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-
-<a href="/home/managesection">Cancel</a>
+<h1>Create Section</h1>
+<table>
+    <form id="createSecFrom" action="/home/managesection/create/" method="post">
+        {% csrf_token %}
+        <tr>
+            <td>
+                <label for="courseID">Unique Host Course ID:</label>
+                <input id="courseID" type="text" name="course_id">
+            </td>
+            <td>
+                <input id="courseID" type="text" name="course_id"><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                <input id="secID" type="text" name="section_id"><br>
+            </td>
+        <tr>
+            <td colspan="2">
+                <select name="section_type">
+                    {% for type in secs %}
+                        <option value="{{ type }}">{{ type }}</option>
+                    {% endfor %}
+            </td>
+        </tr>
+        <tr>
+            <td>
+              <label for="meetingTime">Meeting Days:</label>
+            </td>
+            <td>
+                <input id="meetingTime" type="datetime-local" name="meeting_time"><br>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="location">Location:</label>
+            </td>
+            <td>
+                <input id="location" type="text" name="location"><br>
+            </td>
+        </tr>
+        <tr>
+            <input type="submit" value="Create Section">
+        </tr>
+    </form>
+    <tr>
+        <td>
+            <a href="/home/managesection">Cancel</a>
+        </td>
+    </tr>
+</table>
 </body>
 </html>
