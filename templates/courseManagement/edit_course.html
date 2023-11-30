@@ -8,7 +8,7 @@
 </head>
 <body>
     <h2>Edit Course</h2>
-    <form action="/link to django" method="post">
+    <form action='home/managecourse/edit' method="post">
         {% csrf_token %}
         <label for="courseSelect">Select Course:</label>
         <select id="courseSelect" name="course_id" onchange="this.form.submit()">
@@ -19,7 +19,7 @@
     </form>
 
     {% if selected_course %}
-        <form action="/path-to-edit-course-method" method="post">
+        <form action='home/managecourse/edit' method="post">
             {% csrf_token %}
             <input type="hidden" name="course_id" value="{{ selected_course.id }}">
 

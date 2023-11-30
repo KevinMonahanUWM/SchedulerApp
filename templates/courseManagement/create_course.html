@@ -10,7 +10,8 @@
     <header class="header">
         <h1>Create Course</h1>
     </header>
-    <form action="/path-to-create-course" method="post" class="course-form">
+   <form action="/home/managecourse/create" method="post" class="course-form">
+    {% csrf_token %}
         <div>
             <label for="courseId">Course ID:</label>
             <input type="text" id="courseId" name="course_id">
