@@ -9,21 +9,20 @@
 <body>
 <h1>Assign user to section</h1>
 <table>
+    <tr><td>{{ message }}</td></tr>
     <form id="ta_selection" action="/home/managesection/adduser/" method="post">
     {% csrf_token %}
     {% for user in users %}
         <tr>
             <td>
         <input id="user" type="radio" name="user" value="{{ user }}">
-        <label for="user">{{ user }}</label><br>
+        <label for="user">{{ user }}</label>
             </td>
         </tr>
     {% endfor %}
         <tr><td><input type="submit"></td></tr>
-    {{ message }}<br>
     </form>
-    <tr><td><a href="/home/managesection/">Cancel</a>
-</td></tr>
+    <tr><td><a href="/home/managesection/">Cancel</a></td></tr>
 </table>
 </body>
 </html>

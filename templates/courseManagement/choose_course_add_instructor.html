@@ -7,18 +7,24 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
+<table>
+    <tr><td>{{ message }}</td></tr>
+    <form id="section_selection" action="/home/managecourse/addinstructor/choosecourse" method="post">
+    {% csrf_token %}
+    <tr><td>{{ chosen }}</td></tr>
 
-<form id="section_selection" action="/home/managecourse/addinstructor/choosecourse" method="get">
-{% csrf_token %}
-{{ chosen }}<br>
-{% for course in courses %}
-    <input id="course" type="radio" name="course" value="{{ course }}">
-    <label for="course">{{ course }}</label><br>
-{% endfor %}
-    <input type="submit">
-{{ message }}<br>
-</form>
+    {% for course in courses %}
+        <tr>
+        <td>
+            <input id="course" type="radio" name="course" value="{{ course }}">
+            <label for="course">{{ course }}</label>
+        </td>
+        </tr>
+    {% endfor %}
+    <tr><td><input type="submit"></td></tr>
+    </form>
+    <tr><td><a href="/home/managecourse/">Cancel</a></td></tr>
+</table>
 
-<a href="/home/managecourse/">Cancel</a>
 </body>
 </html>

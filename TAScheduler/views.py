@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
@@ -188,23 +186,23 @@ class AddInstructorToCourse(View):
 
 
 class AddInstructorToCourseHelper(View):
-    def get(self, request):
+    def post(self, request):
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
         chosenuser = request.session["Chosenuser"]
         del request.session["Chosenuser"]
-        chosencourse = request.GET["course"]
-        courseid = int(chosencourse.split(": ", 1)[1])
-        if chosencourse is None:
-            courses = request.GET["courses"]
+        try:
+            chosencourse = request.POST["course"]
+        except MultiValueDictKeyError:
+            courses = list(map(str, Course.objects.all()))
             return render(request,
                           "courseManagement/choose_course_add_instructor.html",
                           {"chosen": chosenuser,
                            "courses": courses,
-                           "message": "Choose a course"})
-
+                           "message": "You need to select a course"})
+        courseid = int(chosencourse.split(": ", 1)[1])
         user_database = determineUser(chosenuser)
         chosencourse = Course.objects.get(course_id=courseid)
 
@@ -215,9 +213,8 @@ class AddInstructorToCourseHelper(View):
                                                   "previous_url": "/home/managecourse/"})
         try:
             chosencourseObj.addInstructor(user_database)
-            InstructorToCourse.objects.create(instructor=user_database.database, course=chosencourse)
             return render(request, "success.html", {"message": "Instructor successfully added",
-                                                    "previous_url": "home/managecourse/"})
+                                                    "previous_url": "/home/managecourse/"})
         except Exception as e:
             return render(request, "error.html", {"message": e,
                                                   "previous_url": "/home/managecourse/"})
@@ -530,17 +527,27 @@ class AddUserToSection(View):
 
 
 class ChooseSectionForUser(View):
-    def get(self, request):
+    def post(self, request):
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
 
         chosenuser = request.session["Chosenuser"]
+        selecteduser = determineUser(chosenuser)
+        role = selecteduser.getRole()
         del request.session["Chosenuser"]
-        chosencourse = request.GET["course"]
-        if chosencourse is None:
-            courses = request.GET["courses"]
+        try:
+            chosencourse = request.POST["course"]
+        except MultiValueDictKeyError:
+            courses = list()
+            if role == "TA":
+                if selecteduser.getGraderStatus():
+                    courses = list(map(str, Lecture.objects.all()))
+                else:
+                    courses = list(map(str, Lab.objects.all()))
+            if role == "Instructor":
+                courses = list(map(str, Lecture.objects.all()))
             return render(request,
                           "sectionManagement/choose_section_add_user.html",
                           {"chosen": chosenuser,
