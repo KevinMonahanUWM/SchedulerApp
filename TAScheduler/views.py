@@ -103,10 +103,9 @@ class CreateCourse(View):
         return render(request, "courseManagement/create_course.html")
 
     def post(self, request):
-        curUserEmail = request.session["user"]
-        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
-        admin_obj = AdminObj(current_admin)
+        curUserObj = determineUser(request.session["user"])
 
+        course_id = int(request.POST.get('course_id'))
         course_info = {
             "course_id": request.POST.get("course_id"),
             "name": request.POST.get("name"),
@@ -123,7 +122,7 @@ class CreateCourse(View):
                                                   "previous_url": "/home/managecourse/create"})
 
         try:
-            admin_obj.createCourse(course_info)
+            curUserObj.createCourse(course_info)
             return redirect("/home/success/")  # Redirect to a success page
         except Exception as e:
             return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create/"})
@@ -152,7 +151,6 @@ class DeleteCourse(View):
             return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/create/"})
 
 
-
 class EditCourse(View):
     def get(self, request):
         if request.session.get("user") is None:
@@ -164,11 +162,9 @@ class EditCourse(View):
         return render(request, "courseManagement/edit_course.html", {"courses": courses})
 
     def post(self, request):
-        curUserEmail = request.session["user"]
-        current_admin = Administrator.objects.get(user=User.objects.get(email_address=curUserEmail))
-        admin_obj = AdminObj(current_admin)
+        curUserObj = determineUser(request.session["user"])
 
-        course_id = request.POST.get('course_id')
+        course_id = int(request.POST.get('course_id'))
         new_info = {
             "name": request.POST.get("name"),
             "description": request.POST.get("description"),
@@ -179,8 +175,8 @@ class EditCourse(View):
         }
 
         try:
-            course_to_edit = Course.objects.get(course_id=course_id)
-            admin_obj.editCourse(course_to_edit, new_info)
+            course_to_edit = CourseObj(Course.objects.get(course_id=course_id))
+            curUserObj.editCourse(course_to_edit, new_info)
             return redirect("/home/success/")
         except Course.DoesNotExist:
             return render(request, "error.html",

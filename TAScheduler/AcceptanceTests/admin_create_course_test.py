@@ -27,9 +27,8 @@ class AdminCreateCourseTestCase(TestCase):
                                      phone_number="1234567890")
         )
         ses = self.client.session
-        ses["user"] = "admin@example.com"
+        ses["user"] = self.admin_user.__str__()
         ses.save()
-
         # Create an initial course
         Course.objects.create(course_id=101, semester='Fall 2023', name='Introduction to Testing',
                               description='A course about writing tests in Django.', num_of_sections=3,

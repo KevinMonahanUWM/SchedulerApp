@@ -8,7 +8,7 @@
 </head>
 <body>
     <h2>Delete Course</h2>
-    <form action='home/managecourse/delete' method="post">
+    <form action='home/managecourse/delete/' method="post">
         {% csrf_token %}
         <label for="courseSelect">Select Course:</label>
         <select id="courseSelect" name="course_id">

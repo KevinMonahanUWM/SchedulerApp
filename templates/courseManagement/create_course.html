@@ -10,7 +10,7 @@
     <header class="header">
         <h1>Create Course</h1>
     </header>
-   <form action="/home/managecourse/create" method="post" class="course-form">
+   <form action="/home/managecourse/create/" method="post" class="course-form">
     {% csrf_token %}
         <div>
             <label for="courseId">Course ID:</label>
@@ -43,9 +43,13 @@
         <div>
             <input type="submit" value="Create Course">
         </div>
+       <div>
+    <label for="semester">Semester:</label>
+    <input type="text" id="semester" name="semester">
+</div>
     </form>
     <nav class="navigation">
-        <a href="/home/managecourse">Cancel</a>
+        <a href="/home/managecourse/">Cancel</a>
     </nav>
 </body>
 </html>

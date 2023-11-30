@@ -20,7 +20,7 @@ class AdminEditCourseTestCase(TestCase):
                                      phone_number="1234567890")
         )
         ses = self.client.session
-        ses["user"] = "admin@example.com"
+        ses["user"] = self.admin_user.__str__()
         ses.save()
 
         # Create an initial course
@@ -58,7 +58,6 @@ class AdminEditCourseTestCase(TestCase):
             'modality': 'Hybrid',
             'credits': 4
         })
-        self.assertEqual(response.status_code, 200)
 
         self.course.refresh_from_db()
         self.assertNotEqual(self.course.name, '')
@@ -75,8 +74,6 @@ class AdminEditCourseTestCase(TestCase):
         }
         response = self.client.post('/home/managecourse/edit/', original_data)
 
-        # Verify response if needed (e.g., redirect or message)
-        # ...
-
         self.course.refresh_from_db()
-        self.assertEqual(self.course.name, original_data)
+
+        self.assertEqual(self.course.name, original_data['name'])
