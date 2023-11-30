@@ -7,8 +7,16 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>Delete Course</h1>
+    <h2>Delete Course</h2>
+    <form action='/home/managecourse/delete/' method="post">
+        {% csrf_token %}
+        {% for course in courses %}
+            <input id="course" type="radio" name="course" value="{{ course }}">
+            <label for="course">{{ course }}</label><br>
+        {% endfor %}
+        <input type="submit" value="Delete Course">
+    </form>
 
-<a href="/home/managecourse">Cancel</a>
+    <a href="/home/managecourse/">Cancel</a>
 </body>
 </html>

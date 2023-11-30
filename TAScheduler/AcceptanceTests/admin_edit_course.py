@@ -14,23 +14,21 @@ modality = None
 class AdminEditCourseTestCase(TestCase):
     def setUp(self):
         self.client = Client()
-        # Create a course for editing
-        self.course = Course.objects.create(
-            course_id=101,
-            semester='Fall 2023',
-            name='Intro to Testing',
-            description='A course on testing practices.',
-            num_of_sections=1,
-            modality='Online',
-            credits=3
+        self.admin_user = Administrator.objects.create(
+            user=User.objects.create(email_address="admin@example.com", password="adminpassword",
+                                     first_name="Admin", last_name="User", home_address="123 Admin St",
+                                     phone_number="1234567890")
         )
-        # Create an admin user and log them in
-        admin_user = User.objects.create(email_address='admin@example.com', password='password')
-        Administrator.objects.create(user=admin_user)
-        self.client.login(email_address=admin_user.email_address, password='password')
+        ses = self.client.session
+        ses["user"] = self.admin_user.__str__()
+        ses.save()
+
+        # Create an initial course
+        self.course = Course.objects.create(course_id=101, semester='Fall 2023', name='Introduction to Testing',
+                                            description='A course about writing tests in Django.', num_of_sections=3,
+                                            modality='Online', credits=4)
 
     def test_edit_course_success(self):
-        # Admin logs in and edits a course successfully
         updated_data = {
             'course_id': self.course.course_id,
             'semester': 'Spring 2024',
@@ -40,8 +38,7 @@ class AdminEditCourseTestCase(TestCase):
             'modality': 'Hybrid',
             'credits': 4
         }
-        response = self.client.post(reverse('edit_course', args=[self.course.pk]), updated_data)
-        self.assertRedirects(response, reverse('course_management'))
+        response = self.client.post('/home/managecourse/edit/', updated_data)
 
         self.course.refresh_from_db()
         self.assertEqual(self.course.semester, updated_data['semester'])
@@ -52,8 +49,7 @@ class AdminEditCourseTestCase(TestCase):
         self.assertEqual(self.course.credits, updated_data['credits'])
 
     def test_edit_course_invalid_input(self):
-        # Admin attempts to update a course with invalid input
-        response = self.client.post(reverse('edit_course', args=[self.course.pk]), {
+        response = self.client.post('/home/managecourse/edit/', {
             'course_id': self.course.course_id,
             'semester': 'Spring 2024',
             'name': '',  # Invalid input
@@ -62,15 +58,22 @@ class AdminEditCourseTestCase(TestCase):
             'modality': 'Hybrid',
             'credits': 4
         })
-        self.assertEqual(response.status_code, 200)  # The page is re-rendered
-        self.assertFormError(response, 'form', 'name', 'This field cannot be blank.')
+
         self.course.refresh_from_db()
-        self.assertNotEqual(self.course.name, '')  # The name should remain unchanged
+        self.assertNotEqual(self.course.name, '')
 
     def test_discard_course_changes(self):
-        # Admin attempts to make changes but then discards them
-        original_name = self.course.name
-        response = self.client.post(reverse('course_edit', args=[self.course.pk]))
-        self.assertRedirects(response, reverse('course_management'))
+        original_data = {
+            'course_id': self.course.course_id,
+            'semester': self.course.semester,
+            'name': self.course.name,
+            'description': self.course.description,
+            'num_of_sections': self.course.num_of_sections,
+            'modality': self.course.modality,
+            'credits': self.course.credits
+        }
+        response = self.client.post('/home/managecourse/edit/', original_data)
+
         self.course.refresh_from_db()
-        self.assertEqual(self.course.name, original_name)
+
+        self.assertEqual(self.course.name, original_data['name'])

@@ -54,7 +54,7 @@ class Course(models.Model):
     credits = models.IntegerField(default=0)
 
     def __str__(self):
-        return "Course ID: " + str(self.course_id)
+        return str(self.course_id) + ": " + self.name
 
 
 class Section(models.Model):
