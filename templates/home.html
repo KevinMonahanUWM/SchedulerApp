@@ -12,11 +12,26 @@
     </header>
     {% if role_admin %}
     <nav>
-        <ul>
-            <li><a href="{{ manage_accounts }}">Account Management</a></li>
-            <li><a href="{{ manage_courses }}">Course Management</a></li>
-            <li><a href="{{ manage_sections }}">Section Management</a></li>
-        </ul>
+        <table>
+            <tr>
+                <td>
+                    <a href="{{ manage_accounts }}">Account Management</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ manage_courses }}">Course Management</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="{{ manage_sections }}">Section Management</a>
+                </td>
+            </tr>
+        </table>
+
+
+
     </nav>
     {% endif %}
     <section>

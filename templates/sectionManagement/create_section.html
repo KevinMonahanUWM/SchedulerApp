@@ -7,6 +7,7 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
+<h1>Create Section</h1>
 <form id="createSecFrom" action="/home/managesection/create/" method="post">
     {% csrf_token %}
     <label for="courseID">Unique Host Course ID:</label>
