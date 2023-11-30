@@ -9,7 +9,7 @@
 <body>
     <h2>Edit Course</h2>
     <table>
-        <form action='home/managecourse/edit' method="post">
+        <form action='/home/managecourse/edit/' method="post">
         {% csrf_token %}
         <tr><td>
             <label for="courseSelect">Select Course:</label>
@@ -22,7 +22,7 @@
         <tr><td><input type="submit"></td></tr>
     </form>
     {% if selected_course %}
-        <form action='home/managecourse/edit' method="post">
+        <form action='/home/managecourse/edit/' method="post">
             {% csrf_token %}
             <input type="hidden" name="course_id" value="{{ selected_course.id }}">
 
