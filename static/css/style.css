@@ -23,11 +23,11 @@ body {
 
 a {
     text-decoration: none;
-    margin: 10px;
-    padding: 10px 20px;
+    margin: 20px;
+    padding: 5px;
     background-color: #ffcc00; /* Yellow background for links */
     color: #333;
-    border-radius: 5px;
+    border-radius: 20px;
     transition: background-color 0.3s ease;
 }
 
@@ -68,4 +68,14 @@ input[type=submit] {
 
 input[type=submit]:hover {
     background-color: #45a049; /* Darker green on hover */
+}
+
+table{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+td{
+    text-align: center;
+    padding: 8px;
 }

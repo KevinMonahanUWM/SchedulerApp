@@ -7,48 +7,92 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>Edit Account</h1>>
-<form id="selectUserToEdit" action="/home/manageaccount/edit/" method="post">
+<h1>Edit Account</h1>
+<table>
+    <form id="selectUserToEdit" action="/home/manageaccount/edit/" method="post">
 {% csrf_token %}
 {% if not selected %}
 {% for user in users %}
-    <input id="user" type="radio" name="user" value="{{ user }}">
-    <label for="user">{{ user }}</label><br>
+    <tr>
+        <td>
+            <input id="user" type="radio" name="user" value="{{ user }}">
+            <label for="user">{{ user }}</label>
+        </td>
+    </tr>
 {% endfor %}
 {% endif %}
 {% if selected %}
-    <label for="email_address">Email Address:</label>
-    <input id="email_address" type="text" name="email_address">
-
-    <label for="password">Password:</label>
-    <input id="password" type="text" name="password"><br>
-
-    <label for="first_name">First Name:</label>
-    <input id="first_name" type="text" name="first_name"><br>
-
-    <label for="last_name">Last Name:</label>
-    <input id="last_name" type="text" name="last_name"><br>
-
-    <label for="home_address">Home Address:</label>
-    <input id="home_address" type="text" name="home_address"><br>
-
-    <label for="phone_number">Phone Number:</label>
-    <input id="phone_number" type="text" name="phone_number"><br>
-
-    {% if role == "TA" %}
-        <label for="max_assignments">Max Assignments:</label>
-        <input type="number" name="max_assignments" id="max_assignments"><br>
-        <label for="grader_status">Grader Status:</label>
-        <input type="checkbox" id="grader_status" name="grader_status" value="True"><br>
+    <tr>
+        <td>
+            <label for="email_address">Email Address:</label>
+        </td>
+        <td>
+            <input id="email_address" type="text" name="email_address">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="password">Password:</label>
+        </td>
+        <td>
+            <input id="password" type="text" name="password">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="first_name">First Name:</label>
+        </td>
+        <td>
+            <input id="first_name" type="text" name="first_name">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="last_name">Last Name:</label>
+        </td>
+        <td>
+            <input id="last_name" type="text" name="last_name">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="home_address">Home Address:</label>
+        </td>
+        <td>
+            <input id="home_address" type="text" name="home_address">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="phone_number">Phone Number:</label>
+        </td>
+        <td>
+            <input id="phone_number" type="text" name="phone_number">
+        </td>
+    </tr>
+    {% if role == "TA" or role == "Instructor" %}
+        <tr>
+        <td>
+           <label for="max_assignments">Max Assignments:</label>
+        </td>
+        <td>
+            <input type="number" name="max_assignments" id="max_assignments">
+        </td>
+        </tr>
+        {% if role == "TA" %}
+        <tr>
+        <td colspan="2">
+            <label for="grader_status">Grader Status:</label>
+            <input type="checkbox" id="grader_status" name="grader_status" value="True">
+        </td>
+        </tr>
+        {% endif %}
     {% endif %}
-    {% if role == "Instructor" %}
-        <label for="max_assignments">Max Assignments:</label>
-        <input type="number" name="max_assignments" id="max_assignments"><br>
     {% endif %}
-    {% endif %}
-    <input type="submit">
+    <tr><td colspan="2"><input type="submit"></td></tr>
+
 </form>
-
-<a href="/home/manageaccount/">Cancel</a>
+    <tr><td colspan="2"><a href="/home/manageaccount/">Cancel</a></td></tr>
+</table>
 </body>
 </html>
