@@ -21,7 +21,7 @@ class SuccessEdit(TestCase):
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()
@@ -50,10 +50,14 @@ class SuccessEdit(TestCase):
         self.client.get("/home/managesection/edit/")
         id = int(self.secList[0].section_id)
         resp = self.client.post("/home/managesection/edit/",
-                                data={"sections": self.secPostList[0],
+                                {"sections": self.secPostList[0],
                                       "section_id": id,
                                       "location": "Naboo",
                                       "meeting_time": self.secList[0].meeting_time})
+        resp = self.client.post("/home/managesection/edit/",
+                                {"section_id": id,
+                                 "location": "Naboo",
+                                 "meeting_time": self.secList[0].meeting_time})
         dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
         self.assertEqual(dbEditedSect.location, "Naboo")
 
@@ -73,7 +77,7 @@ class UnSuccessEdit(TestCase):
                                      last_name="Test",
                                      home_address="Random location", phone_number=9990009999))
         ses = self.client.session
-        ses["user"] = "testadmin@uwm.edu"
+        ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         self.courseList = list()
         self.secList = list()

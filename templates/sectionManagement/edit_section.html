@@ -12,38 +12,43 @@
     <form id="editSectionFrom" action="/home/managesection/edit/" method="post">
         {% csrf_token %}
         {% if not selected %}
-            <tr>
-                <td>
-                {% for section in sections %}
-                    <input id="section" type="radio" name="sections" value="{{ section }}">
-                    <label for="section">{{ section }}</label><br>
-                {% endfor %}
-                </td>
-            </tr>
+            {% for section in sections %}
+                <tr>
+                    <td>
+                        <input id="section" type="radio" name="sections" value="{{ section }}">
+                        <label for="section">{{ section }}</label><br>
+                    </td>
+                </tr>
+            {% endfor %}
         {% endif %}
         {% if selected %}
             <tr>
                 <td>
                     <label for="section_id">Section ID:</label>
+                </td>
+                <td>
                     <input id="section_id" type="number" name="section_id">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="location">Location:</label>
+                <td>
                     <input id="location" type="text" name="location">
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="meeting_time">Meeting Times:</label>
-            <input id="meeting_time" type="datetime-local" name="meeting_time">
+                </td>
+                <td>
+                    <input id="meeting_time" type="datetime-local" name="meeting_time"><br>
                 </td>
             </tr>
         {% endif %}
         <tr>
             <td>
-                <input type="submit" value = "Edit Section">
+                <input type="submit" value="Edit Section">
             </td>
         </tr>
     </form>

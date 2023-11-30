@@ -16,45 +16,49 @@
                 <label for="courseID">Unique Host Course ID:</label>
                 <input id="courseID" type="text" name="course_id">
             </td>
-        </tr>
-        <tr>
             <td>
-                <label for="secID">Unique Section ID:</label>
-                <input id="secID" type="text" name="section_id">
+                <input id="courseID" type="text" name="course_id"><br>
             </td>
         </tr>
         <tr>
             <td>
+            </td>
+            <td>
+                <input id="secID" type="text" name="section_id"><br>
+            </td>
+        <tr>
+            <td colspan="2">
                 <select name="section_type">
                     {% for type in secs %}
                         <option value="{{ type }}">{{ type }}</option>
                     {% endfor %}
-                </select>
             </td>
         </tr>
         <tr>
             <td>
-                <label for="meetingTime">Meeting Days:</label>
-        <input id="meetingTime" type="datetime-local" name="meeting_time">
+              <label for="meetingTime">Meeting Days:</label>
+            </td>
+            <td>
+                <input id="meetingTime" type="datetime-local" name="meeting_time"><br>
             </td>
         </tr>
         <tr>
             <td>
                 <label for="location">Location:</label>
-        <input id="location" type="text" name="location">
+            </td>
+            <td>
+                <input id="location" type="text" name="location"><br>
             </td>
         </tr>
         <tr>
-            <td>
-                <input type="submit" value="Create Section">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <a href="/home/managesection">Cancel</a>
-            </td>
+            <input type="submit" value="Create Section">
         </tr>
     </form>
+    <tr>
+        <td>
+            <a href="/home/managesection">Cancel</a>
+        </td>
+    </tr>
 </table>
 </body>
 </html>

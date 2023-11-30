@@ -11,24 +11,20 @@
 <table>
     <form id="deleteSectionFrom" action="/home/managesection/delete/" method="post">
         {% csrf_token %}
-    <tr>
-        <td>
-            {% for section in sections %}
-                <input id="section" type="radio" name="sections" value="{{ section }}">
-                <label for="section">{{ section }}</label>
-            {% endfor %}
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <input type="submit" value = "Delete Section">
-        </td>
-    </tr>
+        {% for section in sections %}
+            <tr>
+                <td>
+                    <input id="section" type="radio" name="sections" value="{{ section }}">
+                    <label for="section">{{ section }}</label><br>
+                </td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td><input type="submit" value="Delete Section"></td>
+        </tr>
     </form>
     <tr>
-        <td>
-            <a href="/home/managesection">Cancel</a>
-        </td>
+        <td><a href="/home/managesection">Cancel</a></td>
     </tr>
 </table>
 </body>
