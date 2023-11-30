@@ -217,7 +217,8 @@ class TestAdminCreateSection(TestCase):
         admin_model = Administrator.objects.create(user=admin_user_info)
         self.adminObj = AdminObj(admin_model)
 
-        self.course = Course.objects.create(
+    def test_create_section(self):
+        course = Course.objects.create(
             course_id=101,
             semester='Fall 2023',
             name='Intro to Django Testing',
@@ -226,16 +227,17 @@ class TestAdminCreateSection(TestCase):
             modality='Online',
             credits=4
         )
-
-        self.section_info = {
+        section_info = {
             'section_id': 201,
-            'course': Course.objects.get(course_id=self.course.course_id),
+            'course': Course.objects.get(course_id=course.course_id),
             'location': 'Room 101',
-            'meeting_time': "2000-1-1 12:00:00"
+            'meeting_time': "2000-1-1 12:00:00",
+            "section_type": "Lab"
         }
-
-    def test_create_section(self):
-        self.adminObj.createSection(self.section_info)
+        print(course)
+        print(course.course_id)
+        print(section_info["course"].course_id)
+        self.adminObj.createSection(section_info)
 
         # Check if the section has been successfully saved in the database
         section_count = Section.objects.filter(section_id=201).count()

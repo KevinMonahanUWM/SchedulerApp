@@ -274,7 +274,7 @@ class AddInstructorToCourseHelper(View):
                           {"chosen": chosenuser,
                            "courses": courses,
                            "message": "You need to select a course"})
-        courseid = int(chosencourse.split(": ", 1)[1])
+        courseid = int(chosencourse.split(": ", 1)[0])
         user_database = determineUser(chosenuser)
         chosencourse = Course.objects.get(course_id=courseid)
 
@@ -397,6 +397,10 @@ class EditAccount(View):
             grader = True
             if request.POST.get("grader_status") is None or request.POST.get("grader_status") is "":
                 grader = False
+            if request.POST.get("max_assignments") == "":
+                max = 0
+            else:
+                max = int(request.POST.get("max_assignments"))
             account_info = {
                 "email_address": request.POST.get("email_address"),
                 "password": request.POST.get("password"),
@@ -405,9 +409,10 @@ class EditAccount(View):
                 "home_address": request.POST.get("home_address"),
                 "phone_number": number,
                 "grader_status": grader,
-                "max_assignments": request.POST.get("max_assignments")
+                "max_assignments": max
             }
             try:
+                print(request.session["current_edit"])
                 determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
                                                                 account_info)
                 del request.session["current_edit"]
