@@ -40,6 +40,7 @@ class AdminEditCourseTestCase(TestCase):
         }
         response = self.client.post('/home/managecourse/edit/', updated_data)
 
+
         self.course.refresh_from_db()
         self.assertEqual(self.course.semester, updated_data['semester'])
         self.assertEqual(self.course.name, updated_data['name'])
