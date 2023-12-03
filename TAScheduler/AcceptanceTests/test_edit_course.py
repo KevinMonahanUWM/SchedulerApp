@@ -37,6 +37,7 @@ class AdminEditCourseTestCase(TestCase):
             'num_of_sections': 2,
             'modality': 'Hybrid'
         }
+        self.client.post('/home/managecourse/edit/', {"course": str(self.course)})
         response = self.client.post('/home/managecourse/edit/', updated_data)
 
 

@@ -30,7 +30,7 @@ class AdminDeleteCourseTestCase(TestCase):
 
     def test_delete_course_success(self):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')
-        response = self.client.post('/home/managecourse/delete/', {'course_id': self.course.course_id})
+        response = self.client.post('/home/managecourse/delete/', {'course': str(self.course)})
         qs = Course.objects.filter(pk=self.course.pk)
         self.assertFalse(qs.exists())
 
