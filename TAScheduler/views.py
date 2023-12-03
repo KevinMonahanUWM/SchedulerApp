@@ -368,12 +368,9 @@ class EditAccount(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        users = list(
-            map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
-        users.extend(list(
-            map(str, Instructor.objects.exclude(user=determineUser(request.session["user"]).database.user))))
-        users.extend(
-            list(map(str, TA.objects.exclude(user=determineUser(request.session["user"]).database.user))))
+        users = list(map(str, Administrator.objects.all()))
+        users.extend(list(map(str, Instructor.objects.all())))
+        users.extend(list(map(str, TA.objects.all())))
         if len(users) == 0:
             return render(request, "error.html", {"message": "No existing users to edit",
                                                   "previous_url": "/home/manageaccount"})
@@ -413,6 +410,10 @@ class EditAccount(View):
                 print(request.session["current_edit"])
                 determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
                                                                 account_info)
+
+                if request.session["current_edit"] == request.session["user"]:
+                    request.session["user"] = str(Administrator.objects.get(
+                        user__email_address=request.POST.get("email_address")))
                 del request.session["current_edit"]
                 return render(request, "success.html", {"message": "User successfully changed",
                                                         "previous_url": "/home/manageaccount/edit"})
