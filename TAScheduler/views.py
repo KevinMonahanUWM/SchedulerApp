@@ -440,7 +440,10 @@ class CreateSection(View):
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
         secs = ["Lab", "Lecture"]  # For dropdown
-        return render(request, "sectionManagement/create_section.html", {"secs": secs})
+        courses = Course.objects.all()
+        for each in courses:
+            print(each.course_id)
+        return render(request, "sectionManagement/create_section.html", {"secs": secs, "courses": courses})
 
     def post(self, request):
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
