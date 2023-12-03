@@ -235,14 +235,6 @@ class AdminObj(UserObj):
             active_course.database.modality = new_info.get("modality")
         except KeyError:  # No name in list that is fine don't change the database
             active_course.database.modality = active_course.database.modality
-        try:  # credits
-            if new_info.get("credits") is None:
-                raise KeyError
-            if type(new_info.get("credits")) is not int or new_info.get("credits") < 0:
-                raise ValueError("credits expects an int")
-            active_course.database.credits = new_info.get("credits")
-        except KeyError:  # No credits in list that is fine don't change the database
-            active_course.database.credits = active_course.database.credits
         active_course.database.save()
 
     def editSection(self, active_section, new_info):  # new inputs
@@ -682,7 +674,6 @@ class CourseObj:
             'description': self.database.description,
             'num_of_sections': self.database.num_of_sections,
             'modality': self.database.modality,
-            'credits': self.database.credits
         }
 
 

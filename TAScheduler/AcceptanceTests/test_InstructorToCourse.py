@@ -33,7 +33,7 @@ class SuccessfulCreation(TestCase):
         self.instructor.save()
 
         self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
-                                            num_of_sections=3, modality="online", credits=3)
+                                            num_of_sections=3, modality="online")
         self.course.save()
 
 

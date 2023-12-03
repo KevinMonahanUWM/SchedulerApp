@@ -26,7 +26,7 @@ class AdminDeleteCourseTestCase(TestCase):
         # Create an initial course
         self.course = Course.objects.create(course_id=101, semester='Fall 2023', name='Introduction to Testing',
                                             description='A course about writing tests in Django.', num_of_sections=3,
-                                            modality='Online', credits=4)
+                                            modality='Online')
 
     def test_delete_course_success(self):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')

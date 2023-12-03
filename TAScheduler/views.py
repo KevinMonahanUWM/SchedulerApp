@@ -133,7 +133,6 @@ class CreateCourse(View):
             "description": request.POST.get("description"),
             "num_of_sections": int(request.POST.get("num_of_sections")),
             "modality": request.POST.get("modality"),
-            "credits": int(request.POST.get("credits")),
             "semester": request.POST.get("semester")
         }
 
@@ -198,7 +197,6 @@ class EditCourse(View):
                 "description": request.POST.get("description"),
                 "num_of_sections": int(request.POST.get("num_of_sections", 0)),  # Default to 0 or any sensible default
                 "modality": request.POST.get("modality"),
-                "credits": int(request.POST.get("credits")),
                 "semester": request.POST.get("semester")
             }
 

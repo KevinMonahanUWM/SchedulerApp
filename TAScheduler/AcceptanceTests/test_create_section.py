@@ -32,9 +32,9 @@ class Create(TestCase):  # 6/6 Pass
         ses.save()
         self.courseList = list()  # holding list of test courses so easier to call later
         self.secList = list()
-        for i in [1, 2, 3]:  # Creating 3 Courses: hardcoded "numSec","modality","credits"
+        for i in [1, 2, 3]:  # Creating 3 Courses: hardcoded "numSec","modality"
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections: hardcoded "meetingTime"
@@ -121,7 +121,7 @@ class NoCreateDupeSec(TestCase):  # 4/4 Pass
         self.secList = list()
         for i in [1, 2, 3]:  # Creating 3 Courses:
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections:
@@ -184,7 +184,7 @@ class NonexistantCourse(TestCase):  # 4/4 pass
         self.secList = list()
         for i in [1, 2, 3]:  # Creating 3 Courses:
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections:
