@@ -303,6 +303,7 @@ class AccountManagement(View):
                       {"users": users, "current_user": request.session.get("user")})
 
     def post(self, request):
+        print(request.POST)
         if request.POST.get("edit") is not None:
             role = determineUser(request.POST.get("user")).getRole()
             request.session["current_edit"] = request.POST["user"]
