@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Instructor to Course</title>
+    <title>Add TA to Course</title>
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
@@ -21,11 +21,11 @@
             <input id="user" type="radio" name="user" value="{{ user }}">
             <label for="user">{{ user }}</label>
         </td>
-        </tr>
+
     {% endfor %}
 
     {% for course in courses %}
-        <tr>
+
         <td>
             <input id="course" type="radio" name="course" value="{{ course }}">
             <label for="course">{{ course }}</label>
