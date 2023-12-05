@@ -1,0 +1,45 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Instructor to Course</title>
+    <link rel="stylesheet" href= {% static 'css/style.css' %}>
+</head>
+<body>
+<table>
+    <tr>
+        <td>
+            {{ message }}
+        </td>
+    </tr>
+    <form id="ta_selection" action="/home/managecourse/addta/" method="post">
+    {% csrf_token %}
+    {% for user in users %}
+        <tr>
+        <td>
+            <input id="user" type="radio" name="user" value="{{ user }}">
+            <label for="user">{{ user }}</label>
+        </td>
+        </tr>
+    {% endfor %}
+
+    {% for course in courses %}
+        <tr>
+        <td>
+            <input id="course" type="radio" name="course" value="{{ course }}">
+            <label for="course">{{ course }}</label>
+        </td>
+        </tr>
+    {% endfor %}
+
+
+    <tr><td><input type="submit"></td></tr>
+    </form>
+    <tr><td><a href="/home/managecourse/">Cancel</a></td></tr>
+</table>
+
+
+
+</body>
+</html>
