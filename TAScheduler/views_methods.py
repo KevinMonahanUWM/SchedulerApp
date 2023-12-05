@@ -518,6 +518,9 @@ class TAObj(UserObj):
     def getGraderStatus(self):
         return self.database.grader_status
 
+    def setSkills(self, param): #NEW
+        pass
+
 
 class InstructorObj(UserObj):
     database = None

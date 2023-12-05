@@ -789,19 +789,20 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
 
     # [2] Raise error if no courses
     def test_raiseErrorNoCourse(self):
-        Course.objects.delete(course_id = 1)
-        with self.assertRaises(RuntimeError, msg = "can't return sections when no courses exists"):
+        Course.objects.delete(course_id=1)
+        with self.assertRaises(RuntimeError, msg="can't return sections when no courses exists"):
             self.adminObj.getAllSecAsgmt()
-        Course.objects.create(course_id="1",  #"adding it back" - idk if neccessary
+        Course.objects.create(course_id="1",  # "adding it back" - idk if neccessary
                               semester="fall",
                               name="course1",
                               description="#1",
                               num_of_sections=3,
                               modality="online")
+
     # [3] Raise error if no sections
     def test_raiseErrorNoSec(self):
         Section.objects.all().delete()
-        with self.assertRaises(RuntimeError, msg = "can't return sections when no sections exists"):
+        with self.assertRaises(RuntimeError, msg="can't return sections when no sections exists"):
             self.adminObj.getAllSecAsgmt()
 
     class TestTAHasMaxAssignments(TestCase):  # Kiran
@@ -1339,45 +1340,65 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
             self.assertEqual(self.taObj2.getGraderStatus(), False,
                              msg="non grader status ta should have false GS field")
 
-    class TestInstructorInit(TestCase):
-        instructorDB = None
-        user = None
-        instrObj = None
-
+    class TestTASetSkills(TestCase):  # Kiran
+        taObj = None
         def setUp(self):
-            self.user = User.objects.create(
-                email_address='admin@example.com',
-                password='admin_password',
-                first_name='Admin',
+            tempUser = User.objects.create(
+                email_address='TA@example.com1',
+                password='TA_password',
+                first_name='TA',
                 last_name='User',
-                home_address='123 Admin St',
-                phone_number='1234567890'
-            )
-            self.instructorDB = Instructor.objects.create(user=self.user, max_assignments=1)
-
-        def test_bad_input(self):
-            with self.assertRaises(TypeError, msg='instructor that was passed is not a valid TA'):
-                self.instrObj = InstructorObj(11)
-
-        def test_null_Instructor(self):
-            User.objects.get(email_address='admin@example.com').delete()
-            with self.assertRaises(TypeError, msg='instructor that was passed does not exist'):
-                self.instrObj = InstructorObj(self.instructorDB)
+                home_address='123 TA St',
+                phone_number='1234567890',
+                skills = "very good")
+            self.taObj = TAObj(TA.objects.create(user=tempUser))
 
         def test_success(self):
-            self.instrObj = InstructorObj(self.instructorDB)
-            self.assertEqual(self.instrObj.database, self.instructorDB,
-                             msg="instructor object should be saved in the database reference")
+            self.taObj.setSkills("veryyyy good")
+            self.assertEqual(TA.objects.get(email_address="TA@example.com1").skills, "veryyyy good", msg = "should have changed the skills")
 
-            self.courseDB = Course.objects.create(
-                course_id=101,
-                semester='Fall 2023',
-                name='Introduction to Testing',
-                description='A course about writing tests in Django.',
-                num_of_sections=3,
-                modality='Online',
-                credits=4
-            )
+        def test_missingSkills(self):
+            with self.assertRaises(RuntimeError, msg = "can't set skills to nothing"):
+                self.taObj.setSkills("veryyyy good")
+class TestInstructorInit(TestCase):
+    instructorDB = None
+    user = None
+    instrObj = None
+
+    def setUp(self):
+        self.user = User.objects.create(
+            email_address='admin@example.com',
+            password='admin_password',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number='1234567890'
+        )
+        self.instructorDB = Instructor.objects.create(user=self.user, max_assignments=1)
+
+    def test_bad_input(self):
+        with self.assertRaises(TypeError, msg='instructor that was passed is not a valid TA'):
+            self.instrObj = InstructorObj(11)
+
+    def test_null_Instructor(self):
+        User.objects.get(email_address='admin@example.com').delete()
+        with self.assertRaises(TypeError, msg='instructor that was passed does not exist'):
+            self.instrObj = InstructorObj(self.instructorDB)
+
+    def test_success(self):
+        self.instrObj = InstructorObj(self.instructorDB)
+        self.assertEqual(self.instrObj.database, self.instructorDB,
+                         msg="instructor object should be saved in the database reference")
+
+        self.courseDB = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
+        )
 
     class TestInstructorHasMaxAssignments(TestCase):  # Kiran
         instrDB = None
