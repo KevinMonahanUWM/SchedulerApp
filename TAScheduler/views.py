@@ -158,7 +158,7 @@ class DeleteCourse(View):
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
         courses = list(map(str, Course.objects.all()))
-        return render(request, "courseManagement/delete_course.html", {"courses": courses})
+        return render(request, "courseManagement", {"courses": courses}, )
 
     def post(self, request):
         curUserObj = determineUser(request.session["user"])
