@@ -309,18 +309,23 @@ class AddTAToCourse(View):
                       {"users": users, "courses": courses, "message": "Please select an ta and course"})
 
     def post(self, request):
-        if request.POST["user"] == "" or request.POST["user"].isNone():
+        if request.POST["user"] == "":
             users = list(map(str, TA.objects.all()))
             courses = list(map(str, Course.objects.all()))
             return render(request, "courseManagement/add_ta_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select an ta"})
 
-        if request.POST["course"] == "" or request.POST["course"].isNone():
+        if request.POST["course"] == "":
             users = list(map(str, TA.objects.all()))
             courses = list(map(str, Course.objects.all()))
             return render(request, "courseManagement/add_ta_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select a course"})
 
+        ta = determineUser(request.POST["user"])
+        course = CourseObj(Course.objects.get(course_id=request.POST["course"].split(": ", 1)[0]))
+        ta.assignTACourse(course)
+        return render(request, "success.html", {"message": "Instructor successfully added",
+                                                    "previous_url": "/home/managecourse/"})
 
 
 class AccountManagement(View):
