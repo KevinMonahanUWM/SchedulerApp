@@ -253,7 +253,12 @@ class AddInstructorToCourse(View):
 
         instructor = determineUser(request.POST["user"])
         course = CourseObj(Course.objects.get(course_id=request.POST["course"].split(": ", 1)[0]))
-        instructor.assignInstrCourse(course)
+        try:
+            instructor.assignInstrCourse(course)
+        except ValueError as e:
+            return render(request,
+                          "error.html",
+                          {"message": str(e), "previous_url": "/home/managecourse/"})
         return render(request, "success.html", {"message": "Instructor successfully added",
                                                 "previous_url": "/home/managecourse/"})
 
