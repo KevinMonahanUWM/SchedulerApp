@@ -233,15 +233,21 @@ class AddInstructorToCourse(View):
                       {"users": users, "courses": courses, "message": "Please select an instructor and course"})
 
     def post(self, request):
-        if request.POST["user"] == "":
-            users = list(map(str, Instructor.objects.all()))
-            courses = list(map(str, Course.objects.all()))
+        users = list(map(str, Instructor.objects.all()))
+        courses = list(map(str, Course.objects.all()))
+        try:
+            if request.POST["user"] == "":
+                return render(request, "courseManagement/add_instructor_to_course.html",
+                              {"users": users, "courses": courses, "message": "Please select an instructor"})
+        except MultiValueDictKeyError:
             return render(request, "courseManagement/add_instructor_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select an instructor"})
 
-        if request.POST["course"] == "":
-            users = list(map(str, Instructor.objects.all()))
-            courses = list(map(str, Course.objects.all()))
+        try:
+            if request.POST["course"] == "":
+                return render(request, "courseManagement/add_instructor_to_course.html",
+                              {"users": users, "courses": courses, "message": "Please select a course"})
+        except MultiValueDictKeyError:
             return render(request, "courseManagement/add_instructor_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select a course"})
 
