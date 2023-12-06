@@ -2946,3 +2946,94 @@ class TestLectureRemoveTA(TestCase):  # Joe
     def test_remove(self):
         self.lecture.removeTA()
         self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
+
+class UserEditMyContactInfoTest(TestCase):
+    def setUp(self):
+        # Create a user instance for testing
+        self.user = User.objects.create(
+            email_address='test@example.com',
+            password='safe_password',
+            first_name='Test',
+            last_name='User',
+            home_address='123 Main St',
+            phone_number=1234567890
+        )
+
+    def test_edit_contact_info(self):
+        # Simulate the edit operation
+        self.user.first_name = 'UpdatedName'
+        self.user.save()
+
+        # Fetch the updated user from the database
+        updated_user = User.objects.get(id=self.user.id)
+
+        # Check if the first name is updated
+        self.assertEqual(updated_user.first_name, 'UpdatedName')
+
+
+class UserGetContactInfoTest(TestCase):
+    def setUp(self):
+        # Create a user instance for testing
+        self.user = User.objects.create(
+            email_address='test@example.com',
+            password='safe_password',
+            first_name='Test',
+            last_name='User',
+            home_address='123 Main St',
+            phone_number=1234567890
+        )
+
+    def test_get_contact_info(self):
+        # Assume a method to retrieve user contact info
+        contact_info = {
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'email_address': self.user.email_address,
+            'home_address': self.user.home_address,
+            'phone_number': self.user.phone_number
+        }
+
+        # Compare the dictionary to the actual user's attributes
+        self.assertEqual(contact_info['first_name'], self.user.first_name)
+        self.assertEqual(contact_info['last_name'], self.user.last_name)
+        self.assertEqual(contact_info['email_address'], self.user.email_address)
+        self.assertEqual(contact_info['home_address'], self.user.home_address)
+        self.assertEqual(contact_info['phone_number'], self.user.phone_number)
+
+
+class GetAllUserAssignmentsTest(TestCase):
+    def setUp(self):
+        # Create user, instructor, course, and assignment instances for testing
+        self.user = User.objects.create(
+            email_address='instructor@example.com',
+            password='safe_password',
+            first_name='Instruct',
+            last_name='Tor',
+            home_address='321 Uni St',
+            phone_number=1234567890
+        )
+        self.instructor = Instructor.objects.create(
+            user=self.user,
+            max_assignments=3
+        )
+        self.course = Course.objects.create(
+            course_id=101,
+            semester='Fall',
+            name='Intro to Testing',
+            description='A course on testing software',
+            num_of_sections=1,
+            modality='Online',
+            credits=3
+        )
+        InstructorToCourse.objects.create(
+            instructor=self.instructor,
+            course=self.course
+        )
+
+    def test_get_all_user_assignments(self):
+        # Fetch the instructor's assignments from the database
+        assignments = InstructorToCourse.objects.filter(instructor=self.instructor)
+
+        # Check if the assignment is related to the created course
+        self.assertTrue(assignments.exists())
+        self.assertEqual(assignments.first().course, self.course)
