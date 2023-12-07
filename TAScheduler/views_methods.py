@@ -100,7 +100,7 @@ class AdminObj(UserObj):
         try:
             if user_info.get('phone_number') == 0:
                 raise RuntimeError("Not all inputs have been provided")
-            if len(str(user_info.get("phone_number"))) is not 10:
+            if len(str(user_info.get("phone_number"))) != 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
         except KeyError:
             raise RuntimeError("Not all inputs have been provided")
@@ -127,10 +127,10 @@ class AdminObj(UserObj):
             raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        if not Course.objects.filter(course_id=section_info.get('course').course_id).exists():
+        if not Course.objects.filter(course_id=section_info.get("course_id")).exists():
             raise RuntimeError("Course ID is not existing course cant create section")
 
-        courseDB = Course.objects.get(course_id=section_info.get('course').course_id)
+        courseDB = Course.objects.get(course_id=section_info.get("course_id"))
         fields = {"section_id": section_info["section_id"],
                   "course": courseDB,
                   "location": section_info["location"],
@@ -235,14 +235,6 @@ class AdminObj(UserObj):
             active_course.database.modality = new_info.get("modality")
         except KeyError:  # No name in list that is fine don't change the database
             active_course.database.modality = active_course.database.modality
-        try:  # credits
-            if new_info.get("credits") is None:
-                raise KeyError
-            if type(new_info.get("credits")) is not int or new_info.get("credits") < 0:
-                raise ValueError("credits expects an int")
-            active_course.database.credits = new_info.get("credits")
-        except KeyError:  # No credits in list that is fine don't change the database
-            active_course.database.credits = active_course.database.credits
         active_course.database.save()
 
     def editSection(self, active_section, new_info):  # new inputs
@@ -347,9 +339,9 @@ class AdminObj(UserObj):
         except KeyError:  # No home_address in list that is fine don't change the database
             active_user.database.user.home_address = active_user.database.user.home_address
         try:  # phone number
-            if new_info.get("phone_number") is None or new_info.get("phone_number") is 0:
+            if new_info.get("phone_number") is None or new_info.get("phone_number") == 0:
                 raise KeyError
-            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) is not 10:
+            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) != 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
             active_user.database.user.phone_number = new_info.get("phone_number")
         except KeyError:
@@ -681,8 +673,7 @@ class CourseObj:
             'name': self.database.name,
             'description': self.database.description,
             'num_of_sections': self.database.num_of_sections,
-            'modality': self.database.modality,
-            'credits': self.database.credits
+            'modality': self.database.modality
         }
 
 

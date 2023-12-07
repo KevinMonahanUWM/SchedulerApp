@@ -26,11 +26,11 @@ class AdminDeleteCourseTestCase(TestCase):
         # Create an initial course
         self.course = Course.objects.create(course_id=101, semester='Fall 2023', name='Introduction to Testing',
                                             description='A course about writing tests in Django.', num_of_sections=3,
-                                            modality='Online', credits=4)
+                                            modality='Online')
 
     def test_delete_course_success(self):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')
-        response = self.client.post('/home/managecourse/delete/', {'course_id': self.course.course_id})
+        response = self.client.post('/home/managecourse/delete/', {'course': str(self.course)})
         qs = Course.objects.filter(pk=self.course.pk)
         self.assertFalse(qs.exists())
 
