@@ -411,6 +411,12 @@ class AdminObj(UserObj):
         if active_ta.getTACrseAsgmts().count() == active_ta.database.max_assignments:
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
+    def getAllCrseAsgmts(self):
+        pass
+
+    def courseUserAsgmt(self, active_user, active_course):
+        #Do .get method for a taToCourse or instructorToCourse
+        pass
 
 
 class TAObj(UserObj):

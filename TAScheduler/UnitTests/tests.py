@@ -726,6 +726,103 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
         with self.assertRaises(RuntimeError, msg="Tried to link course to TA with max assignments"):
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
+class TestAdminCourseUserAsgmt(TestCase):
+    tempCourse = None
+    tempInstr = None
+    tempTA = None
+    admin = None
+    hold_course = None
+    hold_instr = None
+
+    def setUp(self):
+        hold_user = User.objects.create(
+            email_address='ta@example.com',
+            password='ta_password',
+            first_name='ta',
+            last_name='ta',
+            home_address='123 ta St',
+            phone_number=1234667890
+        )
+        hold_user.save()
+        self.hold_ta = TA.objects.create(user=hold_user, grader_status=True)
+        self.tempTA = TAObj(self.hold_ta)
+
+        hold_user = User.objects.create(
+            email_address='instr@example.com',
+            password='instr_password',
+            first_name='instr',
+            last_name='instr',
+            home_address='123 instr St',
+            phone_number=1234667890
+        )
+        hold_user.save()
+        self.hold_instr = Instructor.objects.create(user=hold_user)
+        self.tempInstr = InstructorObj(self.hold_instr)
+
+        self.hold_course = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online',
+            credits=4
+        )
+        self.tempCourse = CourseObj(self.hold_course)
+        hold_user = User(
+            email_address='admin@example.com',
+            password='admin_password',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number=1234567890
+        )
+        hold_user.save()
+        hold_admin = Administrator(user=hold_user)
+        hold_admin.save()
+        self.admin = AdminObj(hold_admin)
+
+    def test_success_intructor(self):
+        self.admin.courseUserAsgmt(self.tempInstr, self.tempCourse)
+        self.assertIsNotNone(InstructorToCourse.objects.get(instructor=self.tempInstr, course=self.tempCourse),
+                             "Instructor to Course object not made in AdminCourseUserAsgmt")
+
+    def test_success_ta(self):
+        self.admin.courseUserAsgmt(self.tempTA, self.tempCourse)
+        self.assertIsNotNone(TAToCourse.objects.get(instructor=self.tempTA, course=self.tempCourse),
+                             "TA to Course object not made in AdminCourseUserAsgmt")
+    def test_bad_user_input(self):
+        self.assertRaises(self.admin.courseUserAsgmt("STRING!", self.tempCourse), TypeError, "AdminCourseUserAsgmt Does not raise TYPEERROR for bad user")
+
+    def test_bad_course_input_instr(self):
+        self.assertRaises(self.admin.courseUserAsgmt(self.tempInstr, "STRING!"), TypeError,
+                          "AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when instructor")
+
+    def test_bad_course_input_ta(self):
+        self.assertRaises(self.admin.courseUserAsgmt(self.tempTA, "STRING!"), TypeError,
+                          "AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when TA")
+
+    def test_no_user(self):
+        hold_user = User.objects.create(
+            email_address='ta@example.com',
+            password='ta_password',
+            first_name='ta',
+            last_name='ta',
+            home_address='123 ta St',
+            phone_number=1234667890
+        )
+        hold_user.save()
+        self.hold_ta = TA.objects.create(user=hold_user, grader_status=True)
+        self.tempTA = TAObj(self.hold_ta)
+        self.assertRaises(self.tempInstr.assignInstrCourse("STRING!"), TypeError, "AdminCourseUserAsgmt Does not raise TYPEERROR")
+
+
+class TestSecTAAsgmt(TestCase):
+
+    def setUp(self):
+
+class TestGetAllCrseAsgmts(TestCase):
+
 
 class TestTAInit(TestCase):
     database = None
