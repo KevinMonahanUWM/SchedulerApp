@@ -616,7 +616,7 @@ class AddUserToSection(View):
                           {"users": users, "sections": sections, "message": "Please select a section"})
 
         user = determineUser(request.POST["user"])
-        section = determineSec(request.POST["section"])
+        section = determineSec(request.POST["section"]) # THIS DOESN'T WORK
         try:
             if isinstance(user, InstructorObj):
                 if isinstance(section, LabObj):
