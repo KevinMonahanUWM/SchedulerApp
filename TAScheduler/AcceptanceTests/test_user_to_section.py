@@ -1,4 +1,5 @@
 from django.db.models import QuerySet
+from django.db.models import QuerySet
 from django.test import TestCase, Client
 
 from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture, Lab, Administrator
@@ -64,8 +65,7 @@ class SuccessfulCreation(TestCase):
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -152,8 +152,7 @@ class NoUsers(TestCase):
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -304,8 +303,7 @@ class FullSections(TestCase):
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
