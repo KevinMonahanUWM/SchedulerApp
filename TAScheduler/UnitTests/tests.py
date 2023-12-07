@@ -806,6 +806,8 @@ class TestAdminCourseUserAsgmt(TestCase):
 
 class TestSecTAAsgmt(TestCase):
     admin = None
+    ta = None
+    section = None
     def setUp(self):
         hold_user = User(
             email_address='admin@example.com',
@@ -819,6 +821,31 @@ class TestSecTAAsgmt(TestCase):
         hold_admin = Administrator(user=hold_user)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
+
+        tmpsection = Section.objects.create(
+            section_id=800,
+            section_name='Waffles',
+            location="East Lane",
+            meeting_time=datetime.date()
+        )
+
+        tmpuser = User.objects.create(
+            email_address='ta@example.com',
+            password='password',
+            first_name='Ta',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number=1234567890
+        )
+        tmpta = TA.objects.create(
+            user = tmpuser
+        )
+        self.ta = TAObj(tmpta)
+
+
+    def test_success(self):
+        self.admin.sectionTAAsmgt()
+
 
 class TestGetAllCrseAsgmts(TestCase):
     admin = None
