@@ -726,6 +726,7 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
         with self.assertRaises(RuntimeError, msg="Tried to link course to TA with max assignments"):
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
+
 class TestAdminCourseUserAsgmt(TestCase):
     tempCourse = None
     tempInstr = None
@@ -791,8 +792,10 @@ class TestAdminCourseUserAsgmt(TestCase):
         self.admin.courseUserAsgmt(self.tempTA, self.tempCourse)
         self.assertIsNotNone(TAToCourse.objects.get(instructor=self.tempTA, course=self.tempCourse),
                              "TA to Course object not made in AdminCourseUserAsgmt")
+
     def test_bad_user_input(self):
-        self.assertRaises(self.admin.courseUserAsgmt("STRING!", self.tempCourse), TypeError, "AdminCourseUserAsgmt Does not raise TYPEERROR for bad user")
+        self.assertRaises(self.admin.courseUserAsgmt("STRING!", self.tempCourse), TypeError,
+                          "AdminCourseUserAsgmt Does not raise TYPEERROR for bad user")
 
     def test_bad_course_input_instr(self):
         self.assertRaises(self.admin.courseUserAsgmt(self.tempInstr, "STRING!"), TypeError,
@@ -803,11 +806,11 @@ class TestAdminCourseUserAsgmt(TestCase):
                           "AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when TA")
 
 
-
 class TestSecTAAsgmt(TestCase):
     admin = None
     ta = None
     section = None
+
     def setUp(self):
         hold_user = User(
             email_address='admin@example.com',
@@ -822,12 +825,13 @@ class TestSecTAAsgmt(TestCase):
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
 
-        tmpsection = Section.objects.create(
+        self.section = Section.objects.create(
             section_id=800,
             section_name='Waffles',
             location="East Lane",
-            meeting_time=datetime.date()
+            meeting_time=datetime(2023, 1, 1, 12, 0, 0)
         )
+        self.section.save()
 
         tmpuser = User.objects.create(
             email_address='ta@example.com',
@@ -838,17 +842,32 @@ class TestSecTAAsgmt(TestCase):
             phone_number=1234567890
         )
         tmpta = TA.objects.create(
-            user = tmpuser
+            user=tmpuser
         )
         self.ta = TAObj(tmpta)
 
+    def test_success_lab(self):
+        laboratory = Lab.objects.create(
+            section_id=self.section
+        )
+        labobj = LabObj(laboratory)
+        labobj.save()
+        self.admin.sectionTAAsmgt(self.ta, labobj)
+        self.assertEquals(Lab.objects.get(ta=self.ta), laboratory, "Did not assign correct laboratory")
 
-    def test_success(self):
-        self.admin.sectionTAAsmgt()
+    def test_success_lec(self):
+        lecture = Lecture.objects.create(
+            section_id=self.section
+        )
+        lecobj = LectureObj(lecture)
+        lecobj.save()
+        self.admin.sectionTAAsmgt(self.ta, lecobj)
+        self.assertEquals(Lab.objects.get(ta=self.ta), lecture, "Did not assign correct laboratory")
 
 
 class TestGetAllCrseAsgmts(TestCase):
     admin = None
+
     def setUp(self):
         hold_user = User(
             email_address='admin@example.com',
@@ -893,8 +912,6 @@ class TestGetAllCrseAsgmts(TestCase):
         TAToCourse.objects.all().delete()
         self.assertRaises(self.admin.getAllCrseAsgmts(), RuntimeError, "Code does not produce RuntimeError when no "
                                                                        "crse assignments")
-
-
 
 
 class TestTAInit(TestCase):
