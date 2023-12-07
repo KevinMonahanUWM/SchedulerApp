@@ -715,6 +715,53 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
         with self.assertRaises(RuntimeError, msg="Tried to link course to TA with max assignments"):
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
+class AdminGetAllSecAsgmt(TestCase):  # Kiran
+    adminObj = None
+
+    def setUp(self):
+        tempCourse = Course.objects.create(course_id="1",
+                                           semester="fall",
+                                           name="course1",
+                                           description="#1",
+                                           num_of_sections=3,
+                                           modality="online")
+        for i in [1, 2, 3, 4]:
+            tempUser = User.objects.create(email_address='user@example.com' + str(i),
+                                           password='user_password' + str(i),
+                                           first_name='user' + str(i),
+                                           last_name='User',
+                                           home_address='123 user1 St',
+                                           phone_number='1234567890')
+            tempTa = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
+            tempSec = Section.objects.create(section_id=i,
+                                             course=tempCourse.course_id, null=False,
+                                             location="EAS",
+                                             meeting_time="monday")
+            Section.objects.create(section=tempSec, ta=tempTa)
+        self.adminObj = AdminObj(Administrator.objects.create(User.objects.get(email_address='user@example.com4')))
+
+    # [1] Successfully matched the section assignments with the database
+    def test_success(self):
+        self.assertQuerysetEqual(Section.objects.all(), self.adminObj.getAllSecAsgmt(),
+                                 msg="should have returned all sections")
+
+    # [2] Raise error if no courses
+    def test_raiseErrorNoCourse(self):
+        Course.objects.delete(course_id=1)
+        with self.assertRaises(RuntimeError, msg="can't return sections when no courses exists"):
+            self.adminObj.getAllSecAsgmt()
+        Course.objects.create(course_id="1",  # "adding it back" - idk if neccessary
+                              semester="fall",
+                              name="course1",
+                              description="#1",
+                              num_of_sections=3,
+                              modality="online")
+
+    # [3] Raise error if no sections
+    def test_raiseErrorNoSec(self):
+        Section.objects.all().delete()
+        with self.assertRaises(RuntimeError, msg="can't return sections when no sections exists"):
+            self.adminObj.getAllSecAsgmt()
 
 class TestTAInit(TestCase):
     database = None
@@ -1280,6 +1327,27 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
     def test_graderStatus(self):
         self.assertEqual(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
 
+
+    class TestTASetSkills(TestCase):  # Kiran
+        taObj = None
+        def setUp(self):
+            tempUser = User.objects.create(
+                email_address='TA@example.com1',
+                password='TA_password',
+                first_name='TA',
+                last_name='User',
+                home_address='123 TA St',
+                phone_number='1234567890',
+                skills = "very good")
+            self.taObj = TAObj(TA.objects.create(user=tempUser))
+
+        def test_success(self):
+            self.taObj.setSkills("veryyyy good")
+            self.assertEqual(TA.objects.get(email_address="TA@example.com1").skills, "veryyyy good", msg = "should have changed the skills")
+
+        def test_missingSkills(self):
+            with self.assertRaises(RuntimeError, msg = "can't set skills to nothing"):
+                self.taObj.setSkills("veryyyy good")
 
 class TestInstructorInit(TestCase):
     instructorDB = None
