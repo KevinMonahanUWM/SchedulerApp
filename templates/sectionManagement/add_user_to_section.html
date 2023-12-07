@@ -10,14 +10,21 @@
 <h1>Assign user to section</h1>
 <table>
     <tr><td>{{ message }}</td></tr>
-    <form id="ta_selection" action="/home/managesection/adduser/" method="post">
+    <form id="User to section" action="/home/managesection/adduser/" method="post">
     {% csrf_token %}
     {% for user in users %}
         <tr>
-            <td>
-        <input id="user" type="radio" name="user" value="{{ user }}">
-        <label for="user">{{ user }}</label>
-            </td>
+        <td>
+            <input id="user" type="radio" name="user" value="{{ user }}">
+            <label for="user">{{ user }}</label>
+        </td>
+    {% endfor %}
+
+    {% for section in sections %}
+        <td>
+            <input id="section" type="radio" name="section" value="{{ section }}">
+            <label for="section">{{ section }}</label>
+        </td>
         </tr>
     {% endfor %}
         <tr><td><input type="submit"></td></tr>

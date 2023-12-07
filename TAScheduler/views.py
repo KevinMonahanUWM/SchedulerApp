@@ -579,98 +579,76 @@ class AddUserToSection(View):
 
         users = list(map(str, TA.objects.all()))
         users.extend(list(map(str, Instructor.objects.all())))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
         if len(users) == 0:
             return render(request,
                           "error.html",
-                          {"message": "No Users to display", "previous_url": "/home/managesection/"})
-
-        return render(request, "sectionManagement/add_user_to_section.html",
-                      {"users": users, "message": "Please select a user to assign"})
-
-    def post(self, request):
-        selecteduser = determineUser(request.POST.get("user"))
-        role = selecteduser.getRole()
-        if selecteduser is None or selecteduser == '':
-            users = list(map(str, TA.objects.all()))
-            users.extend(list(map(str, Instructor.objects.all())))
-            return render(request,
-                          "sectionManagement/add_user_to_section.html",
-                          {"users": users,
-                           "message": "Choose a User"})
-
-        courses = list()
-        if role == "TA":
-            if selecteduser.getGraderStatus():
-                courses = list(map(str, Lecture.objects.all()))
-            else:
-                courses = list(map(str, Lab.objects.all()))
-        if role == "Instructor":
-            courses = list(map(str, Lecture.objects.all()))
-
-        if len(courses) == 0:
+                          {"message": "No Users to display", "previous_url": "/home/managecourse/"})
+        if len(sections) == 0:
             return render(request,
                           "error.html",
-                          {"message": "No sections available to add to this user",
-                           "previous_url": "/home/managesection/"})
+                          {"message": "No sections to display", "previous_url": "/home/managecourse/"})
 
-        chosenuser = determineUser(request.POST.get("user")).getUsername()
-        request.session["Chosenuser"] = request.POST.get("user")
-        return render(request,
-                      "sectionManagement/choose_section_add_user.html",
-                      {"chosen": chosenuser, "courses": courses})
+        return render(request, "sectionManagement/add_user_to_section.html",
+                      {"users": users, "sections": sections, "message": "Please select a user and section"})
 
-
-class ChooseSectionForUser(View):
     def post(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
+        users = list(map(str, TA.objects.all()))
+        users.extend(list(map(str, Instructor.objects.all())))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
 
-        chosenuser = request.session["Chosenuser"]
-        selecteduser = determineUser(chosenuser)
-        role = selecteduser.getRole()
-        del request.session["Chosenuser"]
         try:
-            chosencourse = request.POST["course"]
+            if request.POST["user"] == "":
+                return render(request, "sectionManagement/add_user_to_section.html",
+                              {"users": users, "sections": sections, "message": "Please select a user"})
         except MultiValueDictKeyError:
-            courses = list()
-            if role == "TA":
-                if selecteduser.getGraderStatus():
-                    courses = list(map(str, Lecture.objects.all()))
-                else:
-                    courses = list(map(str, Lab.objects.all()))
-            if role == "Instructor":
-                courses = list(map(str, Lecture.objects.all()))
+            return render(request, "sectionManagement/add_user_to_section.html",
+                          {"users": users, "sections": sections, "message": "Please select a user"})
+
+        try:
+            if request.POST["section"] == "":
+                return render(request, "sectionManagement/add_user_to_section.html",
+                              {"users": users, "sections": sections, "message": "Please select a section"})
+        except MultiValueDictKeyError:
+            return render(request, "sectionManagement/add_user_to_section.html",
+                          {"users": users, "sections": sections, "message": "Please select a section"})
+
+        user = determineUser(request.POST["user"])
+        section = determineSec(request.POST["section"])
+        try:
+            if isinstance(user, InstructorObj):
+                if isinstance(section, LabObj):
+                    return render(request,
+                                  "error.html",
+                                  {"message": "Cannot add Instructor to lab",
+                                   "previous_url": "/home/managesection/"})
+                if isinstance(section, LectureObj):
+                    user.assignInstrLecture(section)
+                    return render(request,
+                                  "success.html",
+                                  {"message": "Successfully added instructor to lecture",
+                                   "previous_url": "/home/managesection/"})
+            if isinstance(user, TAObj):
+                if isinstance(section, LabObj):
+                    user.assignTALab(section)
+                    return render(request,
+                                  "success.html",
+                                  {"message": "Successfully added TA to lab",
+                                   "previous_url": "/home/managesection/"})
+                if isinstance(section, LectureObj):
+                    user.assignTALecture(section)
+                    return render(request,
+                                  "success.html",
+                                  {"message": "Successfully added TA to lecture",
+                                   "previous_url": "/home/managesection/"})
+
+        except ValueError as e:
             return render(request,
-                          "sectionManagement/choose_section_add_user.html",
-                          {"chosen": chosenuser,
-                           "courses": courses,
-                           "message": "Choose a course"})
-
-        user_database = determineUser(chosenuser)
-        if isinstance(chosencourse, Lecture):
-            chosencourse = LectureObj(chosencourse)
-            if Instructor.user.objects.filter(email_address=chosenuser.getUsername()).exists():
-                user = Instructor.objects.get(user=user_database.database)
-                chosencourse.addInstr(user)
-            elif TA.user.objects.filter(email_address=chosenuser.getUsername()).exists():
-                user = TA.objects.get(user=user_database.database)
-                chosencourse.addTA(user)
-            else:
-                return render(request, "error.html", {"message": "Could not find user",
-                                                      "previous_url": "/home/managesection/"})
-
-        if isinstance(chosencourse, Lab):
-            chosencourse = LabObj(chosencourse)
-            if TA.user.objects.filter(email_address=chosenuser.getUsername()).exists():
-                user = TA.objects.get(user=user_database.database)
-                chosencourse.addTA(user)
-            else:
-                return render(request, "error.html", {"message": "Could not find user",
-                                                      "previous_url": "/home/managesection/"})
-
-        return render(request, "success.html", {"message": "User successfully added",
+                          "error.html",
+                          {"message": str(e), "previous_url": "/home/managecourse/"})
+        return render(request, "success.html", {"message": "User successfully added to section",
                                                 "previous_url": "/home/managesection/"})
 
 
