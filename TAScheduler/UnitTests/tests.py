@@ -877,6 +877,16 @@ class TestSecTAAsgmt(TestCase):
         self.admin.sectionTAAsmgt(tmpta, lecobj)
         self.assertEquals(Lab.objects.get(ta=tmpta), lecture, "Did not assign correct laboratory")
 
+    def test_bad_ta(self):
+        laboratory = Lab.objects.create(
+            section_id=self.section
+        )
+        labobj = LabObj(laboratory)
+        labobj.save()
+        self.assertRaises(self.admin.sectionTAAsmgt("String!", labobj), TypeError, "Does not raise typerror for bad TA")
+
+    def test_bad_section(self):
+        self.assertRaises(self.admin.sectionTAAsmgt(self.ta, "STRING!"), TypeError, "Does not raise typerror for bad Section")
 
 class TestGetAllCrseAsgmts(TestCase):
     admin = None
