@@ -756,7 +756,7 @@ class TestTAInit(TestCase):
         self.assertEqual(ta.database, self.database,
                          "TA object should be saved in the database reference")
 
-
+#
 class AdminGetAllSecAsgmt(TestCase):  # Kiran
     adminObj = None
 
