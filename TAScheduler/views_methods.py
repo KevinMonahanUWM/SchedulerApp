@@ -402,7 +402,8 @@ class AdminObj(UserObj):
     def courseTAAsmgt(self, active_ta, active_course):  # new remove sectionTAAsmgt
         if not isinstance(active_ta, TAObj):
             raise TypeError("Input passed is not an object of ta obj")
-        elif not User.objects.filter(email_address=active_ta.getUsername()).exists():
+        elif not User.objects.filter(email_address=active_ta.getUsername()).exists():  # I believe this is a redundant
+            # test as a TAObj cannot be made without a username
             raise RuntimeError("User does not exist")
         if type(active_course) is not CourseObj:
             raise TypeError("Input passed is not a Course object")
@@ -411,11 +412,12 @@ class AdminObj(UserObj):
         if active_ta.getTACrseAsgmts().count() == active_ta.database.max_assignments:
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
+
     def getAllCrseAsgmts(self):
         pass
 
     def courseUserAsgmt(self, active_user, active_course):
-        #Do .get method for a taToCourse or instructorToCourse
+        # Do .get method for a taToCourse or instructorToCourse
         pass
 
 
@@ -467,8 +469,9 @@ class TAObj(UserObj):
         if self.hasMaxAsgmts():  # not sure what error this is
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
-        TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
-#
+        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
+
+    #
     def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
