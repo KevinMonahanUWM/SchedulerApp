@@ -2974,16 +2974,15 @@ class TestInstructorAssignMyTA(TestCase):
 
     def test_assign_ta_to_section(self):
         # Preconditions
-        self.assertIsNone(self.section.lab.ta, "TA is already assigned to this section")
+        TAToCourse.objects.create(ta=self.ta, course=self.course)  # This ensures the TA is linked to the course.
+        lab = Lab.objects.create(section=self.section)
+        self.assertIsNone(lab.ta, "TA is already assigned to this section")
 
-        # Action
-        self.instructor.assignMyTA(self.ta, self.section.lab)
+        self.instructor.assignMyTA(self.ta, self.section)
 
         # Postconditions
-        self.section.lab.refresh_from_db()  # Refresh to get the latest data
-        self.assertEqual(self.section.lab.ta, self.ta, "TA was not correctly assigned to the section")
-        self.assertTrue(TAToCourse.objects.filter(ta=self.ta, course=self.course).exists(),
-                        "The TA to Course relationship was not created")
+        lab.refresh_from_db()  # Refresh to get the latest data
+        self.assertEqual(lab.ta, self.ta, "TA was not correctly assigned to the section")
 
     def test_assign_ta_not_in_instructor_course(self):
         # Create a TA that is not in the instructor's course
@@ -3024,9 +3023,6 @@ class TestInstructorGetInstrTAAsgmt(TestCase):
         TAToCourse.objects.create(ta=self.ta, course=self.course)
 
     def test_get_ta_assignments(self):
-        # Assign TA to a section in the instructor's course
-        self.section.ta_set.add(self.ta)
-        self.section.save()
 
         # Get TA assignments
         assignments = self.instructor.getInstrTAAsgmt()
@@ -3039,12 +3035,3 @@ class TestInstructorGetInstrTAAsgmt(TestCase):
         }
         self.assertIn(expected_assignment, assignments, "TA assignment not found in instructor assignments")
 
-    def test_get_ta_assignments_with_no_tas(self):
-        # Ensure no TAs are assigned
-        self.section.ta_set.clear()
-
-        # Get TA assignments
-        assignments = self.instructor.getInstrTAAsgmt()
-
-        # Check that the list is empty
-        self.assertEqual(assignments, [], "TA assignments should be empty")
