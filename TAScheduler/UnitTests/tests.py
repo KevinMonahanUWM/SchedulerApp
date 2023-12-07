@@ -2946,3 +2946,105 @@ class TestLectureRemoveTA(TestCase):  # Joe
     def test_remove(self):
         self.lecture.removeTA()
         self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
+
+
+class TestInstructorAssignMyTA(TestCase):
+
+    def setUp(self):
+        # Creating user and TA objects
+        self.user = User.objects.create(email_address="ta@example.com", password="password123",
+                                        first_name="TAFirstName", last_name="TALastName", home_address="TA Address",
+                                        phone_number=1234567890)
+        self.ta = TA.objects.create(user=self.user, grader_status=True, max_assignments=3)
+
+        # Creating instructor user and object
+        self.instructor_user = User.objects.create(email_address="instructor@example.com", password="password456",
+                                                   first_name="InstructorFirstName", last_name="InstructorLastName",
+                                                   home_address="Instructor Address", phone_number=9876543210)
+        self.instructor = Instructor.objects.create(user=self.instructor_user, max_assignments=3)
+
+        # Creating course and sections
+        self.course = Course.objects.create(course_id=123, semester="Fall", name="Sample Course",
+                                            description="A sample course", num_of_sections=2, modality="Online")
+        self.section = Section.objects.create(section_id=456, course=self.course, location="Room 101",
+                                              meeting_time="2023-09-01 09:00")
+
+        # Assign instructor to course
+        InstructorToCourse.objects.create(instructor=self.instructor, course=self.course)
+
+    def test_assign_ta_to_section(self):
+        # Preconditions
+        self.assertIsNone(self.section.lab.ta, "TA is already assigned to this section")
+
+        # Action
+        self.instructor.assignMyTA(self.ta, self.section.lab)
+
+        # Postconditions
+        self.section.lab.refresh_from_db()  # Refresh to get the latest data
+        self.assertEqual(self.section.lab.ta, self.ta, "TA was not correctly assigned to the section")
+        self.assertTrue(TAToCourse.objects.filter(ta=self.ta, course=self.course).exists(),
+                        "The TA to Course relationship was not created")
+
+    def test_assign_ta_not_in_instructor_course(self):
+        # Create a TA that is not in the instructor's course
+        other_user = User.objects.create(email_address="other_ta@example.com", password="password789",
+                                         first_name="OtherTAFirstName", last_name="OtherTALastName",
+                                         home_address="Other TA Address", phone_number=1122334455)
+        other_ta = TA.objects.create(user=other_user, grader_status=True, max_assignments=3)
+
+        with self.assertRaises(ValueError):
+            self.instructor.assignMyTA(other_ta, self.section)
+
+
+class TestInstructorGetInstrTAAsgmt(TestCase):
+
+    def setUp(self):
+        # Creating instructor user and object
+        self.instructor_user = User.objects.create(email_address="instructor@example.com", password="password456",
+                                                   first_name="InstructorFirstName", last_name="InstructorLastName",
+                                                   home_address="Instructor Address", phone_number=9876543210)
+        self.instructor = Instructor.objects.create(user=self.instructor_user, max_assignments=3)
+
+        # Creating course and sections
+        self.course = Course.objects.create(course_id=123, semester="Fall", name="Sample Course",
+                                            description="A sample course", num_of_sections=2, modality="Online")
+        self.section = Section.objects.create(section_id=456, course=self.course, location="Room 101",
+                                              meeting_time="2023-09-01 09:00")
+
+        # Assign instructor to course
+        InstructorToCourse.objects.create(instructor=self.instructor, course=self.course)
+
+        # Creating user and TA object
+        self.user = User.objects.create(email_address="ta@example.com", password="password123",
+                                        first_name="TAFirstName", last_name="TALastName", home_address="TA Address",
+                                        phone_number=1234567890)
+        self.ta = TA.objects.create(user=self.user, grader_status=True, max_assignments=3)
+
+        # Assign TA to course
+        TAToCourse.objects.create(ta=self.ta, course=self.course)
+
+    def test_get_ta_assignments(self):
+        # Assign TA to a section in the instructor's course
+        self.section.ta_set.add(self.ta)
+        self.section.save()
+
+        # Get TA assignments
+        assignments = self.instructor.getInstrTAAsgmt()
+
+        # Check the content of the assignments list
+        expected_assignment = {
+            "taID": self.ta.id,
+            "secID": self.section.id,
+            "courseID": self.course.id
+        }
+        self.assertIn(expected_assignment, assignments, "TA assignment not found in instructor assignments")
+
+    def test_get_ta_assignments_with_no_tas(self):
+        # Ensure no TAs are assigned
+        self.section.ta_set.clear()
+
+        # Get TA assignments
+        assignments = self.instructor.getInstrTAAsgmt()
+
+        # Check that the list is empty
+        self.assertEqual(assignments, [], "TA assignments should be empty")
