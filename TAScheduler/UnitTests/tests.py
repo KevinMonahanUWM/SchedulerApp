@@ -861,8 +861,21 @@ class TestSecTAAsgmt(TestCase):
         )
         lecobj = LectureObj(lecture)
         lecobj.save()
-        self.admin.sectionTAAsmgt(self.ta, lecobj)
-        self.assertEquals(Lab.objects.get(ta=self.ta), lecture, "Did not assign correct laboratory")
+        tmpuser = User.objects.create(
+            email_address='ta@example.com',
+            password='password',
+            first_name='Ta',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number=1234567890
+        )
+        tmpta = TA.objects.create(
+            user=tmpuser,
+            grader_status=True
+        )
+        tmpta.save()
+        self.admin.sectionTAAsmgt(tmpta, lecobj)
+        self.assertEquals(Lab.objects.get(ta=tmpta), lecture, "Did not assign correct laboratory")
 
 
 class TestGetAllCrseAsgmts(TestCase):
