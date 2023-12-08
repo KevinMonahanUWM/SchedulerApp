@@ -715,17 +715,18 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
         with self.assertRaises(RuntimeError, msg="Tried to link course to TA with max assignments"):
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
+
 class AdminGetAllSecAsgmt(TestCase):  # Kiran
     adminObj = None
 
     def setUp(self):
-        tempCourse = Course.objects.create(course_id="1",
+        tempCourse = Course.objects.create(course_id=1,
                                            semester="fall",
                                            name="course1",
                                            description="#1",
                                            num_of_sections=3,
                                            modality="online")
-        for i in [1, 2, 3, 4]:
+        for i in [1, 2, 3, 4]:  # ta + sec
             tempUser = User.objects.create(email_address='user@example.com' + str(i),
                                            password='user_password' + str(i),
                                            first_name='user' + str(i),
@@ -734,7 +735,7 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
                                            phone_number='1234567890')
             tempTa = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
             tempSec = Section.objects.create(section_id=i,
-                                             course=tempCourse.course_id, null=False,
+                                             course=tempCourse, null=False,
                                              location="EAS",
                                              meeting_time="monday")
             Section.objects.create(section=tempSec, ta=tempTa)
@@ -750,7 +751,7 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
         Course.objects.delete(course_id=1)
         with self.assertRaises(RuntimeError, msg="can't return sections when no courses exists"):
             self.adminObj.getAllSecAsgmt()
-        Course.objects.create(course_id="1",  # "adding it back" - idk if neccessary
+        Course.objects.create(course_id=1,  # "adding it back" - idk if neccessary
                               semester="fall",
                               name="course1",
                               description="#1",
@@ -762,6 +763,7 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
         Section.objects.all().delete()
         with self.assertRaises(RuntimeError, msg="can't return sections when no sections exists"):
             self.adminObj.getAllSecAsgmt()
+
 
 class TestTAInit(TestCase):
     database = None
@@ -1312,7 +1314,7 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
                 first_name='TA',
                 last_name='User',
                 home_address='123 TA St',
-                phone_number='1234567890')
+                phone_number=1234567890)
             )
         self.taDB1 = TA.objects.create(user=self.userDBList[0], max_assignments=1, grader_status=True)
         self.taDB2 = TA.objects.create(user=self.userDBList[1], max_assignments=1, grader_status=False)
@@ -1327,9 +1329,9 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
     def test_graderStatus(self):
         self.assertEqual(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
 
-
     class TestTASetSkills(TestCase):  # Kiran
         taObj = None
+
         def setUp(self):
             tempUser = User.objects.create(
                 email_address='TA@example.com1',
@@ -1337,17 +1339,22 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
                 first_name='TA',
                 last_name='User',
                 home_address='123 TA St',
-                phone_number='1234567890',
-                skills = "very good")
+                phone_number=1234567890,
+                skills="very good")
             self.taObj = TAObj(TA.objects.create(user=tempUser))
 
         def test_success(self):
             self.taObj.setSkills("veryyyy good")
-            self.assertEqual(TA.objects.get(email_address="TA@example.com1").skills, "veryyyy good", msg = "should have changed the skills")
+            self.assertEqual(TA.objects.get(email_address="TA@example.com1").skills, "veryyyy good",
+                             msg="should have changed the skills")
 
         def test_missingSkills(self):
-            with self.assertRaises(RuntimeError, msg = "can't set skills to nothing"):
-                self.taObj.setSkills("veryyyy good")
+            with self.assertRaises(RuntimeError, msg="can't set skills to nothing"):
+                self.taObj.setSkills("")
+
+        def test_invalidTypeSkills(self):
+            with self.assertRaises(TypeError, msg="can't set skills to non-string"):
+                self.taObj.setSkills(10)
 
 class TestInstructorInit(TestCase):
     instructorDB = None
