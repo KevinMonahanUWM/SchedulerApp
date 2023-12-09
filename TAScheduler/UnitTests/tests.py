@@ -2923,18 +2923,17 @@ class TestInstructorAssignMyTA(TestCase):
 
         # Assign instructor to course
         InstructorToCourse.objects.create(instructor=self.instructor, course=self.course)
+        # This line should be in the setUp method.
+        TAToCourse.objects.create(ta=self.ta, course=self.course)
 
     def test_assign_ta_to_section(self):
-        # Preconditions
-        TAToCourse.objects.create(ta=self.ta, course=self.course)  # This ensures the TA is linked to the course.
-        lab = Lab.objects.create(section=self.section)
-        self.assertIsNone(lab.ta, "TA is already assigned to this section")
+        lab_obj = LabObj(Lab.objects.create(section=self.section))
+        ta_obj = TAObj(self.ta)
 
-        self.instructor.assignMyTA(self.ta, self.section)
+        ta_obj.assignTALab(lab_obj)
 
-        # Postconditions
-        lab.refresh_from_db()  # Refresh to get the latest data
-        self.assertEqual(lab.ta, self.ta, "TA was not correctly assigned to the section")
+        lab_obj.database.refresh_from_db()
+        self.assertEqual(lab_obj.getLabTAAsgmt(), self.ta, "TA was not correctly assigned to the lab")
 
     def test_assign_ta_not_in_instructor_course(self):
         # Create a TA that is not in the instructor's course
@@ -2943,8 +2942,12 @@ class TestInstructorAssignMyTA(TestCase):
                                          home_address="Other TA Address", phone_number=1122334455)
         other_ta = TA.objects.create(user=other_user, grader_status=True, max_assignments=3)
 
+        ta_obj = TAObj(other_ta)
+        instr_obj = InstructorObj(self.instructor)
+
+        # this should raise a ValueError because the TA is not part of the instructor's course.
         with self.assertRaises(ValueError):
-            self.instructor.assignMyTA(other_ta, self.section)
+            instr_obj.assignInstrCourse(ta_obj)
 
 
 class TestInstructorGetInstrTAAsgmt(TestCase):
@@ -2975,13 +2978,39 @@ class TestInstructorGetInstrTAAsgmt(TestCase):
         TAToCourse.objects.create(ta=self.ta, course=self.course)
 
     def test_get_ta_assignments(self):
-        # Get TA assignments
-        assignments = self.instructor.getInstrTAAsgmt()
+        instructor_obj = InstructorObj(self.instructor)
 
-        # Check the content of the assignments list
+        assignments = instructor_obj.getInstrCrseAsgmts()
+
+        # Expected assignment structure
         expected_assignment = {
             "taID": self.ta.id,
             "secID": self.section.id,
             "courseID": self.course.id
         }
+        # Check the content of the assignments list
         self.assertIn(expected_assignment, assignments, "TA assignment not found in instructor assignments")
+
+    def test_ta_assigned_to_another_course(self):
+        # Create a new course and TA
+        other_course = Course.objects.create(course_id=124, semester="Spring", name="Other Course",
+                                             description="Another course", num_of_sections=1, modality="In-Person")
+        other_ta_user = User.objects.create(email_address="other_ta@example.com", password="other_password",
+                                            first_name="OtherTA", last_name="User", home_address="Other Address",
+                                            phone_number=987654321)
+        other_ta = TA.objects.create(user=other_ta_user, grader_status=True, max_assignments=3)
+
+        # Assigning the new TA to the other course
+        TAToCourse.objects.create(ta=other_ta, course=other_course)
+
+        instructor_obj = InstructorObj(self.instructor)
+
+        assignments = instructor_obj.getInstrCrseAsgmts()
+
+        # Checking that the other TA is not in the assignments list
+        unexpected_assignment = {
+            "taID": other_ta.id,
+            "secID": self.section.id,
+            "courseID": other_course.id
+        }
+        self.assertNotIn(unexpected_assignment, assignments, "TA from another course found in instructor assignments")
