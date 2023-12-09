@@ -17,7 +17,6 @@ class AdminCreateCourseTestCase(TestCase):
     description = None
     num_of_sections = None
     modality = None
-    credits = None
 
     def setUp(self):
         self.client = Client()
@@ -32,7 +31,7 @@ class AdminCreateCourseTestCase(TestCase):
         # Create an initial course
         Course.objects.create(course_id=101, semester='Fall 2023', name='Introduction to Testing',
                               description='A course about writing tests in Django.', num_of_sections=3,
-                              modality='Online', credits=4)
+                              modality='Online')
 
     def test_create_course_success(self):
         response = self.client.post('/home/managecourse/create/', {
@@ -41,8 +40,7 @@ class AdminCreateCourseTestCase(TestCase):
             'name': 'Advanced Testing',
             'description': 'An advanced course about writing tests in Django.',
             'num_of_sections': 3,
-            'modality': 'Online',
-            'credits': 4
+            'modality': 'Online'
         })
 
         self.assertTrue(Course.objects.filter(course_id=102).exists())
@@ -54,8 +52,7 @@ class AdminCreateCourseTestCase(TestCase):
             'name': 'Advanced Testing',
             'description': 'An advanced course about writing tests in Django.',
             'num_of_sections': 3,
-            'modality': 'In-person',
-            'credits': 4
+            'modality': 'In-person'
         })
         self.assertEqual(response.status_code, 200)
         self.assertIn('A course with this ID already exists', response.content.decode())

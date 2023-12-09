@@ -135,7 +135,6 @@ class TestAdminInit(TestCase):  # Alec
             "description": 'A course about unit testing',
             "num_of_sections": 3,
             "modality": 'Online',
-            "credits": 4
         }
 
     def test_create_course(self):
@@ -167,7 +166,6 @@ class TestAdminCreateCourse(TestCase):  # Alec
             'description': 'A course about unit testing',
             'num_of_sections': 3,
             'modality': 'Online',
-            'credits': 4
         }
 
     def test_create_course(self):
@@ -225,7 +223,6 @@ class TestAdminCreateSection(TestCase):
             description='A comprehensive course on testing in Django.',
             num_of_sections=3,
             modality='Online',
-            credits=4
         )
         section_info = {
             'section_id': 201,
@@ -257,7 +254,6 @@ class TestAdminRemoveCourse(TestCase):  # Kevin
             description='A course about writing tests in Django.',
             num_of_sections=3,
             modality='Online',
-            credits=4
         )
         self.tempCourse = CourseObj(self.hold_course)
         hold_user = User(
@@ -341,8 +337,7 @@ class TestAdminRemoveSection(TestCase):  # Kevin
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.hold_sec = Section.objects.create(
             section_id=1011,
@@ -393,8 +388,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.tempCourse = CourseObj(hold_course)
         hold_user = User(
@@ -414,8 +408,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
                          "name": "Intro to Units",
                          "description": "Unit testing at its finest",
                          "num_of_sections": 4,
-                         "modality": "",
-                         "credits": 3}
+                         "modality": ""}
 
     def test_bad_course(self):
         with self.assertRaises(TypeError, msg='Course that was passed is not a valid course'):
@@ -435,8 +428,7 @@ class TestAdminEditCourse(TestCase):  # Kevin
                 "name": 4,
                 "description": "Unit testing at its finest",
                 "num_of_sections": "4",
-                "modality": "",
-                "credits": "3 or so"}
+                "modality": ""}
         with self.assertRaises(ValueError, msg='Improper input entered for editing course'):
             self.admin.editCourse(self.tempCourse, info)
 
@@ -453,8 +445,7 @@ class TestAdminEditSection(TestCase):  # Kevin
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         hold_sec = Section.objects.create(
             section_id=1011,
@@ -573,8 +564,7 @@ class TestAdminCourseInstrAssignment(TestCase):  # Kevin
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.tempCourse = CourseObj(self.hold_course)
         self.hold_user = User.objects.create(
@@ -657,8 +647,7 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.tempCourse = CourseObj(self.hold_course)
         self.hold_user = User.objects.create(
@@ -960,8 +949,7 @@ class TestTAHasMaxAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
 
     # [1] TA w/ 1 course assignment
@@ -1009,8 +997,7 @@ class TestTAAssignTACourse(TestCase):  # Kiran
                 name='Introduction to Testing',
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
-                modality='Online',
-                credits=4
+                modality='Online'
             ))
             self.courseList.append(CourseObj(self.courseDBList[i - 1]))  # NEEDED I-1
 
@@ -1085,8 +1072,7 @@ class TestTAGetTACourseAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.course = CourseObj(self.courseDB)
 
@@ -1137,8 +1123,7 @@ class TestAssignTALab(TestCase):
                 name='Introduction to Testing',
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
-                modality='Online',
-                credits=4
+                modality='Online'
             ))
         for i in [1, 2, 3]:  # section
             self.sectionDBList.append(Section.objects.create(
@@ -1243,8 +1228,7 @@ class TestTAGetTALabAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         # Section
         self.sectionDB = Section.objects.create(
@@ -1304,8 +1288,7 @@ class TestAssignTALec(TestCase):  # Kiran
                 name='Introduction to Testing',
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
-                modality='Online',
-                credits=4
+                modality='Online'
             ))
         for i in [1, 2, 3]:  # section
             self.sectionDBList.append(Section.objects.create(
@@ -1405,8 +1388,7 @@ class TestTAGetTALecAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         # Section
         self.sectionDB = Section.objects.create(
@@ -1505,8 +1487,7 @@ class TestInstructorInit(TestCase):
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
 
 
@@ -1542,8 +1523,7 @@ class TestInstructorHasMaxAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
 
     # [1] Instr w/ 1 course assignment
@@ -1592,8 +1572,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
                 name='Introduction to Testing',
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
-                modality='Online',
-                credits=4
+                modality='Online'
             ))
             self.courseList.append(CourseObj(self.courseDBList[i - 1]))
 
@@ -1673,8 +1652,7 @@ class TestInstructorGetInstrCourseAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.course = CourseObj(self.courseDB)
 
@@ -1725,8 +1703,7 @@ class TestInstructorAssignInstrLec(TestCase):  # Kiran
                 name='Introduction to Testing',
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
-                modality='Online',
-                credits=4
+                modality='Online'
             ))
         for i in [1, 2, 3]:  # section
             self.sectionDBList.append(Section.objects.create(
@@ -1815,8 +1792,7 @@ class TestInstructorGetInstrLecAssignments(TestCase):  # Kiran
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         # Section
         self.sectionDB = Section.objects.create(
@@ -1843,8 +1819,7 @@ class TestCourseAddInstructor(TestCase):  # Randall
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.tempCourse = CourseObj(self.hold_course)
         self.instructor_user = User.objects.create(
@@ -1927,8 +1902,7 @@ class TestCourseAddTA(TestCase):  # Randall
             name='Advanced Testing',
             description='A course about advanced testing methods.',
             num_of_sections=2,
-            modality='Hybrid',
-            credits=3
+            modality='Hybrid'
         )
         self.tempCourse = CourseObj(self.hold_course)
         self.ta_user = User.objects.create(
@@ -2014,8 +1988,7 @@ class TestCourseRemoveAssignment(TestCase):  # Randall
             name='Intermediate Testing',
             description='Intermediate course on testing.',
             num_of_sections=2,
-            modality='In-person',
-            credits=3
+            modality='In-person'
         )
         self.tempCourse = CourseObj(self.hold_course)
 
@@ -2070,8 +2043,7 @@ class TestCourseRemoveCourse(TestCase):  #
             name='Basic Testing',
             description='Basic course on testing.',
             num_of_sections=1,
-            modality='Remote',
-            credits=2
+            modality='Remote'
         )
         self.tempCourse = CourseObj(self.hold_course)
 
@@ -2093,17 +2065,16 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
             name='Testing Fundamentals',
             description='A course on testing fundamentals.',
             num_of_sections=4,
-            modality='Mixed',
-            credits=3
+            modality='Mixed'
         )
         self.tempCourse = CourseObj(self.hold_course)
         self.new_info = {"semester": "Spring 2026", "name": "Advanced Testing Fundamentals", "description": "new",
-                         "num_of_section": 3, "modality": "Online", "credits": 6}
+                         "num_of_section": 3, "modality": "Online"}
 
     def test_edit_course_info(self):
         # Correct the key in new_info dictionary
         self.new_info = {"semester": "Spring 2026", "name": "Advanced Testing Fundamentals", "description": "new",
-                         "num_of_sections": 3, "modality": "Online", "credits": 6}
+                         "num_of_sections": 3, "modality": "Online"}
         self.tempCourse.editCourse(self.new_info)
         self.hold_course.refresh_from_db()
         self.assertEqual(self.hold_course.semester, self.new_info["semester"], "Course semester was not updated")
@@ -2113,7 +2084,6 @@ class TestCourseEditCourseInfo(TestCase):  # Randall
         self.assertEqual(self.hold_course.num_of_sections, self.new_info["num_of_sections"],
                          "Course section was not updated")
         self.assertEqual(self.hold_course.modality, self.new_info["modality"], "Course modality was not updated")
-        self.assertEqual(self.hold_course.credits, self.new_info["credits"], "Course credits was not updated")
 
     def test_edit_course_incorrect_format(self):
         incorrect_info = {"semester": 2026, "num_of_sections": "invalid_number"}
@@ -2138,8 +2108,7 @@ class TestCourseGetAssignmentsForCourse(TestCase):  # Randall
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.tempCourse = CourseObj(self.hold_course)
         # Example: Add some assignments to the course
@@ -2190,8 +2159,7 @@ class TestCourseGetAssignmentsForCourse(TestCase):  # Randall
             name='No Assignment Course',
             description='A course with no assignments.',
             num_of_sections=2,
-            modality='Remote',
-            credits=3
+            modality='Remote'
         )
         new_temp_course = CourseObj(new_course)
 
@@ -2216,8 +2184,7 @@ class TestCourseGetSectionsForCourse(TestCase):  # Randall
             name='Advanced Testing',
             description='A course about advanced testing methods.',
             num_of_sections=2,
-            modality='Hybrid',
-            credits=3
+            modality='Hybrid'
         )
         self.tempCourse = CourseObj(self.hold_course)
         self.section1 = Section.objects.create(
@@ -2254,8 +2221,7 @@ class TestCourseGetCourseInfo(TestCase):  # Randall
             name='Basic Testing',
             description='Basic course on testing.',
             num_of_sections=1,
-            modality='Remote',
-            credits=2
+            modality='Remote'
         )
         self.tempCourse = CourseObj(self.hold_course)
 
@@ -2267,7 +2233,6 @@ class TestCourseGetCourseInfo(TestCase):  # Randall
         self.assertEqual(info['description'], self.hold_course.description, "Course description is incorrect")
         self.assertEqual(info['num_of_sections'], self.hold_course.num_of_sections, "Course section is incorrect")
         self.assertEqual(info['modality'], self.hold_course.modality, "Course modality is incorrect")
-        self.assertEqual(info['credits'], self.hold_course.credits, "Course credits is incorrect")
 
 
 class TestSectionGetID(TestCase):  # Joe
@@ -2297,8 +2262,7 @@ class TestSectionGetID(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         self.course.save()
 
@@ -2342,8 +2306,7 @@ class TestSectionGetParentCourse(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         self.course.save()
 
@@ -2395,8 +2358,7 @@ class TestLabInit(TestCase):
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2435,8 +2397,7 @@ class TestLabGetLabTAAssignment(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
 
         tmp_section = Section.objects.create(
@@ -2507,8 +2468,7 @@ class TestLabAddTA(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2571,8 +2531,7 @@ class TestLabRemoveTA(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2643,8 +2602,7 @@ class TestLectureInit(TestCase):
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2698,8 +2656,7 @@ class TestLectureGetLecInstrAssignment(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2770,8 +2727,7 @@ class TestLectureAddInstructor(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2851,8 +2807,7 @@ class TestLectureRemoveInstructor(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -2926,8 +2881,7 @@ class TestLectureGetLecTAAssignment(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -3007,8 +2961,7 @@ class TestLectureAddTA(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
@@ -3080,8 +3033,7 @@ class TestLectureRemoveTA(TestCase):  # Joe
             name="testCourse",
             description="test",
             num_of_sections=3,
-            modality="online",
-            credits=3
+            modality="online"
         )
         tmp_course.save()
 
