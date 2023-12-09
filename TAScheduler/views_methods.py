@@ -405,7 +405,11 @@ class AdminObj(UserObj):
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
     def getAllSecAsgmt(self):
-        pass
+        qs = Section.objects.all()  # returns empty qs if no sections
+        if qs.count() > 0:
+            return qs
+        else:
+            raise RuntimeError("No active sections to return")
 
 
 class TAObj(UserObj):
@@ -456,8 +460,9 @@ class TAObj(UserObj):
         if self.hasMaxAsgmts():  # not sure what error this is
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
-        TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
-#
+        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
+
+    #
     def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
@@ -511,7 +516,10 @@ class TAObj(UserObj):
         return self.database.grader_status
 
     def setSkills(self, skills):
-        pass
+        if (skills != "" and not (isinstance(skills,str))):
+            self.database.skills = skills
+        else:
+            raise RuntimeError("Invalid skills input")
 
 
 class InstructorObj(UserObj):

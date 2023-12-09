@@ -726,7 +726,7 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
                                            description="#1",
                                            num_of_sections=3,
                                            modality="online")
-        for i in [1, 2, 3, 4]:  # ta + sec
+        for i in [1, 2, 3, 4]:  # ta + sec + lecture
             tempUser = User.objects.create(email_address='user@example.com' + str(i),
                                            password='user_password' + str(i),
                                            first_name='user' + str(i),
@@ -735,28 +735,31 @@ class AdminGetAllSecAsgmt(TestCase):  # Kiran
                                            phone_number='1234567890')
             tempTa = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
             tempSec = Section.objects.create(section_id=i,
-                                             course=tempCourse, null=False,
+                                             course=tempCourse,
                                              location="EAS",
-                                             meeting_time="monday")
-            Section.objects.create(section=tempSec, ta=tempTa)
-        self.adminObj = AdminObj(Administrator.objects.create(User.objects.get(email_address='user@example.com4')))
+                                             meeting_time=datetime(2023, 1, 1 + i, 12, 0, 0))
+            Lecture.objects.create(section=tempSec, ta=tempTa)
+        tempUserDB = User.objects.create(
+            email_address='admin@example.com',
+            password='adminpass',
+            first_name='admin',
+            last_name='User',
+            home_address='123 admin St',
+            phone_number=1234667890
+        )
+        tempAdminDB = Administrator.objects.create(user=tempUserDB)
+        self.adminObj = AdminObj(tempAdminDB)
 
     # [1] Successfully matched the section assignments with the database
     def test_success(self):
-        self.assertQuerysetEqual(Section.objects.all(), self.adminObj.getAllSecAsgmt(),
+        self.assertQuerysetEqual(Section.objects.all(), self.adminObj.getAllSecAsgmt(), ordered=False,
                                  msg="should have returned all sections")
 
     # [2] Raise error if no courses
     def test_raiseErrorNoCourse(self):
-        Course.objects.delete(course_id=1)
+        Course.objects.all().delete()
         with self.assertRaises(RuntimeError, msg="can't return sections when no courses exists"):
             self.adminObj.getAllSecAsgmt()
-        Course.objects.create(course_id=1,  # "adding it back" - idk if neccessary
-                              semester="fall",
-                              name="course1",
-                              description="#1",
-                              num_of_sections=3,
-                              modality="online")
 
     # [3] Raise error if no sections
     def test_raiseErrorNoSec(self):
@@ -1355,6 +1358,7 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
         def test_invalidTypeSkills(self):
             with self.assertRaises(TypeError, msg="can't set skills to non-string"):
                 self.taObj.setSkills(10)
+
 
 class TestInstructorInit(TestCase):
     instructorDB = None
