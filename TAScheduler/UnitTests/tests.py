@@ -2900,9 +2900,10 @@ class TestLectureRemoveTA(TestCase):  # Joe
         self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
 
 class UserEditMyContactInfoTest(TestCase):
+
     def setUp(self):
-        # Create a user instance for testing
-        self.user = User.objects.create(
+        # Create a User object
+        user = User.objects.create(
             email_address='test@example.com',
             password='safe_password',
             first_name='Test',
@@ -2910,23 +2911,23 @@ class UserEditMyContactInfoTest(TestCase):
             home_address='123 Main St',
             phone_number=1234567890
         )
+
+        # Create a TA or Administrator object and associate it with the User
+        self.ta = TA.objects.create(user=user, grader_status=True, max_assignments=3)
 
     def test_edit_contact_info(self):
-        # Simulate the edit operation
-        self.user.first_name = 'UpdatedName'
-        self.user.save()
+        # Use TA's user to update contact info
+        self.ta.user.edit_contact_info(first_name='UpdatedName')
+        self.ta.user.save()
 
-        # Fetch the updated user from the database
-        updated_user = User.objects.get(id=self.user.id)
-
-        # Check if the first name is updated
+        updated_user = User.objects.get(id=self.ta.user.id)
         self.assertEqual(updated_user.first_name, 'UpdatedName')
 
-
 class UserGetContactInfoTest(TestCase):
+
     def setUp(self):
-        # Create a user instance for testing
-        self.user = User.objects.create(
+        # Create a User object
+        user = User.objects.create(
             email_address='test@example.com',
             password='safe_password',
             first_name='Test',
@@ -2935,23 +2936,18 @@ class UserGetContactInfoTest(TestCase):
             phone_number=1234567890
         )
 
+        # Create a TA or Administrator object and associate it with the User
+        self.ta = TA.objects.create(user=user, grader_status=True, max_assignments=3)
+
     def test_get_contact_info(self):
-        # Assume a method to retrieve user contact info
-        contact_info = {
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email_address': self.user.email_address,
-            'home_address': self.user.home_address,
-            'phone_number': self.user.phone_number
-        }
+        # Use TA's user to get contact info
+        contact_info = self.ta.user.get_contact_info()
 
-        # Compare the dictionary to the actual user's attributes
-        self.assertEqual(contact_info['first_name'], self.user.first_name)
-        self.assertEqual(contact_info['last_name'], self.user.last_name)
-        self.assertEqual(contact_info['email_address'], self.user.email_address)
-        self.assertEqual(contact_info['home_address'], self.user.home_address)
-        self.assertEqual(contact_info['phone_number'], self.user.phone_number)
-
+        self.assertEqual(contact_info['first_name'], self.ta.user.first_name)
+        self.assertEqual(contact_info['last_name'], self.ta.user.last_name)
+        self.assertEqual(contact_info['email_address'], self.ta.user.email_address)
+        self.assertEqual(contact_info['home_address'], self.ta.user.home_address)
+        self.assertEqual(contact_info['phone_number'], self.ta.user.phone_number)
 
 class GetAllUserAssignmentsTest(TestCase):
     def setUp(self):
@@ -2975,17 +2971,40 @@ class GetAllUserAssignmentsTest(TestCase):
             description='A course on testing software',
             num_of_sections=1,
             modality='Online',
-            credits=3
         )
         InstructorToCourse.objects.create(
             instructor=self.instructor,
             course=self.course
         )
 
-    def test_get_all_user_assignments(self):
-        # Fetch the instructor's assignments from the database
-        assignments = InstructorToCourse.objects.filter(instructor=self.instructor)
+        # Create TA objects
+        self.tas = []
+        for i in range(3):  # Create 3 TAs
+            ta_user = User.objects.create(
+                email_address=f'ta{i}@example.com',
+                password='safe_password',
+                first_name=f'TA{i}',
+                last_name='User',
+                home_address='123 TA St',
+                phone_number=1234567890 + i
+            )
+            ta = TA.objects.create(user=ta_user, grader_status=True, max_assignments=6)
+            self.tas.append(ta)
 
-        # Check if the assignment is related to the created course
+        # Assign TAs to sections
+        self.sections = []
+        for i in range(3):  # Create 3 sections
+            section = Section.objects.create(
+                section_id=100 + i,
+                course=self.course,
+                location=f'location{i}',
+                meeting_time=datetime(2023, 1, 1 + i, 12, 0, 0)
+            )
+            self.sections.append(section)
+            # Assign TA to a Lab or Lecture
+            Lab.objects.create(section=section, ta=self.tas[i % len(self.tas)])
+
+    def test_get_all_assignments(self):
+        assignments = self.instructor.get_all_assignments()  # Method call
         self.assertTrue(assignments.exists())
         self.assertEqual(assignments.first().course, self.course)
