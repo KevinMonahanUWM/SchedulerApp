@@ -516,10 +516,11 @@ class TAObj(UserObj):
         return self.database.grader_status
 
     def setSkills(self, skills):
-        if (skills != "" and not (isinstance(skills,str))):
+        if (skills != "" and isinstance(skills,str)):
             self.database.skills = skills
+            self.database.save()
         else:
-            raise RuntimeError("Invalid skills input")
+            raise TypeError("Invalid skills input")
 
 
 class InstructorObj(UserObj):

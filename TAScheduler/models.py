@@ -18,6 +18,7 @@ class User(models.Model):
 class TA(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     grader_status = models.BooleanField()
+    skills = models.CharField(max_length=30,default="idk why this is needed")
     max_assignments = models.IntegerField(
         default=6,
         validators=[

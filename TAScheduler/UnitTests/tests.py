@@ -1332,32 +1332,36 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
     def test_graderStatus(self):
         self.assertEqual(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
 
-    class TestTASetSkills(TestCase):  # Kiran
-        taObj = None
+class TestTASetSkills(TestCase):  # Kiran
+    userDB = None
+    taDB = None
+    taObj = None
 
-        def setUp(self):
-            tempUser = User.objects.create(
-                email_address='TA@example.com1',
-                password='TA_password',
-                first_name='TA',
-                last_name='User',
-                home_address='123 TA St',
-                phone_number=1234567890,
-                skills="very good")
-            self.taObj = TAObj(TA.objects.create(user=tempUser))
+    def setUp(self):
+        userDB = User.objects.create(
+            email_address='TA@example.com1',
+            password='TA_password',
+            first_name='TA',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number=1234567890,
+            )
+        self.taDB = TA.objects.create(user=userDB, grader_status=True, skills="very good")
+        self.taDB.save()
+        self.taObj = TAObj(self.taDB)
 
-        def test_success(self):
-            self.taObj.setSkills("veryyyy good")
-            self.assertEqual(TA.objects.get(email_address="TA@example.com1").skills, "veryyyy good",
-                             msg="should have changed the skills")
+    def test_success(self):
+        self.taObj.setSkills("good veryyyy good")
+        self.assertEqual(self.taDB.skills, "good veryyyy good",
+                         msg="should have changed the skills")
 
-        def test_missingSkills(self):
-            with self.assertRaises(RuntimeError, msg="can't set skills to nothing"):
-                self.taObj.setSkills("")
+    def test_missingSkills(self):
+        with self.assertRaises(TypeError, msg="can't set skills to nothing"):
+            self.taObj.setSkills("")
 
-        def test_invalidTypeSkills(self):
-            with self.assertRaises(TypeError, msg="can't set skills to non-string"):
-                self.taObj.setSkills(10)
+    def test_invalidTypeSkills(self):
+        with self.assertRaises(TypeError, msg="can't set skills to non-string"):
+            self.taObj.setSkills(10)
 
 
 class TestInstructorInit(TestCase):
