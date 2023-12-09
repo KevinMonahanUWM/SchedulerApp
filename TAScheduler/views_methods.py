@@ -438,7 +438,7 @@ class TAObj(UserObj):
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
         actualAsgmts = TAToCourse.objects.filter(ta=self.database).count()
-        return (actualAsgmts >= maxAsgmts)  # shouldn't ever be ">" but technically true if so (def can't be false)
+        return actualAsgmts >= maxAsgmts  # shouldn't ever be ">" but technically true if so (def can't be false)
 
     def assignTACourse(self, active_course):  # ADJUSTED TESTS!
         if not isinstance(active_course, CourseObj):

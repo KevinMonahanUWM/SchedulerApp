@@ -233,21 +233,32 @@ class AddInstructorToCourse(View):
                       {"users": users, "courses": courses, "message": "Please select an instructor and course"})
 
     def post(self, request):
-        if request.POST["user"] == "":
-            users = list(map(str, Instructor.objects.all()))
-            courses = list(map(str, Course.objects.all()))
+        users = list(map(str, Instructor.objects.all()))
+        courses = list(map(str, Course.objects.all()))
+        try:
+            if request.POST["user"] == "":
+                return render(request, "courseManagement/add_instructor_to_course.html",
+                              {"users": users, "courses": courses, "message": "Please select an instructor"})
+        except MultiValueDictKeyError:
             return render(request, "courseManagement/add_instructor_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select an instructor"})
 
-        if request.POST["course"] == "":
-            users = list(map(str, Instructor.objects.all()))
-            courses = list(map(str, Course.objects.all()))
+        try:
+            if request.POST["course"] == "":
+                return render(request, "courseManagement/add_instructor_to_course.html",
+                              {"users": users, "courses": courses, "message": "Please select a course"})
+        except MultiValueDictKeyError:
             return render(request, "courseManagement/add_instructor_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select a course"})
 
         instructor = determineUser(request.POST["user"])
         course = CourseObj(Course.objects.get(course_id=request.POST["course"].split(": ", 1)[0]))
-        instructor.assignInstrCourse(course)
+        try:
+            instructor.assignInstrCourse(course)
+        except ValueError as e:
+            return render(request,
+                          "error.html",
+                          {"message": str(e), "previous_url": "/home/managecourse/"})
         return render(request, "success.html", {"message": "Instructor successfully added",
                                                 "previous_url": "/home/managecourse/"})
 
@@ -271,24 +282,35 @@ class AddTAToCourse(View):
                           {"message": "No Courses to display", "previous_url": "/home/managecourse/"})
 
         return render(request, "courseManagement/add_ta_to_course.html",
-                      {"users": users, "courses": courses, "message": "Please select an ta and course"})
+                      {"users": users, "courses": courses, "message": "Please select a ta and course"})
 
     def post(self, request):
-        if request.POST["user"] == "":
-            users = list(map(str, TA.objects.all()))
-            courses = list(map(str, Course.objects.all()))
+        users = list(map(str, TA.objects.all()))
+        courses = list(map(str, Course.objects.all()))
+        try:
+            if request.POST["user"] == "":
+                return render(request, "courseManagement/add_ta_to_course.html",
+                              {"users": users, "courses": courses, "message": "Please select a ta"})
+        except MultiValueDictKeyError:
             return render(request, "courseManagement/add_ta_to_course.html",
-                          {"users": users, "courses": courses, "message": "Please select an ta"})
+                          {"users": users, "courses": courses, "message": "Please select a ta"})
 
-        if request.POST["course"] == "":
-            users = list(map(str, TA.objects.all()))
-            courses = list(map(str, Course.objects.all()))
+        try:
+            if request.POST["course"] == "":
+                return render(request, "courseManagement/add_ta_to_course.html",
+                              {"users": users, "courses": courses, "message": "Please select a course"})
+        except MultiValueDictKeyError:
             return render(request, "courseManagement/add_ta_to_course.html",
                           {"users": users, "courses": courses, "message": "Please select a course"})
 
         ta = determineUser(request.POST["user"])
         course = CourseObj(Course.objects.get(course_id=request.POST["course"].split(": ", 1)[0]))
-        ta.assignTACourse(course)
+        try:
+            ta.assignTACourse(course)
+        except ValueError as e:
+            return render(request,
+                          "error.html",
+                          {"message": str(e), "previous_url": "/home/managecourse/"})
         return render(request, "success.html", {"message": "TA successfully added",
                                                 "previous_url": "/home/managecourse/"})
 
