@@ -2950,7 +2950,7 @@ class TestInstructorAssignMyTA(TestCase):
             instr_obj.assignInstrCourse(ta_obj)
 
 
-class TestInstructorGetInstrTAAsgmt(TestCase):
+class TestInstructorGetInstrTAAssignment(TestCase):
 
     def setUp(self):
         # Creating instructor user and object
