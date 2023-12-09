@@ -754,8 +754,7 @@ class TestAdminCourseUserAsgmt(TestCase):
             name='Introduction to Testing',
             description='A course about writing tests in Django.',
             num_of_sections=3,
-            modality='Online',
-            credits=4
+            modality='Online'
         )
         self.tempCourse = CourseObj(self.hold_course)
         hold_user = User(
@@ -859,7 +858,6 @@ class TestGetAllCrseAsgmts(TestCase):
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
                 modality='Online',
-                credits=4
             )
             tempcourseobj = CourseObj(tempCourse)
             tempUser = User.objects.create(email_address='user@example.com' + str(i),
