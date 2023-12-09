@@ -2928,6 +2928,8 @@ class TestInstructorAssignMyTA(TestCase):
 
     def test_assign_ta_to_section(self):
         lab_obj = LabObj(Lab.objects.create(section=self.section))
+        self.ta.grader_status = False
+        self.ta.save()
         ta_obj = TAObj(self.ta)
 
         ta_obj.assignTALab(lab_obj)
@@ -2936,18 +2938,23 @@ class TestInstructorAssignMyTA(TestCase):
         self.assertEqual(lab_obj.getLabTAAsgmt(), self.ta, "TA was not correctly assigned to the lab")
 
     def test_assign_ta_not_in_instructor_course(self):
-        # Create a TA that is not in the instructor's course
         other_user = User.objects.create(email_address="other_ta@example.com", password="password789",
                                          first_name="OtherTAFirstName", last_name="OtherTALastName",
                                          home_address="Other TA Address", phone_number=1122334455)
         other_ta = TA.objects.create(user=other_user, grader_status=True, max_assignments=3)
 
-        ta_obj = TAObj(other_ta)
-        instr_obj = InstructorObj(self.instructor)
+        # Create a new course and section
+        other_course = Course.objects.create(course_id=124, semester="Spring", name="Other Course",
+                                             description="Another course", num_of_sections=1, modality="In-Person")
+        other_section = Section.objects.create(section_id=457, course=other_course, location="Room 202",
+                                               meeting_time="2023-09-01 10:00")
+        lecture_obj = LectureObj(Lecture.objects.create(section=other_section))
 
-        # this should raise a ValueError because the TA is not part of the instructor's course.
+        ta_obj = TAObj(other_ta)
+
+        # Expecting ValueError because the TA is not in the instructor's course
         with self.assertRaises(ValueError):
-            instr_obj.assignInstrCourse(ta_obj)
+            ta_obj.assignTALecture(lecture_obj)
 
 
 class TestInstructorGetInstrTAAssignment(TestCase):
