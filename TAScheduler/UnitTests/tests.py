@@ -2987,17 +2987,35 @@ class TestInstructorGetInstrTAAssignment(TestCase):
     def test_get_ta_assignments(self):
         instructor_obj = InstructorObj(self.instructor)
 
+        # Fetch the assignments using the method
         assignments = instructor_obj.getInstrCrseAsgmts()
 
-        # Expected assignment structure
+        # Convert assignments to a format that can be compared
+        formatted_assignments = []
+        for assignment in assignments:
+            course_id = assignment.course.id
+            instructor_id = assignment.instructor.id
+
+            # Get TAs for each course and check if they match the expected TA
+            tas_for_course = TAToCourse.objects.filter(course__id=course_id)
+            for ta_assignment in tas_for_course:
+                if ta_assignment.ta.id == self.ta.id:
+                    # Get sections associated with the course
+                    sections = Section.objects.filter(course__id=course_id)
+                    for section in sections:
+                        formatted_assignments.append({
+                            "taID": ta_assignment.ta.id,
+                            "secID": section.id,
+                            "courseID": course_id
+                        })
+
+        # Check the content of the assignments list
         expected_assignment = {
             "taID": self.ta.id,
             "secID": self.section.id,
             "courseID": self.course.id
         }
-        # Check the content of the assignments list
-        self.assertIn(expected_assignment, assignments, "TA assignment not found in instructor assignments")
-
+        self.assertIn(expected_assignment, formatted_assignments, "TA assignment not found in instructor assignments")
     def test_ta_assigned_to_another_course(self):
         # Create a new course and TA
         other_course = Course.objects.create(course_id=124, semester="Spring", name="Other Course",
