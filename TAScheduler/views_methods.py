@@ -412,9 +412,14 @@ class AdminObj(UserObj):
         pass
 
     def courseUserAsgmt(self, active_user, active_course):
-        if isinstance(active_user, )
+        if isinstance(active_user, InstructorObj):
+
+            InstructorToCourse.objects.create(instructor=active_user, course=active_course)
+        if isinstance(active_user, TAObj):
+
+
         # Do .get method for a taToCourse or instructorToCourse
-        pass
+        raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
 
 
 class TAObj(UserObj):
