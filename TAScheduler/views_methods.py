@@ -404,6 +404,23 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
+    def editMyContactInfo(self, **kwargs):
+        user = self.database.user  # Accessing the User object
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+        user.save()
+
+    def getContactInfo(self):
+        user = self.database.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email_address': user.email_address,
+            'home_address': user.home_address,
+            'phone_number': user.phone_number
+        }
+
 
 class TAObj(UserObj):
     database = None
@@ -507,6 +524,26 @@ class TAObj(UserObj):
     def getGraderStatus(self):
         return self.database.grader_status
 
+    def editMyContactInfo(self, **kwargs):
+        user = self.database.user  # Accessing the User object
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+        user.save()
+
+    def getContactInfo(self):
+        user = self.database.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email_address': user.email_address,
+            'home_address': user.home_address,
+            'phone_number': user.phone_number
+        }
+
+    def getAllUserAssignments(self):
+        return Lab.objects.filter(ta=self.database)
+
 
 class InstructorObj(UserObj):
     database = None
@@ -581,6 +618,26 @@ class InstructorObj(UserObj):
 
     def getInstrLecAsgmts(self):  # new
         return Lecture.objects.filter(instructor=self.database)
+
+    def editMyContactInfo(self, **kwargs):
+        user = self.database.user  # Accessing the User object
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                setattr(user, key, value)
+        user.save()
+
+    def getContactInfo(self):
+        user = self.database.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email_address': user.email_address,
+            'home_address': user.home_address,
+            'phone_number': user.phone_number
+        }
+
+    def getAllUserAssignments(self):
+        return InstructorToCourse.objects.filter(instructor=self.database)
 
 
 class CourseObj:
