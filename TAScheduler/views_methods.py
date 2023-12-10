@@ -30,6 +30,10 @@ class UserObj(abc.ABC):
     def getRole(self):
         pass
 
+    @abc.abstractmethod
+    def editContactInfo(self):
+        pass
+
 
 class AdminObj(UserObj):
     database = None
@@ -404,7 +408,7 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
-    def editMyContactInfo(self, **kwargs):
+    def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
         for key, value in kwargs.items():
             if hasattr(user, key):
@@ -524,7 +528,7 @@ class TAObj(UserObj):
     def getGraderStatus(self):
         return self.database.grader_status
 
-    def editMyContactInfo(self, **kwargs):
+    def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
         for key, value in kwargs.items():
             if hasattr(user, key):
@@ -619,7 +623,7 @@ class InstructorObj(UserObj):
     def getInstrLecAsgmts(self):  # new
         return Lecture.objects.filter(instructor=self.database)
 
-    def editMyContactInfo(self, **kwargs):
+    def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
         for key, value in kwargs.items():
             if hasattr(user, key):

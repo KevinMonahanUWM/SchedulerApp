@@ -2916,9 +2916,8 @@ class UserEditMyContactInfoTest(TestCase):
         self.ta = TA.objects.create(user=user, grader_status=True, max_assignments=3)
 
     def test_edit_contact_info(self):
-        # Use TA's user to update contact info
-        self.ta.user.edit_contact_info(first_name='UpdatedName')
-        self.ta.user.save()
+        ta_obj = TAObj(self.ta)
+        ta_obj.editContactInfo(first_name='UpdatedName')
 
         updated_user = User.objects.get(id=self.ta.user.id)
         self.assertEqual(updated_user.first_name, 'UpdatedName')
@@ -2940,14 +2939,19 @@ class UserGetContactInfoTest(TestCase):
         self.ta = TA.objects.create(user=user, grader_status=True, max_assignments=3)
 
     def test_get_contact_info(self):
-        # Use TA's user to get contact info
-        contact_info = self.ta.user.get_contact_info()
+        # Create a TAObj instance using the TA instance
+        ta_obj = TAObj(self.ta)
 
+        # Use TAObj's get_contact_info method to retrieve contact info
+        contact_info = ta_obj.getContactInfo()
+
+        # Assert the retrieved contact information is as expected
         self.assertEqual(contact_info['first_name'], self.ta.user.first_name)
         self.assertEqual(contact_info['last_name'], self.ta.user.last_name)
         self.assertEqual(contact_info['email_address'], self.ta.user.email_address)
         self.assertEqual(contact_info['home_address'], self.ta.user.home_address)
         self.assertEqual(contact_info['phone_number'], self.ta.user.phone_number)
+
 
 class GetAllUserAssignmentsTest(TestCase):
     def setUp(self):
@@ -3005,6 +3009,13 @@ class GetAllUserAssignmentsTest(TestCase):
             Lab.objects.create(section=section, ta=self.tas[i % len(self.tas)])
 
     def test_get_all_assignments(self):
-        assignments = self.instructor.get_all_assignments()  # Method call
+        # Create an InstructorObj instance using the Instructor instance
+        instructor_obj = InstructorObj(self.instructor)
+
+        # Use InstructorObj's getAllUserAssignments method to retrieve assignments
+        assignments = instructor_obj.getAllUserAssignments()
+
+        # Assert the retrieved assignments are as expected
         self.assertTrue(assignments.exists())
         self.assertEqual(assignments.first().course, self.course)
+
