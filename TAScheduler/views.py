@@ -51,10 +51,26 @@ def coursesAddAssignments():
                     not InstructorToCourse.objects.filter(course=course, instructor=instruc).exists()):
                 users.append(str(instruc))
         for ta in tas:
-            if not TAObj(ta).hasMaxAsgmts() and not TAToCourse.objects.filter(ta=ta, course=course):
+            if not TAObj(ta).hasMaxAsgmts() and not TAToCourse.objects.filter(ta=ta, course=course).exists():
                 users.append(str(ta))
         courseAndUsers.append({"course": str(course), "users": users})
     return courseAndUsers
+
+
+def usersCurrentlyAvailable(courseList, course):
+    for courseName in courseList:
+        if courseName.get("course") == course:
+            return courseName.get("users")
+
+
+def currentlyAssignedUsers(course_id):
+    assignments = CourseObj(Course.objects.get(course_id=course_id)).getAsgmtsForCrse()
+    users = []
+    for instrc in assignments.get("instructors"):
+        users.append(str(instrc.instructor))
+    for ta in assignments.get("tas"):
+        users.append(str(ta.ta))
+    return users
 
 class Login(View):
     def get(self, request):
@@ -123,16 +139,15 @@ class Home(View):
 class CourseManagement(View):
 
     def get(self, request):
-        print(coursesAddAssignments())
+        courseWithUsers = coursesAddAssignments()
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
-        courses = list(map(str, Course.objects.all()))
-        return render(request, "courseManagement/course_management.html", {"courses": courses})
+        return render(request, "courseManagement/course_management.html", {"courses": courseWithUsers})
 
     def post(self, request):
-        courses = list(map(str, Course.objects.all()))
+        courses = coursesAddAssignments()
         course = request.POST.get('course')
         course_id = int(course.split(": ", 1)[0])
         if request.POST.get("edit") is not None:
@@ -140,17 +155,23 @@ class CourseManagement(View):
             selected_course = Course.objects.get(course_id=course_id)
             return render(request, "courseManagement/edit_course.html",
                           {"selected": True, "selected_course": selected_course})
-        else:
+        elif request.POST.get("delete") is not None:
             curUserObj = determineUser(request.session["user"])
             try:
                 course_to_delete = CourseObj(Course.objects.get(course_id=course_id))
                 curUserObj.removeCourse(course_to_delete)
-                courses = list(map(str, Course.objects.all()))
+                courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
                               {"message": "Successfully deleted course", "courses": courses})
             except Exception as e:
                 return render(request, "courseManagement/course_management.html",
                               {"message": str(e), "courses": courses})
+        else:
+            usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
+            usersCurrentlyAssigned = currentlyAssignedUsers(course_id)
+            return render(request, "courseManagement/course_user_assignments.html",
+                          {"course": course, "assigned": usersCurrentlyAssigned, "unassigned": usersAvailableToAssign})
+
 
 class CreateCourse(View):
     def get(self, request):
@@ -179,7 +200,7 @@ class CreateCourse(View):
 
         try:
             admin_obj.createCourse(course_info)
-            courses = list(map(str, Course.objects.all()))
+            courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
                           {"message": "Successfully created course", "courses": courses})
         except Exception as e:
@@ -205,15 +226,15 @@ class EditCourse(View):
             course_to_edit = Course.objects.get(course_id=course_id)
             del request.session["course_id"]
             admin_obj.editCourse(CourseObj(course_to_edit), new_info)
-            courses = list(map(str, Course.objects.all()))
+            courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html", {"message": "Successfully editted course",
                                                                                "courses": courses})
         except Course.DoesNotExist:
-            courses = list(map(str, Course.objects.all()))
+            courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
                           {"message": "Course not found", "courses": courses})
         except Exception as e:
-            courses = list(map(str, Course.objects.all()))
+            courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
                           {"message": str(e), "courses": courses})
 
@@ -254,7 +275,7 @@ class AddInstructorToCourse(View):
         chosenuser = determineUser(request.POST.get("user")).getUsername()
         request.session["Chosenuser"] = request.POST.get("user")
         return render(request,
-                      "courseManagement/choose_course_add_instructor.html",
+                      "courseManagement/course_user_assignments.html",
                       {"chosen": chosenuser, "courses": courses})
 
 
@@ -271,7 +292,7 @@ class AddInstructorToCourseHelper(View):
         except MultiValueDictKeyError:
             courses = list(map(str, Course.objects.all()))
             return render(request,
-                          "courseManagement/choose_course_add_instructor.html",
+                          "courseManagement/course_user_assignments.html",
                           {"chosen": chosenuser,
                            "courses": courses,
                            "message": "You need to select a course"})
