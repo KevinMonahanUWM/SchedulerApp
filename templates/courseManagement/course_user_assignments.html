@@ -11,7 +11,7 @@
 {{ message }}
 <table>
     {% if not assignedEmpty %}
-    <tr><th>Assigned Users</th></tr>
+    <tr><th colspan="2">Assigned Users</th></tr>
     {% for user in assigned %}
        <form id="unassign" action="/home/managecourse/assignuser/" method="post">
            {% csrf_token %}
@@ -25,7 +25,7 @@
     {% endfor %}
     {% endif %}
     {% if not unassignedEmpty %}
-    <tr><th>Available Users to Assign</th></tr>
+    <tr><th colspan="2">Available Users to Assign</th></tr>
     {% for user in unassigned %}
        <form id="assign" action="/home/managecourse/assignuser/" method="post">
            {% csrf_token %}
@@ -42,7 +42,7 @@
     {% if assignedEmpty and unassignedEmpty %}
     <tr><td>No users available to assign and no users currently assigned</td></tr>
     {% endif %}
-    <tr><td><a href="/home/managecourse/">Cancel</a></td></tr>
+    <tr><td colspan="2"><a href="/home/managecourse/">Cancel</a></td></tr>
 </table>
 
 </body>
