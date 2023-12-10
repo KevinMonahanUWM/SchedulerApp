@@ -405,8 +405,12 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
-    def sectionTAAsmgt(self, active_ta, active_course):
-        pass
+    def sectionTAAsmgt(self, active_ta, active_section):
+        if not isinstance(active_ta, TA):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not TA")
+        if not isinstance(active_section, LabObj) and not isinstance(active_section, LectureObj):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not Lab or Lecture")
+        active_section.addTA(active_ta)
 
     def getAllCrseAsgmts(self):
         pass
