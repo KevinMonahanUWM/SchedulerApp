@@ -476,6 +476,10 @@ class TAObj(UserObj):
         argLabDB.save()  # Assign the lab? Is that it?
 
     def assignTALecture(self, active_lecture):  # new
+        # Ensure that the TA is linked to the course of the lecture
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
+
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
