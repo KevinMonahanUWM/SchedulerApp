@@ -3,7 +3,8 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
 
 import TAScheduler
-from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, Course
+from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, Course, InstructorToCourse, \
+    TAToCourse
 from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj, CourseObj
 
 
@@ -38,6 +39,22 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+
+def coursesAddAssignments():
+    courseAndUsers = []
+    instructors = Instructor.objects.all()
+    tas = TA.objects.all()
+    for course in Course.objects.all():
+        users = []
+        for instruc in instructors:
+            if (not InstructorObj(instruc).hasMaxAsgmts() and
+                    not InstructorToCourse.objects.filter(course=course, instructor=instruc).exists()):
+                users.append(str(instruc))
+        for ta in tas:
+            if not TAObj(ta).hasMaxAsgmts() and not TAToCourse.objects.filter(ta=ta, course=course):
+                users.append(str(ta))
+        courseAndUsers.append({"course": str(course), "users": users})
+    return courseAndUsers
 
 class Login(View):
     def get(self, request):
@@ -106,6 +123,7 @@ class Home(View):
 class CourseManagement(View):
 
     def get(self, request):
+        print(coursesAddAssignments())
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
@@ -273,6 +291,7 @@ class AddInstructorToCourseHelper(View):
         except Exception as e:
             return render(request, "error.html", {"message": e,
                                                   "previous_url": "/home/managecourse/"})
+
 
 class AccountManagement(View):
 
