@@ -825,9 +825,19 @@ class TestSecTAAsgmt(TestCase):
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
 
+        tempcourse = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        tempcourse.save()
+
         self.section = Section.objects.create(
             section_id=800,
-            section_name='Waffles',
+            course=tempcourse,
             location="East Lane",
             meeting_time=datetime(2023, 1, 1, 12, 0, 0)
         )
@@ -841,22 +851,22 @@ class TestSecTAAsgmt(TestCase):
             home_address='123 TA St',
             phone_number=1234567890
         )
-        tmpta = TA.objects.create(
-            user=tmpuser
+        self.ta = TA.objects.create(
+            user=tmpuser,
+            grader_status=False
         )
-        self.ta = TAObj(tmpta)
 
     def test_success_lab(self):
         laboratory = Lab.objects.create(
-            section_id=self.section
+            section=self.section
         )
         labobj = LabObj(laboratory)
         self.admin.sectionTAAsmgt(self.ta, labobj)
-        self.assertEquals(Lab.objects.get(ta=self.ta), laboratory, "Did not assign correct laboratory")
+        self.assertEquals(labobj.getLabTAAsgmt(), self.ta, "Did not assign correct laboratory")
 
     def test_success_lec(self):
         lecture = Lecture.objects.create(
-            section_id=self.section
+            section=self.section
         )
         lecobj = LectureObj(lecture)
         tmpuser = User.objects.create(
@@ -872,13 +882,12 @@ class TestSecTAAsgmt(TestCase):
             grader_status=True
         )
         tmpta.save()
-        taobj = TAObj(tmpta)
-        self.admin.sectionTAAsmgt(taobj, lecobj)
-        self.assertEquals(Lab.objects.get(ta=tmpta), lecture, "Did not assign correct lecture")
+        self.admin.sectionTAAsmgt(tmpta, lecobj)
+        self.assertEquals(lecobj.getLectureTAAsgmt(), tmpta, "Did not assign correct lecture")
 
     def test_bad_ta(self):
         laboratory = Lab.objects.create(
-            section_id=self.section
+            section=self.section
         )
         labobj = LabObj(laboratory)
         with self.assertRaises(TypeError, msg="Does not raise typerror for bad TA"):
