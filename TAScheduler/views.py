@@ -119,7 +119,9 @@ class CourseManagement(View):
         course_id = int(course.split(": ", 1)[0])
         if request.POST.get("edit") is not None:
             request.session["course_id"] = course_id
-            return render(request, "courseManagement/edit_course.html", {"selected": True})
+            selected_course = Course.objects.get(course_id=course_id)
+            return render(request, "courseManagement/edit_course.html",
+                          {"selected": True, "selected_course": selected_course})
         else:
             curUserObj = determineUser(request.session["user"])
             try:
@@ -167,29 +169,6 @@ class CreateCourse(View):
                           {"message": str(e)})
 
 
-class DeleteCourse(View):
-
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
-            return redirect("/home/")
-        courses = list(map(str, Course.objects.all()))
-        return render(request, "courseManagement", {"courses": courses}, )
-
-    def post(self, request):
-        curUserObj = determineUser(request.session["user"])
-        course = request.POST.get('course')
-        course_id = int(course.split(": ", 1)[0])
-        try:
-            course_to_delete = CourseObj(Course.objects.get(course_id=course_id))
-            curUserObj.removeCourse(course_to_delete)
-            return render(request, "success.html", {"message": "Successfully deleted course",
-                                                    "previous_url": "/home/managecourse/delete/"})
-        except Exception as e:
-            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/delete/"})
-
-
 class EditCourse(View):
 
     def post(self, request):
@@ -203,19 +182,20 @@ class EditCourse(View):
             "modality": request.POST.get("modality"),
             "semester": request.POST.get("semester")
         }
-        courses = list(map(str, Course.objects.all()))
         try:
-            course = request.session["course_id"]
-            course_id = int(course.split(":", 1)[0])
-            course_to_edit = Course.objects.get(course_id=int(course_id))
+            course_id = request.session["course_id"]
+            course_to_edit = Course.objects.get(course_id=course_id)
             del request.session["course_id"]
             admin_obj.editCourse(CourseObj(course_to_edit), new_info)
+            courses = list(map(str, Course.objects.all()))
             return render(request, "courseManagement/course_management.html", {"message": "Successfully editted course",
                                                                                "courses": courses})
         except Course.DoesNotExist:
+            courses = list(map(str, Course.objects.all()))
             return render(request, "courseManagement/course_management.html",
                           {"message": "Course not found", "courses": courses})
         except Exception as e:
+            courses = list(map(str, Course.objects.all()))
             return render(request, "courseManagement/course_management.html",
                           {"message": str(e), "courses": courses})
 
