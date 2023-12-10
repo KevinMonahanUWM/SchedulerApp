@@ -169,8 +169,15 @@ class CourseManagement(View):
         else:
             usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
             usersCurrentlyAssigned = currentlyAssignedUsers(course_id)
+            noneAssigned = False
+            if len(usersCurrentlyAssigned) == 0:
+                noneAssigned = True
+            noneAvailable = False
+            if len(usersAvailableToAssign) == 0:
+                noneAvailable = True
             return render(request, "courseManagement/course_user_assignments.html",
-                          {"course": course, "assigned": usersCurrentlyAssigned, "unassigned": usersAvailableToAssign})
+                          {"course": course, "assignedEmpty": noneAssigned, "unassignedEmpty": noneAvailable,
+                           "assigned": usersCurrentlyAssigned, "unassigned": usersAvailableToAssign})
 
 
 class CreateCourse(View):
@@ -239,79 +246,35 @@ class EditCourse(View):
                           {"message": str(e), "courses": courses})
 
 
-class AddInstructorToCourse(View):
-
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
-            return redirect("/home/")
-
-        users = list(map(str, Instructor.objects.all()))
-        if len(users) == 0:
-            return render(request,
-                          "error.html",
-                          {"message": "No Instructors to display", "previous_url": "/home/managecourse/"})
-
-        return render(request, "courseManagement/add_instructor_to_course.html",
-                      {"users": users, "message": "Please select an instructor to assign"})
+class UserAssignments(View):
 
     def post(self, request):
         selecteduser = determineUser(request.POST.get("user"))
-        if selecteduser is None or selecteduser == '':
-            users = list(map(str, Instructor.objects.all()))
-            return render(request,
-                          "courseManagement/add_instructor_to_course.html",
-                          {"users": users,
-                           "message": "Choose a User"})
-
-        courses = list(map(str, Course.objects.all()))
-
-        if len(courses) == 0:
-            return render(request,
-                          "error.html",
-                          {"message": "Error: No Courses to display", "previous_url": "/home/managecourse/"})
-
-        chosenuser = determineUser(request.POST.get("user")).getUsername()
-        request.session["Chosenuser"] = request.POST.get("user")
-        return render(request,
-                      "courseManagement/course_user_assignments.html",
-                      {"chosen": chosenuser, "courses": courses})
-
-
-class AddInstructorToCourseHelper(View):
-    def post(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() is not "Admin":
-            return redirect("/home/")
-        chosenuser = request.session["Chosenuser"]
-        del request.session["Chosenuser"]
-        try:
-            chosencourse = request.POST["course"]
-        except MultiValueDictKeyError:
-            courses = list(map(str, Course.objects.all()))
-            return render(request,
-                          "courseManagement/course_user_assignments.html",
-                          {"chosen": chosenuser,
-                           "courses": courses,
-                           "message": "You need to select a course"})
-        courseid = int(chosencourse.split(": ", 1)[0])
-        user_database = determineUser(chosenuser)
-        chosencourse = Course.objects.get(course_id=courseid)
-
-        chosencourseObj = CourseObj(chosencourse)
-
-        if user_database is None:
-            return render(request, "error.html", {"message": "Could not find instructor",
-                                                  "previous_url": "/home/managecourse/"})
-        try:
-            chosencourseObj.addInstructor(user_database)
-            return render(request, "success.html", {"message": "Instructor successfully added",
-                                                    "previous_url": "/home/managecourse/"})
-        except Exception as e:
-            return render(request, "error.html", {"message": e,
-                                                  "previous_url": "/home/managecourse/"})
+        course_id = int(request.POST.get('course').split(": ", 1)[0])
+        courseobj = CourseObj(Course.objects.get(course_id=course_id))
+        if request.POST.get("unassign") is not None:
+            try:
+                courseobj.removeAssignment(selecteduser)
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": "Successfully removed assignment", "courses": courses})
+            except Exception as e:
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": str(e), "courses": courses})
+        else:
+            try:
+                if selecteduser.getRole() == 'TA':
+                    courseobj.addTa(selecteduser)
+                else:
+                    courseobj.addInstructor(selecteduser)
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": "Successfully assigned user to course", "courses": courses})
+            except Exception as e:
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": str(e), "courses": courses})
 
 
 class AccountManagement(View):

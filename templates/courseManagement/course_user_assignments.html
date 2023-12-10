@@ -7,22 +7,40 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
+<h1>{{ course }}</h1>
+{{ message }}
 <table>
-    <tr><td>{{ message }}</td></tr>
-    <form id="section_selection" action="/home/managecourse/addinstructor/choosecourse" method="post">
-    {% csrf_token %}
-    <tr><td>{{ chosen }}</td></tr>
-
-    {% for course in courses %}
-        <tr>
-        <td>
-            <input id="course" type="radio" name="course" value="{{ course }}">
-            <label for="course">{{ course }}</label>
-        </td>
-        </tr>
+    {% if not assignedEmpty %}
+    <tr><th>Assigned Users</th></tr>
+    {% for user in assigned %}
+       <form id="unassign" action="/home/managecourse/assignuser/" method="post">
+           {% csrf_token %}
+       <tr>
+           <td>{{ user }}</td>
+           <input type="hidden" name="course" value="{{ course }}">
+           <input type="hidden" name="user" value="{{ user }}">
+           <td><input type="submit" name="unassign" value="Unassign"></td>
+       </tr>
+       </form>
     {% endfor %}
-    <tr><td><input type="submit"></td></tr>
-    </form>
+    {% endif %}
+    {% if not unassignedEmpty %}
+    <tr><th>Available Users to Assign</th></tr>
+    {% for user in unassigned %}
+       <form id="assign" action="/home/managecourse/assignuser/" method="post">
+           {% csrf_token %}
+       <tr>
+           <td>{{ user }}</td>
+           <input type="hidden" name="course" value="{{ course }}">
+           <input type="hidden" name="user" value="{{ user }}">
+           <td><input type="submit" name="assign" value="Assign"></td>
+       </tr>
+       </form>
+    {% endfor %}
+    {% endif %}
+    {% if assignedEmpty and unassignedEmpty %}
+    <tr><td>No users available to assign and no users currently assigned</td></tr>
+    {% endif %}
     <tr><td><a href="/home/managecourse/">Cancel</a></td></tr>
 </table>
 
