@@ -412,18 +412,15 @@ class AdminObj(UserObj):
         pass
 
     def courseUserAsgmt(self, active_user, active_course):
-        if not isinstance(active_course, CourseObj):
-            raise TypeError("Input passed to admin.courseUserAsgmt is not CourseObj")
-        if isinstance(active_user, InstructorObj):
-            if InstructorToCourse.objects.get(instructor=active_user, course=active_course) is not None:
-                raise RuntimeError("Instructor to course obj already exists")
+        if not isinstance(active_course, Course):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not Course")
+        if isinstance(active_user, Instructor):
             InstructorToCourse.objects.create(instructor=active_user, course=active_course)
-        if isinstance(active_user, TAObj):
-            if TAToCourse.objects.get(ta=active_user, course=active_course) is not None:
-                raise RuntimeError("TA to course obj already exists")
+        if isinstance(active_user, TA):
             TAToCourse.objects.create(ta=active_user, course=active_course)
         # Do .get method for a taToCourse or instructorToCourse
-        raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
+        if not isinstance(active_user, Instructor) and not isinstance(active_user, TA):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
 
 
 class TAObj(UserObj):
