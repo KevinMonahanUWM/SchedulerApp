@@ -32,24 +32,23 @@ class Create(TestCase):  # 6/6 Pass
         ses.save()
         self.courseList = list()  # holding list of test courses so easier to call later
         self.secList = list()
-        for i in [1, 2, 3]:  # Creating 3 Courses: hardcoded "numSec","modality","credits"
-            testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
-            testCourse.save()
+        for i in [1, 2, 3]:  # Creating 3 Courses: hardcoded "numSec","modality"
+            testCourse = Course.objects.create(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
+                                modality="Remote")
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections: hardcoded "meetingTime"
-            testSection = Section(section_id=i, course=self.courseList[i - 1], location="location" + str(i),
+            testSection = Section.objects.create(section_id=i, course=self.courseList[i - 1], location="location" + str(i),
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
             self.secList.append(testSection)
-        self.lec1 = Lecture(section=self.secList[0]).save()  # Course1: Lecture
-        self.lec2 = Lecture(section=self.secList[1]).save()  # Course2: Lecture
-        self.lab2 = Lab(section=self.secList[2]).save()  # Course3: Lab
+        self.lec1 = Lecture.objects.create(section=self.secList[0])  # Course1: Lecture
+        self.lec2 = Lecture.objects.create(section=self.secList[1])  # Course2: Lecture
+        self.lab2 = Lab.objects.create(section=self.secList[2]) # Course3: Lab
         # For user's input ...
-        self.lecInfo = {"course_id": self.courseList[2].course_id, "section_id": 4, "section_type": "Lecture",
+        self.lecInfo = {"course_id": int(self.courseList[2].course_id), "section_id": 4, "section_type": "Lecture",
                         "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "location": "location" + str(4)
                         }
-        self.labInfo = {"course_id": self.courseList[2].course_id, "section_id": 4, "section_type": "Lab",
+        self.labInfo = {"course_id": int(self.courseList[2].course_id), "section_id": 4, "section_type": "Lab",
                         "meeting_time": datetime(2023, 1, 1, 1, 1, 1), "location": "location" + str(4)
                         }
 
@@ -98,7 +97,7 @@ class Create(TestCase):  # 6/6 Pass
     # [6] Confirmation message for lab
     def test_ConfirmLab(self):
         resp = self.client.post("/home/managesection/create/", data=self.labInfo)
-        self.assertContains(resp, "Successfully Created Section", status_code=200)
+        self.assertEqual(resp.context["message"], "Successfully Created Section")
 
 
 # AC2] - Duplicate Section (not unique in the database)
@@ -121,7 +120,7 @@ class NoCreateDupeSec(TestCase):  # 4/4 Pass
         self.secList = list()
         for i in [1, 2, 3]:  # Creating 3 Courses:
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections:
@@ -184,7 +183,7 @@ class NonexistantCourse(TestCase):  # 4/4 pass
         self.secList = list()
         for i in [1, 2, 3]:  # Creating 3 Courses:
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections:
@@ -209,9 +208,9 @@ class NonexistantCourse(TestCase):  # 4/4 pass
         self.assertContains(resp, "No missing section fields allowed")
 
     # [2] Error Message lec
-    def test_errorMsgNoExistCourse(self):
+    def test_errorMsgNoExistCourse_Lec(self):
         resp = self.client.post("/home/managesection/create/", data=self.badCrsIDLecInfo)
-        self.assertContains(resp, "Course ID is not existing course cant create section")
+        self.assertEqual(str(resp.context["message"]), "Course ID is not existing course cant create section")
 
     # [3] No DB Change: # of secs same ("adding" lec)
     def test_noAdditionalLec(self):
@@ -222,9 +221,9 @@ class NonexistantCourse(TestCase):  # 4/4 pass
                          msg="should not have changed the amount of sections when creating non-existant course")
 
     # [4] Error Message lec
-    def test_errorMsgNoExistCourse(self):
+    def test_errorMsgNoExistCourse_Lab(self):
         resp = self.client.post("/home/managesection/create/", data=self.badCrsIDLabInfo)
-        self.assertContains(resp, "Course ID is not existing course cant create section")
+        self.assertEqual(str(resp.context["message"]), "Course ID is not existing course cant create section")
 
     # [5] No DB Change: # of secs same ("adding" lab)
     def test_noAdditionalLab(self):

@@ -16,7 +16,11 @@
                 <label for="courseID">Unique Host Course ID:</label>
             </td>
             <td>
-                <input id="courseID" type="text" name="course_id" required>
+                <select name="course_id">
+                    {% for course in courses %}
+                        <option value="{{ course.course_id }}">{{ course }}</option>
+                    {% endfor %}
+                </select>
             </td>
         </tr>
         <tr>

@@ -33,7 +33,7 @@ class SuccessfulCreation(TestCase):
         self.instructor.save()
 
         self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
-                                            num_of_sections=3, modality="online", credits=3)
+                                            num_of_sections=3, modality="online")
         self.course.save()
 
 
@@ -141,7 +141,8 @@ class InstructorNoRoom(TestCase):
         self.instructor.save()
 
     def test_instructor_no_room(self):
-        resp = self.user.post("/home/managecourse/addinstructor", {"selection", self.instructor}, follow=True)
+        resp = self.user.post("/home/managecourse/addinstructor", {"user": str(self.instructor)}, follow=True)
+        print(resp.context)
         self.assertEquals(resp.context["message"], "Instructor has max assignments",
                           "Cannot assign courses when instructor is at max")
 
@@ -174,5 +175,5 @@ class SuccessfulTransfer(TestCase):
         self.instructor.save()
 
     def test_instructor_to_next(self):
-        resp = self.user.post("/home/managecourse/addinstructor", {"selection", self.instructor}, follow=True)
+        resp = self.user.post("/home/managecourse/addinstructor", {"selection": self.instructor}, follow=True)
         self.assertEquals(resp.context["instructor"], self.instructor, "Instructor not transferred over properly")

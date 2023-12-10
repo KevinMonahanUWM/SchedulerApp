@@ -26,7 +26,7 @@ class AdminEditCourseTestCase(TestCase):
         # Create an initial course
         self.course = Course.objects.create(course_id=101, semester='Fall 2023', name='Introduction to Testing',
                                             description='A course about writing tests in Django.', num_of_sections=3,
-                                            modality='Online', credits=4)
+                                            modality='Online')
 
     def test_edit_course_success(self):
         updated_data = {
@@ -47,7 +47,6 @@ class AdminEditCourseTestCase(TestCase):
         self.assertEqual(self.course.description, updated_data['description'])
         self.assertEqual(self.course.num_of_sections, updated_data['num_of_sections'])
         self.assertEqual(self.course.modality, updated_data['modality'])
-        self.assertEqual(self.course.credits, updated_data['credits'])
 
     def test_edit_course_invalid_input(self):
         response = self.client.post('/home/managecourse/', {
