@@ -783,27 +783,27 @@ class TestAdminCourseUserAsgmt(TestCase):
         self.admin = AdminObj(hold_admin)
 
     def test_success_intructor(self):
-        self.admin.courseUserAsgmt(self.tempInstr, self.tempCourse)
-        self.assertIsNotNone(InstructorToCourse.objects.get(instructor=self.tempInstr, course=self.tempCourse),
+        self.admin.courseUserAsgmt(self.hold_instr, self.hold_course)
+        self.assertIsNotNone(InstructorToCourse.objects.get(instructor=self.hold_instr, course=self.hold_course),
                              "Instructor to Course object not made in AdminCourseUserAsgmt")
 
     def test_success_ta(self):
-        self.admin.courseUserAsgmt(self.tempTA, self.tempCourse)
-        self.assertIsNotNone(TAToCourse.objects.get(instructor=self.tempTA, course=self.tempCourse),
+        self.admin.courseUserAsgmt(self.hold_ta, self.hold_course)
+        self.assertIsNotNone(TAToCourse.objects.get(ta=self.hold_ta, course=self.hold_course),
                              "TA to Course object not made in AdminCourseUserAsgmt")
 
     def test_bad_user_input(self):
         with self.assertRaises(TypeError, msg="AdminCourseUserAsgmt Does not raise TYPEERROR for bad user"):
-            self.admin.courseUserAsgmt("STRING!", self.tempCourse)
+            self.admin.courseUserAsgmt("STRING!", self.hold_course)
 
     def test_bad_course_input_instr(self):
         with self.assertRaises(TypeError,
                                msg="AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when instructor"):
-            self.admin.courseUserAsgmt(self.tempInstr, "STRING!")
+            self.admin.courseUserAsgmt(self.hold_instr, "STRING!")
 
     def test_bad_course_input_ta(self):
         with self.assertRaises(TypeError, msg="AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when TA"):
-            self.admin.courseUserAsgmt(self.tempTA, "STRING!")
+            self.admin.courseUserAsgmt(self.hold_ta, "STRING!")
 
 
 class TestSecTAAsgmt(TestCase):
