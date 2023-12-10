@@ -110,9 +110,11 @@ class CourseManagement(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() is not "Admin":
             return redirect("/home/")
-        courses = Course.objects.all()
+        courses = list(map(str,Course.objects.all()))
         return render(request, "courseManagement/course_management.html", {"courses": courses})
 
+    def post(self, request):
+        pass
 
 class CreateCourse(View):
     def get(self, request):

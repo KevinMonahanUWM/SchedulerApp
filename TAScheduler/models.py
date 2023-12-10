@@ -51,7 +51,6 @@ class Course(models.Model):
     description = models.CharField(max_length=1000)
     num_of_sections = models.IntegerField()
     modality = models.CharField(max_length=100)
-    credits = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.course_id) + ": " + self.name
