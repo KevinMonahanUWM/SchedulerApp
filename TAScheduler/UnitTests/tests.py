@@ -900,6 +900,12 @@ class TestSecTAAsgmt(TestCase):
 
 class TestGetAllCrseAsgmts(TestCase):
     admin = None
+    course1 = None
+    course2 = None
+    ta1 = None
+    ta2 = None
+    instr1 = None
+    instr2 = None
 
     def setUp(self):
         hold_user = User(
@@ -914,46 +920,77 @@ class TestGetAllCrseAsgmts(TestCase):
         hold_admin = Administrator(user=hold_user)
         hold_admin.save()
         self.admin = AdminObj(hold_admin)
-        for i in [1, 2, 3, 4]:
-            tempCourse = Course.objects.create(
-                course_id=101 + str(i),
-                semester='Fall 2023',
-                name='Introduction to Testing' + str(i),
-                description='A course about writing tests in Django.',
-                num_of_sections=3,
-                modality='Online'
-            )
-            tempcourseobj = CourseObj(tempCourse)
-            tempUser = User.objects.create(email_address='user@example.com' + str(i),
-                                           password='user_password',
-                                           first_name='user' + str(i),
-                                           last_name='User',
-                                           home_address='123 user1 St',
-                                           phone_number='1234567890')
-            tempTa = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
-            temptaobj = TAObj(tempTa)
-            TAToCourse.objects.create(tempTa, tempCourse)
+        self.course1 = Course.objects.create(
+            course_id=104,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        self.course1.save()
+        tempUser = User.objects.create(email_address='ta1@example.com',
+                                       password='user_password',
+                                       first_name='user',
+                                       last_name='User',
+                                       home_address='123 user1 St',
+                                       phone_number='1234567890')
+        self.ta1 = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
+        self.ta1.save()
+        TAToCourse.objects.create(ta=self.ta1, course=self.course1)
 
-            tempUser = User.objects.create(email_address='instr@example.com' + str(i),
-                                           password='instr_password',
-                                           first_name='instr' + str(i),
-                                           last_name='instr',
-                                           home_address='123 instr1 St',
-                                           phone_number='1234567890')
-            tempinstr = Instructor.objects.create(user=tempUser, max_assignments=5)
-            tempinstrobj = InstructorObj(tempTa)
-            InstructorToCourse.objects.create(tempinstr, tempCourse)
+        tempUser = User.objects.create(email_address='instr1@example.com',
+                                       password='instr_password',
+                                       first_name='instr',
+                                       last_name='instr',
+                                       home_address='123 instr1 St',
+                                       phone_number='1234567890')
+        self.instr1 = Instructor.objects.create(user=tempUser, max_assignments=5)
+        self.instr1.save()
+        InstructorToCourse.objects.create(instructor=self.instr1, course=self.course1)
+
+        self.course2 = Course.objects.create(
+            course_id=102,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        self.course2.save()
+        tempUser = User.objects.create(email_address='ta2@example.com',
+                                       password='user_password',
+                                       first_name='user',
+                                       last_name='User',
+                                       home_address='123 user1 St',
+                                       phone_number='1234567890')
+        self.ta2 = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
+        self.ta2.save()
+        TAToCourse.objects.create(ta=self.ta2, course=self.course2)
+
+        tempUser = User.objects.create(email_address='instr2@example.com',
+                                       password='instr_password',
+                                       first_name='instr',
+                                       last_name='instr',
+                                       home_address='123 instr1 St',
+                                       phone_number='1234567890')
+        self.instr2 = Instructor.objects.create(user=tempUser, max_assignments=5)
+        self.instr2.save()
+        InstructorToCourse.objects.create(instructor=self.instr2, course=self.course2)
 
     def test_successful(self):
-        self.assertEquals(TAToCourse.objects.count(), 4, "Did not make the correct amount of links")
-        self.assertEquals(self.admin.getAllCrseAsgmts().length(), 4, "Did not retrieve all 4 links")
-        # self.assertEquals(self.admin.getAllCrseAsgmts(), , "Did not retrieve all 4 links correctly")
+        self.assertEquals(TAToCourse.objects.count(), 2, "Did not make the correct amount of links")
+        self.assertEquals(InstructorToCourse.objects.count(), 2, "Did not make the correct amount of links")
+        self.assertIsInstance(self.admin.getAllCrseAsgmts(), dict, "Does not return dictionary")
+        self.assertEquals(self.admin.getAllCrseAsgmts().get(104), ('instr1@example.com', 'ta1@example.com'), "Course 104 does not do")
+        self.assertEquals(self.admin.getAllCrseAsgmts().get(102), ('instr2@example.com', 'ta2@example.com'), "Course 102 does not do")
         # IDK what I want it to output as
 
     def test_no_courses(self):
         TAToCourse.objects.all().delete()
-        self.assertRaises(self.admin.getAllCrseAsgmts(), RuntimeError, "Code does not produce RuntimeError when no "
-                                                                       "crse assignments")
+        InstructorToCourse.objects.all().delete()
+        with self.assertRaises(RuntimeError, msg="Code does not produce RuntimeError when no crse assignments"):
+            self.admin.getAllCrseAsgmts()
 
 
 class TestTAInit(TestCase):
