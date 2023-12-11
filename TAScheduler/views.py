@@ -136,13 +136,17 @@ class Home(View):
             admin = True
         username = determineUser(request.session["user"]).getUsername()
         # Render the admin home page with context for navigation
+        courseExist = True
+        if len(Course.objects.all()) == 0:
+            courseExist = False
         context = {
             'role_name': determineUser(request.session["user"]).getRole(),
             'username': username,  # assuming the User model has a 'username' attribute
             'manage_accounts': '/home/manageaccount',
             'manage_courses': '/home/managecourse',
             'manage_sections': '/home/managesection',
-            'role_admin': admin
+            'role_admin': admin,
+            'courses_exists': courseExist
         }
         return render(request, 'home.html', context)
 

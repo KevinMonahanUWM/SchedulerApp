@@ -23,11 +23,13 @@
                     <a href="{{ manage_courses }}">Course Management</a>
                 </td>
             </tr>
+            {% if courses_exists %}
             <tr>
                 <td>
                     <a href="{{ manage_sections }}">Section Management</a>
                 </td>
             </tr>
+            {% endif %}
         </table>
 
 
