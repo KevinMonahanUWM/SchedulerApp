@@ -32,7 +32,6 @@ urlpatterns = [
     path('home/managecourse/assignuser/', UserAssignments.as_view()),
     path('home/manageaccount/', AccountManagement.as_view()),
     path('home/manageaccount/create/', CreateAccount.as_view()),
-    path('home/manageaccount/delete/', DeleteAccount.as_view()),
     path('home/manageaccount/edit/', EditAccount.as_view()),
     path('home/managesection/', SectionManagement.as_view()),
     path('home/managesection/create/', CreateSection.as_view()),

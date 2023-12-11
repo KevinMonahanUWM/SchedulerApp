@@ -8,24 +8,28 @@
 </head>
 <body>
 <h1>Account Management</h1>
+{{ message }}
 <table>
+    {% for user in users %}
+    <form id="userChange" action="/home/manageaccount/" method="post">
+        {% csrf_token %}
     <tr>
-        <td>
+        <td>{{ user }}</td>
+        <input type="hidden" name="user" value="{{ user }}">
+        <td><input id="edit" type="submit" name="edit" value="Edit"></td>
+        {% if user != current_user %}
+        <td><input id="delete" type="submit" name="delete" value="Delete"></td>
+        {% endif %}
+    </tr>
+    </form>
+    {% endfor %}
+    <tr>
+        <td colspan="3">
             <a href="/home/manageaccount/create/">Create Account</a>
         </td>
     </tr>
     <tr>
-        <td>
-            <a href="/home/manageaccount/delete/">Delete Account</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="/home/manageaccount/edit/">Edit Account</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
+        <td colspan="3">
             <a href="/home/">Home</a>
         </td>
     </tr>
