@@ -3,26 +3,47 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Choose User to Add to Section</title>
+    <title>Assign User to {{ section }}</title>
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>Assign user to section</h1>
+<h1>{{ section }}</h1>
+{{ message }}
 <table>
-    <tr><td>{{ message }}</td></tr>
-    <form id="ta_selection" action="/home/managesection/adduser/" method="post">
-    {% csrf_token %}
-    {% for user in users %}
-        <tr>
-            <td>
-        <input id="user" type="radio" name="user" value="{{ user }}">
-        <label for="user">{{ user }}</label>
-            </td>
-        </tr>
+    {% if not assignedEmpty %}
+    <tr><th colspan="2">Assigned Users</th></tr>
+    {% for user in assigned %}
+       <form id="unassign" action="/home/managesection/assignuser/" method="post">
+           {% csrf_token %}
+       <tr>
+           <td>{{ user }}</td>
+           <input type="hidden" name="section" value="{{ section }}">
+           <input type="hidden" name="user" value="{{ user }}">
+           <td><input type="submit" name="unassign" value="Unassign"></td>
+       </tr>
+       </form>
     {% endfor %}
-        <tr><td><input type="submit"></td></tr>
-    </form>
-    <tr><td><a href="/home/managesection/">Cancel</a></td></tr>
+    {% endif %}
+    {% if not unassignedEmpty %}
+    <tr><th colspan="2">Available Users to Assign</th></tr>
+    {% for user in unassigned %}
+       <form id="assign" action="/home/managesection/assignuser/" method="post">
+           {% csrf_token %}
+       <tr>
+           <td>{{ user }}</td>
+           <input type="hidden" name="section" value="{{ section }}">
+           <input type="hidden" name="user" value="{{ user }}">
+           <td><input type="submit" name="assign" value="Assign"></td>
+       </tr>
+       </form>
+    {% endfor %}
+    {% endif %}
+
+    {% if assignedEmpty and unassignedEmpty %}
+    <tr><td>No users currently assigned to course and none assigned to selected section</td></tr>
+    {% endif %}
+    <tr><td colspan="2"><a href="/home/managesection/">Cancel</a></td></tr>
 </table>
+
 </body>
 </html>
