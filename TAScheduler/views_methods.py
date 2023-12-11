@@ -666,8 +666,16 @@ class InstructorObj(UserObj):
         for key, value in kwargs.items():
             if hasattr(user, key):
                 if key == "email_address":
-                    if not value or User.objects.filter(email_address=value).exists():
-                        raise RuntimeError("Invalid or duplicate email address provided")
+                    # Basic email validation
+                    if '@' not in value or '.' not in value:
+                        raise RuntimeError("Invalid email address provided")
+                    at_index = value.index('@')
+                    dot_index = value.rindex('.')
+                    # Ensuring '@' comes before the last '.'
+                    if at_index >= dot_index or at_index == 0 or dot_index == len(value) - 1:
+                        raise RuntimeError("Invalid email address provided")
+                    if User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Duplicate email address provided")
                 elif key == "password":
                     if not value:
                         raise RuntimeError("Password not provided")

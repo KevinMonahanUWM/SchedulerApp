@@ -2903,7 +2903,7 @@ class UserEditMyContactInfoTest(TestCase):
 
     def setUp(self):
         # Create a User object
-        user = User.objects.create(
+        self.user = User.objects.create(
             email_address='test@example.com',
             password='safe_password',
             first_name='Test',
@@ -2911,9 +2911,8 @@ class UserEditMyContactInfoTest(TestCase):
             home_address='123 Main St',
             phone_number=1234567890
         )
-
         # Create a TA or Administrator object and associate it with the User
-        self.ta = TA.objects.create(user=user, grader_status=True, max_assignments=3)
+        self.ta = TA.objects.create(user=self.user, grader_status=True, max_assignments=3)
 
     def test_edit_contact_info(self):
         ta_obj = TAObj(self.ta)
@@ -2921,6 +2920,25 @@ class UserEditMyContactInfoTest(TestCase):
 
         updated_user = User.objects.get(id=self.ta.user.id)
         self.assertEqual(updated_user.first_name, 'UpdatedName')
+
+    def test_duplicate_email_update(self):
+        User.objects.create(
+            email_address='other@example.com',
+            password='safe_password',
+            first_name='Other',
+            last_name='User',
+            home_address='456 Main St',
+            phone_number=9876543210
+        )
+        ta_obj = TAObj(self.ta)
+        with self.assertRaises(RuntimeError):
+            ta_obj.editContactInfo(email_address='other@example.com')
+
+    def test_invalid_phone_number_update(self):
+        ta_obj = TAObj(self.ta)
+        with self.assertRaises(ValueError):
+            ta_obj.editContactInfo(phone_number='invalid_phone')
+
 
 class UserGetContactInfoTest(TestCase):
 
