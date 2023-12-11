@@ -510,6 +510,8 @@ class SectionManagement(View):
 
 class CreateSection(View):
     def get(self, request):
+        if len(Course.objects.all()) == 0:
+            return redirect("/home/")
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
