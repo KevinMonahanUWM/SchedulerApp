@@ -19,7 +19,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
 from TAScheduler.views import Home, CourseManagement, CreateCourse, EditCourse, UserAssignments, \
-    Login, AccountManagement, CreateAccount, DeleteAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
+    Login, AccountManagement, CreateAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
     AddUserToSection, DeleteSection, Error, Success, Forgot_Password, ChooseSectionForUser
 
 urlpatterns = [
