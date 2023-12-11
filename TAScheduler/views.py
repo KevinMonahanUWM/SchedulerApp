@@ -76,6 +76,7 @@ def currentlyAssignedUsersLab(course_id):
         users.append(str(ta.ta))
     return users
 
+
 def usersInSection(secObj):
     users = []
     if isinstance(secObj, LabObj):
@@ -340,8 +341,9 @@ class AccountManagement(View):
         if request.POST.get("edit") is not None:
             role = determineUser(request.POST.get("user")).getRole()
             request.session["current_edit"] = request.POST["user"]
+            user = determineUser(request.POST.get("user")).database
             return render(request, "accountManagement/edit_account.html", {"users": None,
-                                                                           "role": role})
+                                                                           "role": role, "user": user})
         else:
             try:
                 determineUser(request.session["user"]).removeUser(determineUser(request.POST.get("user")))
@@ -433,7 +435,6 @@ class EditAccount(View):
             "max_assignments": max
         }
         try:
-            print(request.session["current_edit"])
             determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
                                                             account_info)
 
@@ -452,9 +453,10 @@ class EditAccount(View):
                           {"users": users, "current_user": request.session.get("user"),
                            "message": "User successfully edited"})
         except Exception as e:
-            role = determineUser(request.session["current_edit"])
+            role = determineUser(request.session["current_edit"]).getRole()
+            user = determineUser(request.session["current_edit"]).database
             return render(request, "accountManagement/edit_account.html",
-                          {"message": e, "role": role})
+                          {"message": e, "role": role, "user": user})
 
 
 class SectionManagement(View):
@@ -473,7 +475,9 @@ class SectionManagement(View):
     def post(self, request):
         if request.POST.get("edit") is not None:
             request.session["current_edit"] = request.POST.get("section")
-            return render(request, "sectionManagement/edit_section.html", {"selected": True})
+            section = determineSec(request.session.get("current_edit")).database
+            return render(request, "sectionManagement/edit_section.html", {"selected": True,
+                                                                           "section": section})
         elif request.POST.get("delete") is not None:
             curUserObj = determineUser(request.session["user"])
             secObj = determineSec(request.POST.get("section"))
@@ -568,7 +572,7 @@ class EditSection(View):
                           {"message": "Successfully Editted Section", "sections": sections})
         except Exception as e:
             return render(request, "sectionManagement/edit_section.html",
-                          {"message": e, "selected": True})
+                          {"message": e, "selected": True, "section": secObj.database})
 
 
 class SectionUserAssignment(View):

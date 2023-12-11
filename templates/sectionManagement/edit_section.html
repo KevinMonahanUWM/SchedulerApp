@@ -7,26 +7,26 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>Edit Section</h1>
+<h1>Edit Section {{ section }}</h1>
 {{ message }}
 <table>
     <form id="editSectionFrom" action="/home/managesection/edit/" method="post">
         {% csrf_token %}
         <tr>
             <td><label for="section_id">Section ID:</label></td>
-            <td><input id="section_id" type="number" name="section_id"></td>
+            <td><input id="section_id" type="number" name="section_id" value="{{ section.section.section_id }}"></td>
         </tr>
         <tr>
             <td><label for="location">Location:</label></td>
-            <td><input id="location" type="text" name="location"></td>
+            <td><input id="location" type="text" name="location" value="{{ section.section.location }}"></td>
         </tr>
         <tr>
             <td><label for="meeting_time">Meeting Times:</label></td>
-            <td><input id="meeting_time" type="datetime-local" name="meeting_time"><br></td>
+            <td><input id="meeting_time" type="datetime-local" name="meeting_time" value="{{ section.section.meeting_time }}"><br></td>
         </tr>
-        <tr><td><input type="submit" value="Edit Section"></td></tr>
+        <tr><td colspan="2"><input type="submit" value="Edit Section"></td></tr>
     </form>
-    <tr><td><a href="/home/managesection/">Cancel</a></td></tr>
+    <tr><td colspan="2"><a href="/home/managesection/">Cancel</a></td></tr>
 </table>
 </body>
 </html>
