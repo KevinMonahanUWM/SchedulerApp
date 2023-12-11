@@ -8,29 +8,27 @@
 </head>
 <body>
 <h1>Section Management</h1>
+{{ message }}
 <table>
+    {% for section in sections %} <!-- Loop through sections -->
+    <form id="sectionChange" action="/home/managesection/" method="post">
+        {% csrf_token %}
+        <tr>
+            <td>{{ section }}</td> <!-- Display section name -->
+            <input type="hidden" name="section" value="{{ section }}">
+            <td><input type="submit" name="edit" value="Edit"></td> <!-- Edit button -->
+            <td><input type="submit" name="delete" value="Delete"></td> <!-- Delete button -->
+            <td><input type="submit" name="assignUser" value="User Assignments"></td>
+        </tr>
+    </form>
+    {% endfor %}
     <tr>
-        <td>
+        <td colspan="4">
             <a href="/home/managesection/create">Create Section</a>
         </td>
     </tr>
     <tr>
-        <td>
-            <a href="/home/managesection/delete">Delete Section</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="/home/managesection/edit">Edit Section</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="/home/managesection/adduser">Add User to Section</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
+        <td colspan="4">
             <a href="/home">Home</a>
         </td>
     </tr>
