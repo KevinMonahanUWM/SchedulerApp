@@ -410,9 +410,27 @@ class AdminObj(UserObj):
 
     def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
+
+        # Validate each provided field
         for key, value in kwargs.items():
             if hasattr(user, key):
+                if key == "email_address":
+                    if not value or User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Invalid or duplicate email address provided")
+                elif key == "password":
+                    if not value:
+                        raise RuntimeError("Password not provided")
+                elif key in ["first_name", "last_name", "home_address"]:
+                    if not value:
+                        raise RuntimeError(f"{key.replace('_', ' ').title()} not provided")
+                elif key == "phone_number":
+                    if not value or len(str(value)) != 10:
+                        raise ValueError("Invalid phone number provided")
+                else:
+                    continue  # Skip if the key is not a valid field
+
                 setattr(user, key, value)
+
         user.save()
 
     def getContactInfo(self):
@@ -530,9 +548,27 @@ class TAObj(UserObj):
 
     def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
+
+        # Validate each provided field
         for key, value in kwargs.items():
             if hasattr(user, key):
+                if key == "email_address":
+                    if not value or User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Invalid or duplicate email address provided")
+                elif key == "password":
+                    if not value:
+                        raise RuntimeError("Password not provided")
+                elif key in ["first_name", "last_name", "home_address"]:
+                    if not value:
+                        raise RuntimeError(f"{key.replace('_', ' ').title()} not provided")
+                elif key == "phone_number":
+                    if not value or len(str(value)) != 10:
+                        raise ValueError("Invalid phone number provided")
+                else:
+                    continue  # Skip if the key is not a valid field
+
                 setattr(user, key, value)
+
         user.save()
 
     def getContactInfo(self):
@@ -625,9 +661,27 @@ class InstructorObj(UserObj):
 
     def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
+
+        # Validate each provided field
         for key, value in kwargs.items():
             if hasattr(user, key):
+                if key == "email_address":
+                    if not value or User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Invalid or duplicate email address provided")
+                elif key == "password":
+                    if not value:
+                        raise RuntimeError("Password not provided")
+                elif key in ["first_name", "last_name", "home_address"]:
+                    if not value:
+                        raise RuntimeError(f"{key.replace('_', ' ').title()} not provided")
+                elif key == "phone_number":
+                    if not value or len(str(value)) != 10:
+                        raise ValueError("Invalid phone number provided")
+                else:
+                    continue  # Skip if the key is not a valid field
+
                 setattr(user, key, value)
+
         user.save()
 
     def getContactInfo(self):
