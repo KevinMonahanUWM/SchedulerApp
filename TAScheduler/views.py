@@ -296,7 +296,35 @@ class AccountManagement(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        return render(request, "accountManagement/account_management.html")
+        users = list(map(str, Administrator.objects.all()))
+        users.extend(list(map(str, Instructor.objects.all())))
+        users.extend(list(map(str, TA.objects.all())))
+        return render(request, "accountManagement/account_management.html",
+                      {"users": users, "current_user": request.session.get("user")})
+
+    def post(self, request):
+        print(request.POST)
+        if request.POST.get("edit") is not None:
+            role = determineUser(request.POST.get("user")).getRole()
+            request.session["current_edit"] = request.POST["user"]
+            return render(request, "accountManagement/edit_account.html", {"users": None,
+                                                                           "role": role})
+        else:
+            try:
+                determineUser(request.session["user"]).removeUser(determineUser(request.POST.get("user")))
+                users = list(map(str, Administrator.objects.all()))
+                users.extend(list(map(str, Instructor.objects.all())))
+                users.extend(list(map(str, TA.objects.all())))
+                return render(request, "accountManagement/account_management.html",
+                              {"users": users, "current_user": request.session.get("user"),
+                               "message": "User successfully deleted"})
+            except Exception as e:
+                users = list(map(str, Administrator.objects.all()))
+                users.extend(list(map(str, Instructor.objects.all())))
+                users.extend(list(map(str, TA.objects.all())))
+                return render(request, "accountManagement/account_management.html",
+                              {"users": users, "current_user": request.session.get("user"),
+                               "message": e})
 
 
 class CreateAccount(View):
@@ -332,95 +360,52 @@ class CreateAccount(View):
                                                   "previous_url": "/home/manageaccount/create"})
 
 
-class DeleteAccount(View):
-
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        users = list(
-            map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
-        users.extend(list(
-            map(str, Instructor.objects.exclude(user=determineUser(request.session["user"]).database.user))))
-        users.extend(
-            list(map(str, TA.objects.exclude(user=determineUser(request.session["user"]).database.user))))
-        if len(users) == 0:
-            return render(request, "error.html", {"message": "No existing users to delete",
-                                                  "previous_url": "/home/manageaccount/"})
-        return render(request, "accountManagement/delete_account.html", {"users": users})
-
-    def post(self, request):
-        user_object = determineUser(request.POST["user"])
-        try:
-            determineUser(request.session["user"]).removeUser(user_object)
-            return render(request, "success.html", {"message": "User successfully deleted",
-                                                    "previous_url": "/home/manageaccount/delete/"})
-        except Exception as e:
-            return render(request, "error.html", {"message": e,
-                                                  "previous_url": "/home/manageaccount/delete/"})
-
-
 class EditAccount(View):
 
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        users = list(map(str, Administrator.objects.all()))
-        users.extend(list(map(str, Instructor.objects.all())))
-        users.extend(list(map(str, TA.objects.all())))
-        if len(users) == 0:
-            return render(request, "error.html", {"message": "No existing users to edit",
-                                                  "previous_url": "/home/manageaccount"})
-        return render(request, "accountManagement/edit_account.html", {"users": users,
-                                                                       "selected": False, "role": "Admin"})
-
     def post(self, request):
+        if request.POST["phone_number"] == "":
+            number = 0
+        else:
+            number = request.POST["phone_number"]
+        grader = True
+        if request.POST.get("grader_status") is None or request.POST.get("grader_status") == "":
+            grader = False
+        if request.POST.get("max_assignments") is None or request.POST.get("max_assignments") == "":
+            max = 0
+        else:
+            max = int(request.POST.get("max_assignments"))
+        account_info = {
+            "email_address": request.POST.get("email_address"),
+            "password": request.POST.get("password"),
+            "first_name": request.POST.get("first_name"),
+            "last_name": request.POST.get("last_name"),
+            "home_address": request.POST.get("home_address"),
+            "phone_number": number,
+            "grader_status": grader,
+            "max_assignments": max
+        }
         try:
-            user_object = determineUser(request.POST["user"])
-            role = user_object.getRole()
-            request.session["current_edit"] = request.POST["user"]
-            return render(request, "accountManagement/edit_account.html", {"users": None,
-                                                                           "selected": True, "role": role})
-        except MultiValueDictKeyError:
-            if request.POST["phone_number"] == "":
-                number = 0
-            else:
-                number = request.POST["phone_number"]
-            grader = True
-            if request.POST.get("grader_status") is None or request.POST.get("grader_status") == "":
-                grader = False
-            if request.POST.get("max_assignments") == "":
-                max = 0
-            else:
-                max = int(request.POST.get("max_assignments"))
-            account_info = {
-                "email_address": request.POST.get("email_address"),
-                "password": request.POST.get("password"),
-                "first_name": request.POST.get("first_name"),
-                "last_name": request.POST.get("last_name"),
-                "home_address": request.POST.get("home_address"),
-                "phone_number": number,
-                "grader_status": grader,
-                "max_assignments": max
-            }
-            try:
-                print(request.session["current_edit"])
-                determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
-                                                                account_info)
+            print(request.session["current_edit"])
+            determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
+                                                            account_info)
 
-                if request.session["current_edit"] == request.session["user"]:
-                    request.session["user"] = str(Administrator.objects.get(
-                        user__email_address=request.POST.get("email_address")))
-                del request.session["current_edit"]
-                return render(request, "success.html", {"message": "User successfully changed",
-                                                        "previous_url": "/home/manageaccount/edit"})
-            except Exception as e:
-                del request.session["current_edit"]
-                return render(request, "error.html", {"message": e,
-                                                      "previous_url": "/home/manageaccount/edit"})
+            if request.session["current_edit"] == request.session["user"] and request.POST.get("email_address") is not None:
+                request.session["user"] = str(Administrator.objects.get(
+                    user__email_address=request.POST.get("email_address")))
+            elif request.session["current_edit"] == request.session["user"]:
+                request.session["user"] = str(Administrator.objects.get(
+                    user__email_address=determineUser(request.session["user"]).getUsername()))
+            del request.session["current_edit"]
+            users = list(map(str, Administrator.objects.all()))
+            users.extend(list(map(str, Instructor.objects.all())))
+            users.extend(list(map(str, TA.objects.all())))
+            return render(request, "accountManagement/account_management.html",
+                          {"users": users, "current_user": request.session.get("user"),
+                           "message": "User successfully edited"})
+        except Exception as e:
+            role = determineUser(request.session["current_edit"])
+            return render(request, "accountManagement/edit_account.html",
+                          {"message": e, "role": role})
 
 
 class SectionManagement(View):

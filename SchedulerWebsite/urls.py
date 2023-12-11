@@ -19,7 +19,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
 from TAScheduler.views import Home, CourseManagement, CreateCourse, DeleteCourse, EditCourse, AddInstructorToCourse, \
-    Login, AccountManagement, CreateAccount, DeleteAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
+    Login, AccountManagement, CreateAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
     AddUserToSection, DeleteSection, Error, Success, Forgot_Password, ChooseSectionForUser, AddInstructorToCourseHelper
 
 urlpatterns = [
@@ -34,7 +34,6 @@ urlpatterns = [
     path('home/managecourse/addinstructor/choosecourse', AddInstructorToCourseHelper.as_view()),
     path('home/manageaccount/', AccountManagement.as_view()),
     path('home/manageaccount/create/', CreateAccount.as_view()),
-    path('home/manageaccount/delete/', DeleteAccount.as_view()),
     path('home/manageaccount/edit/', EditAccount.as_view()),
     path('home/managesection/', SectionManagement.as_view()),
     path('home/managesection/create/', CreateSection.as_view()),
