@@ -249,6 +249,13 @@ class CreateCourse(View):
 
 class EditCourse(View):
 
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Admin":
+            return redirect("/home/")
+        return redirect("/home/managecourse")
+
     def post(self, request):
         admin_obj = determineUser(request.session["user"])
 
@@ -279,6 +286,13 @@ class EditCourse(View):
 
 
 class CourseUserAssignments(View):
+
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Admin":
+            return redirect("/home/")
+        return redirect("/home/managecourse")
 
     def post(self, request):
         selecteduser = determineUser(request.POST.get("user"))
@@ -389,6 +403,13 @@ class CreateAccount(View):
 
 class EditAccount(View):
 
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Admin":
+            return redirect("/home/")
+        return redirect("/home/manageaccount")
+
     def post(self, request):
         if request.POST["phone_number"] == "":
             number = 0
@@ -439,6 +460,8 @@ class EditAccount(View):
 class SectionManagement(View):
 
     def get(self, request):
+        if len(Course.objects.all()) == 0:
+            return redirect("/home/")
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
@@ -521,6 +544,13 @@ class CreateSection(View):
 
 class EditSection(View):
 
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Admin":
+            return redirect("/home/")
+        return redirect("/home/managesection")
+
     def post(self, request):
         curUserObj = determineUser(request.session["user"])
         secObj = determineSec(request.session.get("current_edit"))  # sending string arg
@@ -540,6 +570,13 @@ class EditSection(View):
 
 
 class SectionUserAssignment(View):
+
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Admin":
+            return redirect("/home/")
+        return redirect("/home/managesection")
 
     def post(self, request):
         curUserObj = determineUser(request.POST.get("user"))
