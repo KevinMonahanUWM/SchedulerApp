@@ -264,7 +264,7 @@ class AdminObj(UserObj):
             if new_info.get("location") is None:
                 raise KeyError("missing field")
             if type(new_info.get("location")) is not str or len(new_info.get("location")) > 30:
-                raise ValueError("location expects a str")
+                raise ValueError("location expects a str with a max length of 30")
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
@@ -295,7 +295,8 @@ class AdminObj(UserObj):
                 raise KeyError
             if type(new_info.get("email_address")) is not str or len(new_info.get("email_address")) > 90:
                 raise ValueError("Email address excepts input of a str")
-            if User.objects.filter(email_address=new_info.get("email_address")).exists():
+            if (User.objects.filter(email_address=new_info.get("email_address")).exists() and
+                    active_user.database.user.email_address != new_info.get("email_address")):
                 raise RuntimeError("Can not have multiple users with the same email address")
             if new_info.get("email_address") == "":
                 raise KeyError
@@ -345,9 +346,9 @@ class AdminObj(UserObj):
         try:  # phone number
             if new_info.get("phone_number") is None or new_info.get("phone_number") == 0:
                 raise KeyError
-            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) != 10:
+            if len(new_info.get("phone_number")) != 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
-            active_user.database.user.phone_number = new_info.get("phone_number")
+            active_user.database.user.phone_number = int(new_info.get("phone_number"))
         except KeyError:
             active_user.database.user.phone_number = active_user.database.user.phone_number
         active_user.database.user.save()
@@ -882,6 +883,7 @@ class LectureObj(SectionObj):
         elif self.database.ta is not None:
             raise RuntimeError("A TA already exists in lecture")
         self.database.ta = active_ta
+        self.database.save()
 
     def getLecInstrAsmgt(self):
         return self.database.instructor
@@ -894,16 +896,19 @@ class LectureObj(SectionObj):
         elif self.database.instructor is not None:
             raise RuntimeError("An Instructor already exists in lecture")
         self.database.instructor = active_instr
+        self.database.save()
 
     def removeInstr(self):
         if self.database.instructor is None:
             raise RuntimeError("No instructor to remove from lecture")
         self.database.instructor = None
+        self.database.save()
 
     def removeTA(self):  # new
         if self.database.ta is None:
             raise RuntimeError("No TA to remove from lecture")
         self.database.ta = None
+        self.database.save()
 
 
 class LabObj(SectionObj):
@@ -934,8 +939,10 @@ class LabObj(SectionObj):
         elif self.database.ta is not None:
             raise RuntimeError("A TA already exists in lab")
         self.database.ta = active_ta
+        self.database.save()
 
     def removeTA(self):
         if self.database.ta is None:
             raise RuntimeError("No TA to remove from lab")
         self.database.ta = None
+        self.database.save()

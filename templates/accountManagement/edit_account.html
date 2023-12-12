@@ -17,7 +17,7 @@
             <label for="email_address">Email Address:</label>
         </td>
         <td>
-            <input id="email_address" type="text" name="email_address">
+            <input id="email_address" type="text" name="email_address" value="{{ user.user.email_address }}">
         </td>
     </tr>
     <tr>
@@ -25,7 +25,7 @@
             <label for="password">Password:</label>
         </td>
         <td>
-            <input id="password" type="text" name="password">
+            <input id="password" type="text" name="password" value="{{ user.user.password }}">
         </td>
     </tr>
     <tr>
@@ -33,7 +33,7 @@
             <label for="first_name">First Name:</label>
         </td>
         <td>
-            <input id="first_name" type="text" name="first_name">
+            <input id="first_name" type="text" name="first_name" value="{{ user.user.first_name }}">
         </td>
     </tr>
     <tr>
@@ -41,7 +41,7 @@
             <label for="last_name">Last Name:</label>
         </td>
         <td>
-            <input id="last_name" type="text" name="last_name">
+            <input id="last_name" type="text" name="last_name" value="{{ user.user.last_name }}">
         </td>
     </tr>
     <tr>
@@ -49,7 +49,7 @@
             <label for="home_address">Home Address:</label>
         </td>
         <td>
-            <input id="home_address" type="text" name="home_address">
+            <input id="home_address" type="text" name="home_address" value="{{ user.user.home_address }}">
         </td>
     </tr>
     <tr>
@@ -57,7 +57,7 @@
             <label for="phone_number">Phone Number:</label>
         </td>
         <td>
-            <input id="phone_number" type="number" name="phone_number">
+            <input id="phone_number" type="number" name="phone_number" value="{{ user.user.phone_number }}">
         </td>
     </tr>
     {% if role == "TA" or role == "Instructor" %}
@@ -66,7 +66,7 @@
            <label for="max_assignments">Max Assignments:</label>
         </td>
         <td>
-            <input type="number" name="max_assignments" id="max_assignments">
+            <input type="number" name="max_assignments" id="max_assignments" value="{{ user.max_assignments }}">
         </td>
         </tr>
         {% if role == "TA" %}

@@ -3,21 +3,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Assign User to {{ course }}</title>
+    <title>Assign User to {{ section }}</title>
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>{{ course }}</h1>
+<h1>{{ section }}</h1>
 {{ message }}
 <table>
     {% if not assignedEmpty %}
     <tr><th colspan="2">Assigned Users</th></tr>
     {% for user in assigned %}
-       <form id="unassign" action="/home/managecourse/assignuser/" method="post">
+       <form id="unassign" action="/home/managesection/assignuser/" method="post">
            {% csrf_token %}
        <tr>
            <td>{{ user }}</td>
-           <input type="hidden" name="course" value="{{ course }}">
+           <input type="hidden" name="section" value="{{ section }}">
            <input type="hidden" name="user" value="{{ user }}">
            <td><input type="submit" name="unassign" value="Unassign"></td>
        </tr>
@@ -27,11 +27,11 @@
     {% if not unassignedEmpty %}
     <tr><th colspan="2">Available Users to Assign</th></tr>
     {% for user in unassigned %}
-       <form id="assign" action="/home/managecourse/assignuser/" method="post">
+       <form id="assign" action="/home/managesection/assignuser/" method="post">
            {% csrf_token %}
        <tr>
            <td>{{ user }}</td>
-           <input type="hidden" name="course" value="{{ course }}">
+           <input type="hidden" name="section" value="{{ section }}">
            <input type="hidden" name="user" value="{{ user }}">
            <td><input type="submit" name="assign" value="Assign"></td>
        </tr>
@@ -40,9 +40,9 @@
     {% endif %}
 
     {% if assignedEmpty and unassignedEmpty %}
-    <tr><td>No users available to assign and no users currently assigned</td></tr>
+    <tr><td>No users currently assigned to course and none assigned to selected section</td></tr>
     {% endif %}
-    <tr><td colspan="2"><a href="/home/managecourse/">Cancel</a></td></tr>
+    <tr><td colspan="2"><a href="/home/managesection/">Cancel</a></td></tr>
 </table>
 
 </body>
