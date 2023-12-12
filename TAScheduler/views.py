@@ -710,8 +710,17 @@ class ViewAllUsers(View):
 
     def post(self, request):
         user = request.POST["user"]
-        render(request, "viewingHTMLs/readContactInfo.html", {"user":user})
+        request.POST["selectedUser"] = user
+        redirect("viewingHTMLs/readContactInfo/")
 
 
+#THIS IS REDUNDNAT I THINK - everything about "public info" is already displayed on the last page so not needed.
 class ReadContactInfo(View): #used when selected on a User
-    pass
+    def get(self, request):
+        selectedUser = determineUser(request.POST["selectedUser"])
+        userInfo = str(selectedUser.database)
+        render(request, "viewingHTMLs/readContactInfo.html", {"selectedUser": selectedUser})
+
+    def post(self, request):
+        pass #not sure we need a post if we're just viewing stuff.
+
