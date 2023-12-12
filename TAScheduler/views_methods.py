@@ -264,7 +264,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError:
+        except KeyError: #Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
