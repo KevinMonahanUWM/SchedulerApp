@@ -18,6 +18,7 @@ class User(models.Model):
 class TA(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     grader_status = models.BooleanField()
+    skills = models.TextField(null=True, default="No skills listed")
     max_assignments = models.IntegerField(
         default=6,
         validators=[
@@ -51,7 +52,6 @@ class Course(models.Model):
     description = models.CharField(max_length=1000)
     num_of_sections = models.IntegerField()
     modality = models.CharField(max_length=100)
-    credits = models.IntegerField(default=0)
 
     def __str__(self):
         return str(self.course_id) + ": " + self.name

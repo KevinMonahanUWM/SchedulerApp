@@ -100,7 +100,7 @@ class AdminObj(UserObj):
         try:
             if user_info.get('phone_number') == 0:
                 raise RuntimeError("Not all inputs have been provided")
-            if len(str(user_info.get("phone_number"))) is not 10:
+            if len(str(user_info.get("phone_number"))) != 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
         except KeyError:
             raise RuntimeError("Not all inputs have been provided")
@@ -127,10 +127,10 @@ class AdminObj(UserObj):
             raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        if not Course.objects.filter(course_id=section_info.get('course').course_id).exists():
+        if not Course.objects.filter(course_id=section_info.get("course_id")).exists():
             raise RuntimeError("Course ID is not existing course cant create section")
 
-        courseDB = Course.objects.get(course_id=section_info.get('course').course_id)
+        courseDB = Course.objects.get(course_id=section_info.get("course_id"))
         fields = {"section_id": section_info["section_id"],
                   "course": courseDB,
                   "location": section_info["location"],
@@ -235,14 +235,6 @@ class AdminObj(UserObj):
             active_course.database.modality = new_info.get("modality")
         except KeyError:  # No name in list that is fine don't change the database
             active_course.database.modality = active_course.database.modality
-        try:  # credits
-            if new_info.get("credits") is None:
-                raise KeyError
-            if type(new_info.get("credits")) is not int or new_info.get("credits") < 0:
-                raise ValueError("credits expects an int")
-            active_course.database.credits = new_info.get("credits")
-        except KeyError:  # No credits in list that is fine don't change the database
-            active_course.database.credits = active_course.database.credits
         active_course.database.save()
 
     def editSection(self, active_section, new_info):  # new inputs
@@ -272,7 +264,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError:
+        except KeyError: #Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -347,9 +339,9 @@ class AdminObj(UserObj):
         except KeyError:  # No home_address in list that is fine don't change the database
             active_user.database.user.home_address = active_user.database.user.home_address
         try:  # phone number
-            if new_info.get("phone_number") is None or new_info.get("phone_number") is 0:
+            if new_info.get("phone_number") is None or new_info.get("phone_number") == 0:
                 raise KeyError
-            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) is not 10:
+            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) != 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
             active_user.database.user.phone_number = new_info.get("phone_number")
         except KeyError:
@@ -402,8 +394,7 @@ class AdminObj(UserObj):
     def courseTAAsmgt(self, active_ta, active_course):  # new remove sectionTAAsmgt
         if not isinstance(active_ta, TAObj):
             raise TypeError("Input passed is not an object of ta obj")
-        elif not User.objects.filter(email_address=active_ta.getUsername()).exists():  # I believe this is a redundant
-            # test as a TAObj cannot be made without a username
+        elif not User.objects.filter(email_address=active_ta.getUsername()).exists():
             raise RuntimeError("User does not exist")
         if type(active_course) is not CourseObj:
             raise TypeError("Input passed is not a Course object")
@@ -413,14 +404,7 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
-    def sectionTAAsmgt(self, active_ta, active_course):
-        pass
-
-    def getAllCrseAsgmts(self):
-        pass
-
-    def courseUserAsgmt(self, active_user, active_course):
-        # Do .get method for a taToCourse or instructorToCourse
+    def getAllSecAsgmt(self):
         pass
 
 
@@ -457,7 +441,7 @@ class TAObj(UserObj):
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
         actualAsgmts = TAToCourse.objects.filter(ta=self.database).count()
-        return (actualAsgmts >= maxAsgmts)  # shouldn't ever be ">" but technically true if so (def can't be false)
+        return actualAsgmts >= maxAsgmts  # shouldn't ever be ">" but technically true if so (def can't be false)
 
     def assignTACourse(self, active_course):  # ADJUSTED TESTS!
         if not isinstance(active_course, CourseObj):
@@ -472,9 +456,8 @@ class TAObj(UserObj):
         if self.hasMaxAsgmts():  # not sure what error this is
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
-        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
-
-    #
+        TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
+#
     def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
@@ -496,6 +479,10 @@ class TAObj(UserObj):
         argLabDB.save()  # Assign the lab? Is that it?
 
     def assignTALecture(self, active_lecture):  # new
+        # Ensure that the TA is linked to the course of the lecture
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
+
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
@@ -526,6 +513,9 @@ class TAObj(UserObj):
 
     def getGraderStatus(self):
         return self.database.grader_status
+
+    def setSkills(self, skills):
+        pass
 
 
 class InstructorObj(UserObj):
@@ -693,8 +683,7 @@ class CourseObj:
             'name': self.database.name,
             'description': self.database.description,
             'num_of_sections': self.database.num_of_sections,
-            'modality': self.database.modality,
-            'credits': self.database.credits
+            'modality': self.database.modality
         }
 
 

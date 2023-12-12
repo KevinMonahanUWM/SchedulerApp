@@ -27,7 +27,7 @@ class SuccessEdit(TestCase):
         self.secList = list()
         for i in [1, 2, 3]:  # Creating 3 Courses
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections
@@ -83,7 +83,7 @@ class UnSuccessEdit(TestCase):
         self.secList = list()
         for i in [1, 2, 3]:  # Creating 3 Courses
             testCourse = Course(course_id=i, semester="semester" + str(i), name="name" + str(i), num_of_sections=2,
-                                modality="Remote", credits=3)
+                                modality="Remote")
             testCourse.save()
             self.courseList.append(testCourse)
         for i in [1, 2, 3]:  # Creating 3 Sections
