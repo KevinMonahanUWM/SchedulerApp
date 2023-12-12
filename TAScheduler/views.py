@@ -72,6 +72,7 @@ def currentlyAssignedUsers(course_id):
         users.append(str(ta.ta))
     return users
 
+
 class Login(View):
     def get(self, request):
         return render(request, "login.html")
@@ -378,7 +379,8 @@ class EditAccount(View):
             determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
                                                             account_info)
 
-            if request.session["current_edit"] == request.session["user"] and request.POST.get("email_address") is not None:
+            if request.session["current_edit"] == request.session["user"] and request.POST.get(
+                    "email_address") is not None:
                 request.session["user"] = str(Administrator.objects.get(
                     user__email_address=request.POST.get("email_address")))
             elif request.session["current_edit"] == request.session["user"]:
@@ -480,7 +482,7 @@ class EditSection(View):
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
-             return redirect("/home/")  # wrong usage of determineUser: can't just take "email"
+            return redirect("/home/")  # wrong usage of determineUser: can't just take "email"
         sections = list()
         for lecture in Lecture.objects.all():
             d = lecture.toDict()
@@ -679,3 +681,22 @@ class Forgot_Password(View):
                 del request.session["current_edit"]
                 return render(request, "error.html", {"message": e,
                                                       "previous_url": "/"})
+
+
+class SetSkills(View):
+    userObj = None
+
+    def get(self, request):
+        userObj = determineUser(request.get("user"))
+        userInfo = str(userObj.database)  # hopefully returning format: "Kiran Earnshaw: @edu - TA"
+        currentSkills = userObj.database.skills
+        render(request, "taApp/setSkills.html", {"userInfo": userInfo, "currentSkills": currentSkills})
+
+    def post(self, request):
+        try:
+            self.userObj.setSkills(request.POST["skills"])
+            currentSkills = self.userObj.database.skills  # should display "new" skills
+            render(request, "taApp/setSkills.html",
+                   {"message": "Successfully Assigned Skills", "currentSkills": currentSkills})
+        except Exception as e: #I don't know how the error's are handled now bc no error page :P
+            render(request, "taApp/setSkills.html",{"message": e})
