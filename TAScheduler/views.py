@@ -419,7 +419,7 @@ class CreateSection(View):
             print(each.course_id)
         return render(request, "sectionManagement/create_section.html", {"secs": secs, "courses": courses})
 
-    def post(self, request):
+    def post(self, request): #
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
         curUserObj = determineUser(request.session["user"])
 
