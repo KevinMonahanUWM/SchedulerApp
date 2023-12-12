@@ -264,7 +264,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError:
+        except KeyError: #Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -441,7 +441,7 @@ class TAObj(UserObj):
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
         actualAsgmts = TAToCourse.objects.filter(ta=self.database).count()
-        return (actualAsgmts >= maxAsgmts)  # shouldn't ever be ">" but technically true if so (def can't be false)
+        return actualAsgmts >= maxAsgmts  # shouldn't ever be ">" but technically true if so (def can't be false)
 
     def assignTACourse(self, active_course):  # ADJUSTED TESTS!
         if not isinstance(active_course, CourseObj):
