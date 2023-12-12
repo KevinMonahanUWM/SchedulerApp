@@ -716,6 +716,58 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
 
+class TestAdminGetAllSecAsgmt(TestCase):  # Kiran
+    adminObj = None
+
+    def setUp(self):
+        tempCourse = Course.objects.create(course_id=1,
+                                           semester="fall",
+                                           name="course1",
+                                           description="#1",
+                                           num_of_sections=3,
+                                           modality="online")
+        for i in [1, 2, 3, 4]:  # ta + sec + lecture
+            tempUser = User.objects.create(email_address='user@example.com' + str(i),
+                                           password='user_password' + str(i),
+                                           first_name='user' + str(i),
+                                           last_name='User',
+                                           home_address='123 user1 St',
+                                           phone_number='1234567890')
+            tempTa = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
+            tempSec = Section.objects.create(section_id=i,
+                                             course=tempCourse,
+                                             location="EAS",
+                                             meeting_time=datetime(2023, 1, 1 + i, 12, 0, 0))
+            Lecture.objects.create(section=tempSec, ta=tempTa)
+        tempUserDB = User.objects.create(
+            email_address='admin@example.com',
+            password='adminpass',
+            first_name='admin',
+            last_name='User',
+            home_address='123 admin St',
+            phone_number=1234667890
+        )
+        tempAdminDB = Administrator.objects.create(user=tempUserDB)
+        self.adminObj = AdminObj(tempAdminDB)
+
+    # [1] Successfully matched the section assignments with the database
+    def test_success(self):
+        self.assertQuerysetEqual(Section.objects.all(), self.adminObj.getAllSecAsgmt(), ordered=False,
+                                 msg="should have returned all sections")
+
+    # [2] Raise error if no courses
+    def test_raiseErrorNoCourse(self):
+        Course.objects.all().delete()
+        with self.assertRaises(RuntimeError, msg="can't return sections when no courses exists"):
+            self.adminObj.getAllSecAsgmt()
+
+    # [3] Raise error if no sections
+    def test_raiseErrorNoSec(self):
+        Section.objects.all().delete()
+        with self.assertRaises(RuntimeError, msg="can't return sections when no sections exists"):
+            self.adminObj.getAllSecAsgmt()
+
+
 class TestTAInit(TestCase):
     database = None
     user = None
@@ -1265,7 +1317,7 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
                 first_name='TA',
                 last_name='User',
                 home_address='123 TA St',
-                phone_number='1234567890')
+                phone_number=1234567890)
             )
         self.taDB1 = TA.objects.create(user=self.userDBList[0], max_assignments=1, grader_status=True)
         self.taDB2 = TA.objects.create(user=self.userDBList[1], max_assignments=1, grader_status=False)
@@ -1279,6 +1331,37 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
     # [2] Getting grader status
     def test_graderStatus(self):
         self.assertEqual(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
+
+class TestTASetSkills(TestCase):  # Kiran
+    userDB = None
+    taDB = None
+    taObj = None
+
+    def setUp(self):
+        userDB = User.objects.create(
+            email_address='TA@example.com1',
+            password='TA_password',
+            first_name='TA',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number=1234567890,
+            )
+        self.taDB = TA.objects.create(user=userDB, grader_status=True, skills="very good")
+        self.taDB.save()
+        self.taObj = TAObj(self.taDB)
+
+    def test_success(self):
+        self.taObj.setSkills("good veryyyy good")
+        self.assertEqual(self.taDB.skills, "good veryyyy good",
+                         msg="should have changed the skills")
+
+    def test_missingSkills(self):
+        with self.assertRaises(TypeError, msg="can't set skills to nothing"):
+            self.taObj.setSkills("")
+
+    def test_invalidTypeSkills(self):
+        with self.assertRaises(TypeError, msg="can't set skills to non-string"):
+            self.taObj.setSkills(10)
 
 
 class TestInstructorInit(TestCase):
@@ -2943,18 +3026,23 @@ class UserEditMyContactInfoTest(TestCase):
 class UserGetContactInfoTest(TestCase):
 
     def setUp(self):
-        # Create a User object
-        user = User.objects.create(
-            email_address='test@example.com',
-            password='safe_password',
-            first_name='Test',
-            last_name='User',
-            home_address='123 Main St',
-            phone_number=1234567890
-        )
+        # Creating user and TA objects
+        self.user = User.objects.create(email_address="ta@example.com", password="password123",
+                                        first_name="TAFirstName", last_name="TALastName", home_address="TA Address",
+                                        phone_number=1234567890)
+        self.ta = TA.objects.create(user=self.user, grader_status=True, max_assignments=3)
 
-        # Create a TA or Administrator object and associate it with the User
-        self.ta = TA.objects.create(user=user, grader_status=True, max_assignments=3)
+        # Creating instructor user and object
+        self.instructor_user = User.objects.create(email_address="instructor@example.com", password="password456",
+                                                   first_name="InstructorFirstName", last_name="InstructorLastName",
+                                                   home_address="Instructor Address", phone_number=9876543210)
+        self.instructor = Instructor.objects.create(user=self.instructor_user, max_assignments=3)
+
+        # Creating course and sections
+        self.course = Course.objects.create(course_id=123, semester="Fall", name="Sample Course",
+                                            description="A sample course", num_of_sections=2, modality="Online")
+        self.section = Section.objects.create(section_id=456, course=self.course, location="Room 101",
+                                              meeting_time="2023-09-01 09:00")
 
     def test_get_contact_info(self):
         # Create a TAObj instance using the TA instance
@@ -2973,71 +3061,82 @@ class UserGetContactInfoTest(TestCase):
 
 class GetAllUserAssignmentsTest(TestCase):
     def setUp(self):
-        # Create user, instructor, course, and assignment instances for testing
-        self.user = User.objects.create(
-            email_address='instructor@example.com',
-            password='safe_password',
-            first_name='Instruct',
-            last_name='Tor',
-            home_address='321 Uni St',
-            phone_number=1234567890
-        )
-        self.instructor = Instructor.objects.create(
-            user=self.user,
-            max_assignments=3
-        )
-        self.course = Course.objects.create(
-            course_id=101,
-            semester='Fall',
-            name='Intro to Testing',
-            description='A course on testing software',
-            num_of_sections=1,
-            modality='Online',
-        )
-        InstructorToCourse.objects.create(
-            instructor=self.instructor,
-            course=self.course
-        )
+        # Creating instructor user and object
+        self.instructor_user = User.objects.create(email_address="instructor@example.com", password="password456",
+                                                   first_name="InstructorFirstName", last_name="InstructorLastName",
+                                                   home_address="Instructor Address", phone_number=9876543210)
+        self.instructor = Instructor.objects.create(user=self.instructor_user, max_assignments=3)
 
-        # Create TA objects
-        self.tas = []
-        for i in range(3):  # Create 3 TAs
-            ta_user = User.objects.create(
-                email_address=f'ta{i}@example.com',
-                password='safe_password',
-                first_name=f'TA{i}',
-                last_name='User',
-                home_address='123 TA St',
-                phone_number=1234567890 + i
-            )
-            ta = TA.objects.create(user=ta_user, grader_status=True, max_assignments=6)
-            self.tas.append(ta)
+        # Creating course and sections
+        self.course = Course.objects.create(course_id=123, semester="Fall", name="Sample Course",
+                                            description="A sample course", num_of_sections=2, modality="Online")
+        self.section = Section.objects.create(section_id=456, course=self.course, location="Room 101",
+                                              meeting_time="2023-09-01 09:00")
 
-        # Assign TAs to sections
-        self.sections = []
-        for i in range(3):  # Create 3 sections
-            section = Section.objects.create(
-                section_id=100 + i,
-                course=self.course,
-                location=f'location{i}',
-                meeting_time=datetime(2023, 1, 1 + i, 12, 0, 0)
-            )
-            self.sections.append(section)
-            # Assign TA to a Lab or Lecture
-            Lab.objects.create(section=section, ta=self.tas[i % len(self.tas)])
+        # Assign instructor to course
+        InstructorToCourse.objects.create(instructor=self.instructor, course=self.course)
 
-    def test_get_all_assignments(self):
-        def test_get_all_assignments(self):
-            instructor_obj = InstructorObj(self.instructor)
-            assignments_info = instructor_obj.getAllUserAssignments()
+        # Creating user and TA object
+        self.user = User.objects.create(email_address="ta@example.com", password="password123",
+                                        first_name="TAFirstName", last_name="TALastName", home_address="TA Address",
+                                        phone_number=1234567890)
+        self.ta = TA.objects.create(user=self.user, grader_status=True, max_assignments=3)
 
-            # Check that the method returns a dictionary
-            self.assertIsInstance(assignments_info, dict)
+        # Assign TA to course
+        TAToCourse.objects.create(ta=self.ta, course=self.course)
 
-            # Check that the dictionary has all the required keys
-            self.assertCountEqual(assignments_info.keys(), ['Role', 'Username', 'CourseAsgmts', 'SecAsgmts'])
+    def test_get_ta_assignments(self):
+        instructor_obj = InstructorObj(self.instructor)
 
-            # Check that 'CourseAsgmts' and 'SecAsgmts' are lists
-            self.assertIsInstance(assignments_info['CourseAsgmts'], list)
-            self.assertIsInstance(assignments_info['SecAsgmts'], list)
+        # Fetch the assignments using the method
+        assignments = instructor_obj.getInstrCrseAsgmts()
 
+        # Convert assignments to a format that can be compared
+        formatted_assignments = []
+        for assignment in assignments:
+            course_id = assignment.course.id
+            instructor_id = assignment.instructor.id
+
+            # Get TAs for each course and check if they match the expected TA
+            tas_for_course = TAToCourse.objects.filter(course__id=course_id)
+            for ta_assignment in tas_for_course:
+                if ta_assignment.ta.id == self.ta.id:
+                    # Get sections associated with the course
+                    sections = Section.objects.filter(course__id=course_id)
+                    for section in sections:
+                        formatted_assignments.append({
+                            "taID": ta_assignment.ta.id,
+                            "secID": section.id,
+                            "courseID": course_id
+                        })
+
+        # Check the content of the assignments list
+        expected_assignment = {
+            "taID": self.ta.id,
+            "secID": self.section.id,
+            "courseID": self.course.id
+        }
+        self.assertIn(expected_assignment, formatted_assignments, "TA assignment not found in instructor assignments")
+    def test_ta_assigned_to_another_course(self):
+        # Create a new course and TA
+        other_course = Course.objects.create(course_id=124, semester="Spring", name="Other Course",
+                                             description="Another course", num_of_sections=1, modality="In-Person")
+        other_ta_user = User.objects.create(email_address="other_ta@example.com", password="other_password",
+                                            first_name="OtherTA", last_name="User", home_address="Other Address",
+                                            phone_number=987654321)
+        other_ta = TA.objects.create(user=other_ta_user, grader_status=True, max_assignments=3)
+
+        # Assigning the new TA to the other course
+        TAToCourse.objects.create(ta=other_ta, course=other_course)
+
+        instructor_obj = InstructorObj(self.instructor)
+
+        assignments = instructor_obj.getInstrCrseAsgmts()
+
+        # Checking that the other TA is not in the assignments list
+        unexpected_assignment = {
+            "taID": other_ta.id,
+            "secID": self.section.id,
+            "courseID": other_course.id
+        }
+        self.assertNotIn(unexpected_assignment, assignments, "TA from another course found in instructor assignments")
