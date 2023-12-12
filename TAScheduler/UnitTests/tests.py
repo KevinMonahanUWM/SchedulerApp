@@ -716,7 +716,7 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
 
-class AdminGetAllSecAsgmt(TestCase):  # Kiran
+class TestAdminGetAllSecAsgmt(TestCase):  # Kiran
     adminObj = None
 
     def setUp(self):
