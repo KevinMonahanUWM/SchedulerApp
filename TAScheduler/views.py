@@ -392,10 +392,8 @@ class EditAccount(View):
             grader = True
             if request.POST.get("grader_status") is None or request.POST.get("grader_status") == "":
                 grader = False
-            if request.POST.get("max_assignments") == "":
-                max = 0
-            else:
-                max = int(request.POST.get("max_assignments"))
+            max_assignments = request.POST.get("max_assignments")
+            max = int(max_assignments) if max_assignments and max_assignments.isdigit() else 0
             account_info = {
                 "email_address": request.POST.get("email_address"),
                 "password": request.POST.get("password"),
