@@ -247,7 +247,6 @@ class CreateCourse(View):
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e)})
 
-
 class EditCourse(View):
 
     def get(self, request):
@@ -322,6 +321,7 @@ class CourseUserAssignments(View):
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
                               {"message": str(e), "courses": courses})
+
 
 
 class AccountManagement(View):

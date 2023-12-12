@@ -264,7 +264,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError:
+        except KeyError: #Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -406,7 +406,11 @@ class AdminObj(UserObj):
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
     def getAllSecAsgmt(self):
-        pass
+        qs = Section.objects.all()  # returns empty qs if no sections
+        if qs.count() > 0:
+            return qs
+        else:
+            raise RuntimeError("No active sections to return")
 
 
 class TAObj(UserObj):
@@ -442,7 +446,7 @@ class TAObj(UserObj):
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
         actualAsgmts = TAToCourse.objects.filter(ta=self.database).count()
-        return (actualAsgmts >= maxAsgmts)  # shouldn't ever be ">" but technically true if so (def can't be false)
+        return actualAsgmts >= maxAsgmts  # shouldn't ever be ">" but technically true if so (def can't be false)
 
     def assignTACourse(self, active_course):  # ADJUSTED TESTS!
         if not isinstance(active_course, CourseObj):
@@ -457,8 +461,9 @@ class TAObj(UserObj):
         if self.hasMaxAsgmts():  # not sure what error this is
             raise ValueError("Can't assign a course past a TA's maximum capacity")
 
-        TAToCourse(course=courseDB,ta=self.database).save()  # Assign the course? Is that it?
-#
+        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
+
+    #
     def assignTALab(self, active_lab):
         if not isinstance(active_lab, LabObj):
             raise TypeError("Sent in incorrect lab type into the AssignTALab.")
@@ -480,6 +485,10 @@ class TAObj(UserObj):
         argLabDB.save()  # Assign the lab? Is that it?
 
     def assignTALecture(self, active_lecture):  # new
+        # Ensure that the TA is linked to the course of the lecture
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
+
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
@@ -512,7 +521,11 @@ class TAObj(UserObj):
         return self.database.grader_status
 
     def setSkills(self, skills):
-        pass
+        if (skills != "" and isinstance(skills,str)):
+            self.database.skills = skills
+            self.database.save()
+        else:
+            raise TypeError("Invalid skills input")
 
 
 class InstructorObj(UserObj):
