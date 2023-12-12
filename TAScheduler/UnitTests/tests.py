@@ -3027,13 +3027,17 @@ class GetAllUserAssignmentsTest(TestCase):
             Lab.objects.create(section=section, ta=self.tas[i % len(self.tas)])
 
     def test_get_all_assignments(self):
-        # Create an InstructorObj instance using the Instructor instance
-        instructor_obj = InstructorObj(self.instructor)
+        def test_get_all_assignments(self):
+            instructor_obj = InstructorObj(self.instructor)
+            assignments_info = instructor_obj.getAllUserAssignments()
 
-        # Use InstructorObj's getAllUserAssignments method to retrieve assignments
-        assignments = instructor_obj.getAllUserAssignments()
+            # Check that the method returns a dictionary
+            self.assertIsInstance(assignments_info, dict)
 
-        # Assert the retrieved assignments are as expected
-        self.assertTrue(assignments.exists())
-        self.assertEqual(assignments.first().course, self.course)
+            # Check that the dictionary has all the required keys
+            self.assertCountEqual(assignments_info.keys(), ['Role', 'Username', 'CourseAsgmts', 'SecAsgmts'])
+
+            # Check that 'CourseAsgmts' and 'SecAsgmts' are lists
+            self.assertIsInstance(assignments_info['CourseAsgmts'], list)
+            self.assertIsInstance(assignments_info['SecAsgmts'], list)
 

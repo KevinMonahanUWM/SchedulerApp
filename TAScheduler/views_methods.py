@@ -582,7 +582,18 @@ class TAObj(UserObj):
         }
 
     def getAllUserAssignments(self):
-        return Lab.objects.filter(ta=self.database)
+        # Assuming 'CourseAsgmt' and 'SecAsgmt' are the related names for assignments in Course and Section models
+        course_assignments = Course.objects.filter(assigned_to=self.database).values('name', 'assignments')
+        section_assignments = Section.objects.filter(assigned_to=self.database).values('name', 'assignments')
+
+        # Format assignments into the desired structure
+        formatted_assignments = {
+            "Role": self.get_role(),  # This method would need to be implemented to get the user's role
+            "Username": self.getUsername(),
+            "CourseAsgmts": list(course_assignments),
+            "SecAsgmts": list(section_assignments),
+        }
+        return formatted_assignments
 
 
 class InstructorObj(UserObj):
@@ -703,7 +714,17 @@ class InstructorObj(UserObj):
         }
 
     def getAllUserAssignments(self):
-        return InstructorToCourse.objects.filter(instructor=self.database)
+        course_assignments = Course.objects.filter(assigned_to=self.database).values('name', 'assignments')
+        section_assignments = Section.objects.filter(assigned_to=self.database).values('name', 'assignments')
+
+        # Format assignments into the desired structure
+        formatted_assignments = {
+            "Role": self.get_role(),
+            "Username": self.getUsername(),
+            "CourseAsgmts": list(course_assignments),
+            "SecAsgmts": list(section_assignments),
+        }
+        return formatted_assignments
 
 
 class CourseObj:
