@@ -264,7 +264,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError:
+        except KeyError: #Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -445,7 +445,7 @@ class TAObj(UserObj):
     def hasMaxAsgmts(self):
         maxAsgmts = self.database.max_assignments
         actualAsgmts = TAToCourse.objects.filter(ta=self.database).count()
-        return (actualAsgmts >= maxAsgmts)  # shouldn't ever be ">" but technically true if so (def can't be false)
+        return actualAsgmts >= maxAsgmts  # shouldn't ever be ">" but technically true if so (def can't be false)
 
     def assignTACourse(self, active_course):  # ADJUSTED TESTS!
         if not isinstance(active_course, CourseObj):
@@ -484,6 +484,10 @@ class TAObj(UserObj):
         argLabDB.save()  # Assign the lab? Is that it?
 
     def assignTALecture(self, active_lecture):  # new
+        # Ensure that the TA is linked to the course of the lecture
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
+
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:

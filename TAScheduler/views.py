@@ -214,7 +214,6 @@ class CreateCourse(View):
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e)})
 
-
 class EditCourse(View):
 
     def post(self, request):
@@ -276,6 +275,7 @@ class UserAssignments(View):
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
                               {"message": str(e), "courses": courses})
+
 
 
 class AccountManagement(View):
@@ -480,7 +480,7 @@ class EditSection(View):
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
-             return redirect("/home/")  # wrong usage of determineUser: can't just take "email"
+            return redirect("/home/")  # wrong usage of determineUser: can't just take "email"
         sections = list()
         for lecture in Lecture.objects.all():
             d = lecture.toDict()
