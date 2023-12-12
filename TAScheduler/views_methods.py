@@ -404,6 +404,9 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
+    def getAllSecAsgmt(self):
+        pass
+
 
 class TAObj(UserObj):
     database = None
@@ -476,6 +479,10 @@ class TAObj(UserObj):
         argLabDB.save()  # Assign the lab? Is that it?
 
     def assignTALecture(self, active_lecture):  # new
+        # Ensure that the TA is linked to the course of the lecture
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
+
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
@@ -506,6 +513,9 @@ class TAObj(UserObj):
 
     def getGraderStatus(self):
         return self.database.grader_status
+
+    def setSkills(self, skills):
+        pass
 
 
 class InstructorObj(UserObj):

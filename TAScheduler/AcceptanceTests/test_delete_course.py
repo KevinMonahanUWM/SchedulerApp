@@ -30,15 +30,8 @@ class AdminDeleteCourseTestCase(TestCase):
 
     def test_delete_course_success(self):
         self.client.login(email_address=self.admin_user.user.email_address, password='password')
-        response = self.client.post('/home/managecourse/delete/', {'course': str(self.course)})
+        response = self.client.post('/home/managecourse/', {'course_id': self.course.course_id, 'edit': 'Edit'})
         qs = Course.objects.filter(pk=self.course.pk)
         self.assertFalse(qs.exists())
 
-    def test_delete_course_no_courses_available(self):
-        # Make sure no courses are present
-        Course.objects.all().delete()
 
-        self.client.login(email_address=self.admin_user.user.email_address, password='password')
-
-        # Attempt to access the delete course page
-        response = self.client.get('home/managecourse/delete/')

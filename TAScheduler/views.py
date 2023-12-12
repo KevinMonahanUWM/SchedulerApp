@@ -3,7 +3,8 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.views import View
 
 import TAScheduler
-from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, Course
+from TAScheduler.models import User, Administrator, Instructor, TA, Section, Lab, Lecture, Course, InstructorToCourse, \
+    TAToCourse
 from TAScheduler.views_methods import TAObj, InstructorObj, AdminObj, LabObj, LectureObj, CourseObj
 
 
@@ -38,6 +39,38 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+
+def coursesAddAssignments():
+    courseAndUsers = []
+    instructors = Instructor.objects.all()
+    tas = TA.objects.all()
+    for course in Course.objects.all():
+        users = []
+        for instruc in instructors:
+            if (not InstructorObj(instruc).hasMaxAsgmts() and
+                    not InstructorToCourse.objects.filter(course=course, instructor=instruc).exists()):
+                users.append(str(instruc))
+        for ta in tas:
+            if not TAObj(ta).hasMaxAsgmts() and not TAToCourse.objects.filter(ta=ta, course=course).exists():
+                users.append(str(ta))
+        courseAndUsers.append({"course": str(course), "users": users})
+    return courseAndUsers
+
+
+def usersCurrentlyAvailable(courseList, course):
+    for courseName in courseList:
+        if courseName.get("course") == course:
+            return courseName.get("users")
+
+
+def currentlyAssignedUsers(course_id):
+    assignments = CourseObj(Course.objects.get(course_id=course_id)).getAsgmtsForCrse()
+    users = []
+    for instrc in assignments.get("instructors"):
+        users.append(str(instrc.instructor))
+    for ta in assignments.get("tas"):
+        users.append(str(ta.ta))
+    return users
 
 class Login(View):
     def get(self, request):
@@ -106,12 +139,45 @@ class Home(View):
 class CourseManagement(View):
 
     def get(self, request):
+        courseWithUsers = coursesAddAssignments()
         if request.session.get("user") is None:
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        courses = Course.objects.all()
-        return render(request, "courseManagement/course_management.html")
+        return render(request, "courseManagement/course_management.html", {"courses": courseWithUsers})
+
+    def post(self, request):
+        courses = coursesAddAssignments()
+        course = request.POST.get('course')
+        course_id = int(course.split(": ", 1)[0])
+        if request.POST.get("edit") is not None:
+            request.session["course_id"] = course_id
+            selected_course = Course.objects.get(course_id=course_id)
+            return render(request, "courseManagement/edit_course.html",
+                          {"selected": True, "selected_course": selected_course})
+        elif request.POST.get("delete") is not None:
+            curUserObj = determineUser(request.session["user"])
+            try:
+                course_to_delete = CourseObj(Course.objects.get(course_id=course_id))
+                curUserObj.removeCourse(course_to_delete)
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": "Successfully deleted course", "courses": courses})
+            except Exception as e:
+                return render(request, "courseManagement/course_management.html",
+                              {"message": str(e), "courses": courses})
+        else:
+            usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
+            usersCurrentlyAssigned = currentlyAssignedUsers(course_id)
+            noneAssigned = False
+            if len(usersCurrentlyAssigned) == 0:
+                noneAssigned = True
+            noneAvailable = False
+            if len(usersAvailableToAssign) == 0:
+                noneAvailable = True
+            return render(request, "courseManagement/course_user_assignments.html",
+                          {"course": course, "assignedEmpty": noneAssigned, "unassignedEmpty": noneAvailable,
+                           "assigned": usersCurrentlyAssigned, "unassigned": usersAvailableToAssign})
 
 
 class CreateCourse(View):
@@ -136,183 +202,80 @@ class CreateCourse(View):
 
         # Check if course already exists
         if Course.objects.filter(course_id=course_info["course_id"]).exists():
-            return render(request, "error.html", {"message": "A course with this ID already exists",
-                                                  "previous_url": "/home/managecourse/create"})
+            return render(request, "courseManagement/create_course.html",
+                          {"message": "A course with this ID already exists"})
 
         try:
             admin_obj.createCourse(course_info)
-            return render(request, "success.html", {"message": "Successfully created course",
-                                                    "previous_url": "/home/managecourse/create/"})
+            courses = coursesAddAssignments()
+            return render(request, "courseManagement/course_management.html",
+                          {"message": "Successfully created course", "courses": courses})
         except Exception as e:
-            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/delete/"})
-
-
-class DeleteCourse(View):
-
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        courses = list(map(str, Course.objects.all()))
-        return render(request, "courseManagement/delete_course.html", {"courses": courses})
-
-    def post(self, request):
-        curUserObj = determineUser(request.session["user"])
-
-        course = request.POST.get('course')
-
-        course_id = int(course.split(": ", 1)[0])
-        try:
-            course_to_delete = CourseObj(Course.objects.get(course_id=course_id))
-            curUserObj.removeCourse(course_to_delete)
-            return render(request, "success.html", {"message": "Successfully deleted course",
-                                                    "previous_url": "/home/managecourse/delete/"})
-        except Exception as e:
-            return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/delete/"})
-
+            return render(request, "courseManagement/create_course.html",
+                          {"message": str(e)})
 
 class EditCourse(View):
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        courses = list(map(str, Course.objects.all()))
-        return render(request, "courseManagement/edit_course.html", {"courses": courses})
 
     def post(self, request):
         admin_obj = determineUser(request.session["user"])
-        try:
-            course_id = request.POST['course']
-            request.session["course_id"] = course_id
-            return render(request, "courseManagement/edit_course.html", {"selected": True})
-        except MultiValueDictKeyError:
-            new_info = {
-                "semester": request.POST.get("semester"),
-                "name": request.POST.get("name"),
-                "description": request.POST.get("description"),
-                "num_of_sections": int(request.POST.get("num_of_sections", 0)),  # Default to 0 or any sensible default
-                "modality": request.POST.get("modality")
-            }
 
+        new_info = {
+
+            "name": request.POST.get("name"),
+            "description": request.POST.get("description"),
+            "num_of_sections": int(request.POST.get("num_of_sections", 0)),  # Default to 0 or any sensible default
+            "modality": request.POST.get("modality"),
+            "semester": request.POST.get("semester")
+        }
+        try:
+            course_id = request.session["course_id"]
+            course_to_edit = Course.objects.get(course_id=course_id)
+            del request.session["course_id"]
+            admin_obj.editCourse(CourseObj(course_to_edit), new_info)
+            courses = coursesAddAssignments()
+            return render(request, "courseManagement/course_management.html", {"message": "Successfully editted course",
+                                                                               "courses": courses})
+        except Course.DoesNotExist:
+            courses = coursesAddAssignments()
+            return render(request, "courseManagement/course_management.html",
+                          {"message": "Course not found", "courses": courses})
+        except Exception as e:
+            courses = coursesAddAssignments()
+            return render(request, "courseManagement/course_management.html",
+                          {"message": str(e), "courses": courses})
+
+
+class UserAssignments(View):
+
+    def post(self, request):
+        print("Test")
+        selecteduser = determineUser(request.POST.get("user"))
+        course_id = int(request.POST.get('course').split(": ", 1)[0])
+        courseobj = CourseObj(Course.objects.get(course_id=course_id))
+        if request.POST.get("unassign") is not None:
             try:
-                course = request.session["course_id"]
-                course_id = int(course.split(":", 1)[0])
-                course_to_edit = Course.objects.get(course_id=int(course_id))
-                del request.session["course_id"]
-                admin_obj.editCourse(CourseObj(course_to_edit), new_info)
-                return render(request, "success.html", {"message": "Successfully editted course",
-                                                        "previous_url": "/home/managecourse/edit/"})
-            except Course.DoesNotExist:
-                return render(request, "error.html",
-                              {"message": "Course not found", "previous_url": "/home/managecourse/edit/"})
+                courseobj.removeAssignment(selecteduser)
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": "Successfully removed assignment", "courses": courses})
             except Exception as e:
-                return render(request, "error.html", {"message": str(e), "previous_url": "/home/managecourse/edit/"})
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": str(e), "courses": courses})
+        else:
+            try:
+                if selecteduser.getRole() == 'TA':
+                    courseobj.addTa(selecteduser)
+                else:
+                    courseobj.addInstructor(selecteduser)
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": "Successfully assigned user to course", "courses": courses})
+            except Exception as e:
+                courses = coursesAddAssignments()
+                return render(request, "courseManagement/course_management.html",
+                              {"message": str(e), "courses": courses})
 
-
-class AddInstructorToCourse(View):
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-
-        users = list(map(str, Instructor.objects.all()))
-        courses = list(map(str, Course.objects.all()))
-        if len(users) == 0:
-            return render(request,
-                          "error.html",
-                          {"message": "No Instructors to display", "previous_url": "/home/managecourse/"})
-        if len(courses) == 0:
-            return render(request,
-                          "error.html",
-                          {"message": "No Courses to display", "previous_url": "/home/managecourse/"})
-
-        return render(request, "courseManagement/add_instructor_to_course.html",
-                      {"users": users, "courses": courses, "message": "Please select an instructor and course"})
-
-    def post(self, request):
-        users = list(map(str, Instructor.objects.all()))
-        courses = list(map(str, Course.objects.all()))
-        try:
-            if request.POST["user"] == "":
-                return render(request, "courseManagement/add_instructor_to_course.html",
-                              {"users": users, "courses": courses, "message": "Please select an instructor"})
-        except MultiValueDictKeyError:
-            return render(request, "courseManagement/add_instructor_to_course.html",
-                          {"users": users, "courses": courses, "message": "Please select an instructor"})
-
-        try:
-            if request.POST["course"] == "":
-                return render(request, "courseManagement/add_instructor_to_course.html",
-                              {"users": users, "courses": courses, "message": "Please select a course"})
-        except MultiValueDictKeyError:
-            return render(request, "courseManagement/add_instructor_to_course.html",
-                          {"users": users, "courses": courses, "message": "Please select a course"})
-
-        instructor = determineUser(request.POST["user"])
-        course = CourseObj(Course.objects.get(course_id=request.POST["course"].split(": ", 1)[0]))
-        try:
-            instructor.assignInstrCourse(course)
-        except ValueError as e:
-            return render(request,
-                          "error.html",
-                          {"message": str(e), "previous_url": "/home/managecourse/"})
-        return render(request, "success.html", {"message": "Instructor successfully added",
-                                                "previous_url": "/home/managecourse/"})
-
-
-class AddTAToCourse(View):
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-
-        users = list(map(str, TA.objects.all()))
-        courses = list(map(str, Course.objects.all()))
-        if len(users) == 0:
-            return render(request,
-                          "error.html",
-                          {"message": "No TAs to display", "previous_url": "/home/managecourse/"})
-        if len(courses) == 0:
-            return render(request,
-                          "error.html",
-                          {"message": "No Courses to display", "previous_url": "/home/managecourse/"})
-
-        return render(request, "courseManagement/add_ta_to_course.html",
-                      {"users": users, "courses": courses, "message": "Please select a ta and course"})
-
-    def post(self, request):
-        users = list(map(str, TA.objects.all()))
-        courses = list(map(str, Course.objects.all()))
-        try:
-            if request.POST["user"] == "":
-                return render(request, "courseManagement/add_ta_to_course.html",
-                              {"users": users, "courses": courses, "message": "Please select a ta"})
-        except MultiValueDictKeyError:
-            return render(request, "courseManagement/add_ta_to_course.html",
-                          {"users": users, "courses": courses, "message": "Please select a ta"})
-
-        try:
-            if request.POST["course"] == "":
-                return render(request, "courseManagement/add_ta_to_course.html",
-                              {"users": users, "courses": courses, "message": "Please select a course"})
-        except MultiValueDictKeyError:
-            return render(request, "courseManagement/add_ta_to_course.html",
-                          {"users": users, "courses": courses, "message": "Please select a course"})
-
-        ta = determineUser(request.POST["user"])
-        course = CourseObj(Course.objects.get(course_id=request.POST["course"].split(": ", 1)[0]))
-        try:
-            ta.assignTACourse(course)
-        except ValueError as e:
-            return render(request,
-                          "error.html",
-                          {"message": str(e), "previous_url": "/home/managecourse/"})
-        return render(request, "success.html", {"message": "TA successfully added",
-                                                "previous_url": "/home/managecourse/"})
 
 
 class AccountManagement(View):
@@ -322,7 +285,35 @@ class AccountManagement(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        return render(request, "accountManagement/account_management.html")
+        users = list(map(str, Administrator.objects.all()))
+        users.extend(list(map(str, Instructor.objects.all())))
+        users.extend(list(map(str, TA.objects.all())))
+        return render(request, "accountManagement/account_management.html",
+                      {"users": users, "current_user": request.session.get("user")})
+
+    def post(self, request):
+        print(request.POST)
+        if request.POST.get("edit") is not None:
+            role = determineUser(request.POST.get("user")).getRole()
+            request.session["current_edit"] = request.POST["user"]
+            return render(request, "accountManagement/edit_account.html", {"users": None,
+                                                                           "role": role})
+        else:
+            try:
+                determineUser(request.session["user"]).removeUser(determineUser(request.POST.get("user")))
+                users = list(map(str, Administrator.objects.all()))
+                users.extend(list(map(str, Instructor.objects.all())))
+                users.extend(list(map(str, TA.objects.all())))
+                return render(request, "accountManagement/account_management.html",
+                              {"users": users, "current_user": request.session.get("user"),
+                               "message": "User successfully deleted"})
+            except Exception as e:
+                users = list(map(str, Administrator.objects.all()))
+                users.extend(list(map(str, Instructor.objects.all())))
+                users.extend(list(map(str, TA.objects.all())))
+                return render(request, "accountManagement/account_management.html",
+                              {"users": users, "current_user": request.session.get("user"),
+                               "message": e})
 
 
 class CreateAccount(View):
@@ -358,95 +349,52 @@ class CreateAccount(View):
                                                   "previous_url": "/home/manageaccount/create"})
 
 
-class DeleteAccount(View):
-
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        users = list(
-            map(str, Administrator.objects.exclude(user=determineUser(request.session["user"]).database.user)))
-        users.extend(list(
-            map(str, Instructor.objects.exclude(user=determineUser(request.session["user"]).database.user))))
-        users.extend(
-            list(map(str, TA.objects.exclude(user=determineUser(request.session["user"]).database.user))))
-        if len(users) == 0:
-            return render(request, "error.html", {"message": "No existing users to delete",
-                                                  "previous_url": "/home/manageaccount/"})
-        return render(request, "accountManagement/delete_account.html", {"users": users})
-
-    def post(self, request):
-        user_object = determineUser(request.POST["user"])
-        try:
-            determineUser(request.session["user"]).removeUser(user_object)
-            return render(request, "success.html", {"message": "User successfully deleted",
-                                                    "previous_url": "/home/manageaccount/delete/"})
-        except Exception as e:
-            return render(request, "error.html", {"message": e,
-                                                  "previous_url": "/home/manageaccount/delete/"})
-
-
 class EditAccount(View):
 
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        users = list(map(str, Administrator.objects.all()))
-        users.extend(list(map(str, Instructor.objects.all())))
-        users.extend(list(map(str, TA.objects.all())))
-        if len(users) == 0:
-            return render(request, "error.html", {"message": "No existing users to edit",
-                                                  "previous_url": "/home/manageaccount"})
-        return render(request, "accountManagement/edit_account.html", {"users": users,
-                                                                       "selected": False, "role": "Admin"})
-
     def post(self, request):
+        if request.POST["phone_number"] == "":
+            number = 0
+        else:
+            number = request.POST["phone_number"]
+        grader = True
+        if request.POST.get("grader_status") is None or request.POST.get("grader_status") == "":
+            grader = False
+        if request.POST.get("max_assignments") is None or request.POST.get("max_assignments") == "":
+            max = 0
+        else:
+            max = int(request.POST.get("max_assignments"))
+        account_info = {
+            "email_address": request.POST.get("email_address"),
+            "password": request.POST.get("password"),
+            "first_name": request.POST.get("first_name"),
+            "last_name": request.POST.get("last_name"),
+            "home_address": request.POST.get("home_address"),
+            "phone_number": number,
+            "grader_status": grader,
+            "max_assignments": max
+        }
         try:
-            user_object = determineUser(request.POST["user"])
-            role = user_object.getRole()
-            request.session["current_edit"] = request.POST["user"]
-            return render(request, "accountManagement/edit_account.html", {"users": None,
-                                                                           "selected": True, "role": role})
-        except MultiValueDictKeyError:
-            if request.POST["phone_number"] == "":
-                number = 0
-            else:
-                number = request.POST["phone_number"]
-            grader = True
-            if request.POST.get("grader_status") is None or request.POST.get("grader_status") == "":
-                grader = False
-            if request.POST.get("max_assignments") == "":
-                max = 0
-            else:
-                max = int(request.POST.get("max_assignments"))
-            account_info = {
-                "email_address": request.POST.get("email_address"),
-                "password": request.POST.get("password"),
-                "first_name": request.POST.get("first_name"),
-                "last_name": request.POST.get("last_name"),
-                "home_address": request.POST.get("home_address"),
-                "phone_number": number,
-                "grader_status": grader,
-                "max_assignments": max
-            }
-            try:
-                print(request.session["current_edit"])
-                determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
-                                                                account_info)
+            print(request.session["current_edit"])
+            determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
+                                                            account_info)
 
-                if request.session["current_edit"] == request.session["user"]:
-                    request.session["user"] = str(Administrator.objects.get(
-                        user__email_address=request.POST.get("email_address")))
-                del request.session["current_edit"]
-                return render(request, "success.html", {"message": "User successfully changed",
-                                                        "previous_url": "/home/manageaccount/edit"})
-            except Exception as e:
-                del request.session["current_edit"]
-                return render(request, "error.html", {"message": e,
-                                                      "previous_url": "/home/manageaccount/edit"})
+            if request.session["current_edit"] == request.session["user"] and request.POST.get("email_address") is not None:
+                request.session["user"] = str(Administrator.objects.get(
+                    user__email_address=request.POST.get("email_address")))
+            elif request.session["current_edit"] == request.session["user"]:
+                request.session["user"] = str(Administrator.objects.get(
+                    user__email_address=determineUser(request.session["user"]).getUsername()))
+            del request.session["current_edit"]
+            users = list(map(str, Administrator.objects.all()))
+            users.extend(list(map(str, Instructor.objects.all())))
+            users.extend(list(map(str, TA.objects.all())))
+            return render(request, "accountManagement/account_management.html",
+                          {"users": users, "current_user": request.session.get("user"),
+                           "message": "User successfully edited"})
+        except Exception as e:
+            role = determineUser(request.session["current_edit"])
+            return render(request, "accountManagement/edit_account.html",
+                          {"message": e, "role": role})
 
 
 class SectionManagement(View):

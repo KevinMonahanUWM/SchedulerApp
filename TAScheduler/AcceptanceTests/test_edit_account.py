@@ -23,7 +23,7 @@ class SuccessfulEdit(TestCase):
         self.tempUser = TA.objects.create(user=temp, grader_status=False)
 
     def test_success_change(self):
-        self.user.post("/home/manageaccount/edit/", {"user": str(self.tempUser)}, follow=True)
+        self.user.post("/home/manageaccount/", {"user": str(self.tempUser), "edit": "Edit"}, follow=True)
         self.user.post("/home/manageaccount/edit/", {"email_address": "",
                                                     "password": "",
                                                     "first_name": "Paul",
@@ -57,7 +57,7 @@ class InvalidFormatting(TestCase):
         self.tempUser = TA.objects.create(user=temp, grader_status=False)
 
     def test_formatting_error(self):
-        self.user.post("/home/manageaccount/edit/", {"user": self.tempUser}, follow=True)
+        self.user.post("/home/manageaccount/", {"user": self.tempUser, "edit": "Edit"}, follow=True)
         resp = self.user.post("/home/manageaccount/edit/", {"email_address": "",
                                                            "password": "",
                                                            "first_name": "",
@@ -70,7 +70,7 @@ class InvalidFormatting(TestCase):
                           "Changed phone number to value that does not match standard format")
 
     def test_formatting_error_ensure_no_change(self):
-        self.user.post("/home/manageaccount/edit/", {"user": self.tempUser}, follow=True)
+        self.user.post("/home/manageaccount/", {"user": self.tempUser, "edit": "Edit"}, follow=True)
         resp = self.user.post("/home/manageaccount/edit/", {"email_address": "",
                                                            "password": "",
                                                            "first_name": "",
@@ -82,21 +82,3 @@ class InvalidFormatting(TestCase):
         self.assertEqual(self.tempUser.user.phone_number, 4142292222,
                          "User was changed when it should still be the same")
 
-
-class NoUsers(TestCase):
-    user = None
-
-    def setUp(self):
-        self.user = Client()
-        temp = User.objects.create(email_address="testadmin@uwm.edu", password="pass", first_name="Test",
-                                   last_name="Test",
-                                   home_address="Random location", phone_number=9990009999)
-        self.account = Administrator.objects.create(user=temp)
-        ses = self.user.session
-        ses["user"] = str(self.account)
-        ses.save()
-
-    def test_no_users(self):
-        resp = self.user.get("/home/manageaccount/edit/")
-        self.assertEquals(resp.context["message"], "No existing users to edit", "Cannot go to edits accounts when "
-                                                                                "there are no users")

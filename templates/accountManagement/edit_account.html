@@ -8,20 +8,10 @@
 </head>
 <body>
 <h1>Edit Account</h1>
+{{ message }}
 <table>
     <form id="selectUserToEdit" action="/home/manageaccount/edit/" method="post">
 {% csrf_token %}
-{% if not selected %}
-{% for user in users %}
-    <tr>
-        <td>
-            <input id="user" type="radio" name="user" value="{{ user }}">
-            <label for="user">{{ user }}</label>
-        </td>
-    </tr>
-{% endfor %}
-{% endif %}
-{% if selected %}
     <tr>
         <td>
             <label for="email_address">Email Address:</label>
@@ -87,7 +77,6 @@
         </td>
         </tr>
         {% endif %}
-    {% endif %}
     {% endif %}
     <tr><td colspan="2"><input type="submit"></td></tr>
 

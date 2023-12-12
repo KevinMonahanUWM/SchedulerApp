@@ -9,34 +9,27 @@
 
 <body>
 <h1>Course Management</h1>
+{{ message }} <!-- Assuming you want to display a message like in Account Management -->
 <table>
+    {% for course in courses %} <!-- Loop through courses -->
+    <form id="courseChange" action="/home/managecourse/" method="post">
+        {% csrf_token %}
+        <tr>
+            <td>{{ course.course }}</td> <!-- Display course name -->
+            <input type="hidden" name="course" value="{{ course.course }}">
+            <td><input type="submit" name="edit" value="Edit"></td> <!-- Edit button -->
+            <td><input type="submit" name="delete" value="Delete"></td> <!-- Delete button -->
+            <td><input type="submit" name="assignUser" value="User Assignments"></td>
+        </tr>
+    </form>
+    {% endfor %}
     <tr>
-        <td>
+        <td colspan="4">
             <a href="/home/managecourse/create">Create Course</a>
         </td>
     </tr>
     <tr>
-        <td>
-            <a href="/home/managecourse/delete">Delete Course</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="/home/managecourse/edit">Edit Course</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="/home/managecourse/addinstructor">Add Instructor to Course</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href="/home/managecourse/addta">Add TA to Course</a>
-        </td>
-    </tr>
-    <tr>
-        <td>
+        <td colspan="4">
             <a href="/home">Home</a>
         </td>
     </tr>
