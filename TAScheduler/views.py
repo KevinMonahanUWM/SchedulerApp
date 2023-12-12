@@ -700,3 +700,18 @@ class SetSkills(View):
                    {"message": "Successfully Assigned Skills", "currentSkills": currentSkills})
         except Exception as e: #I don't know how the error's are handled now bc no error page :P
             render(request, "taApp/setSkills.html",{"message": e})
+
+class ViewAllUsers(View):
+    def get(self, request):
+        allUsers = list(map(str,Administrator.objects.all()))
+        allUsers.extend(list(map(str,Instructor.objects.all())))
+        allUsers.extend(list(map(str,TA.objects.all())))
+        render(request, "viewingHTMLs/viewAllUsers.html", {"allUsers":allUsers})
+
+    def post(self, request):
+        user = request.POST["user"]
+        render(request, "viewingHTMLs/readContactInfo.html", {"user":user})
+
+
+class ReadContactInfo(View): #used when selected on a User
+    pass

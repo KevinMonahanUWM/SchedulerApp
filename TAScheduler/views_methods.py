@@ -405,7 +405,11 @@ class AdminObj(UserObj):
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
     def getAllSecAsgmt(self):
-        pass
+        qs = Section.objects.all()  # returns empty qs if no sections
+        if qs.count() > 0:
+            return qs
+        else:
+            raise RuntimeError("No active sections to return")
 
 
 class TAObj(UserObj):
