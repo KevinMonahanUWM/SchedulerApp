@@ -35,10 +35,10 @@ class AdminEditCourseTestCase(TestCase):
             'name': 'Advanced Testing',
             'description': 'An advanced course on testing practices.',
             'num_of_sections': 2,
-            'modality': 'Hybrid'
+            'modality': 'Hybrid',
+            'edit': 'Edit'
         }
-        self.client.post('/home/managecourse/edit/', {"course": str(self.course)})
-        response = self.client.post('/home/managecourse/edit/', updated_data)
+        response = self.client.post('/home/managecourse/', updated_data)
 
 
         self.course.refresh_from_db()
@@ -49,13 +49,14 @@ class AdminEditCourseTestCase(TestCase):
         self.assertEqual(self.course.modality, updated_data['modality'])
 
     def test_edit_course_invalid_input(self):
-        response = self.client.post('/home/managecourse/edit/', {
+        response = self.client.post('/home/managecourse/', {
             'course_id': self.course.course_id,
             'semester': 'Spring 2024',
             'name': '',  # Invalid input
             'description': 'A course on testing practices.',
             'num_of_sections': 2,
-            'modality': 'Hybrid'
+            'modality': 'Hybrid',
+            'edit': 'Edit'
         })
 
         self.course.refresh_from_db()
@@ -68,9 +69,10 @@ class AdminEditCourseTestCase(TestCase):
             'name': self.course.name,
             'description': self.course.description,
             'num_of_sections': self.course.num_of_sections,
-            'modality': self.course.modality
+            'modality': self.course.modality,
+            'edit': 'Edit'
         }
-        response = self.client.post('/home/managecourse/edit/', original_data)
+        response = self.client.post('/home/managecourse/', original_data)
 
         self.course.refresh_from_db()
 
