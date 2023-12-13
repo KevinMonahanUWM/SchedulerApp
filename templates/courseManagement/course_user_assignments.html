@@ -9,6 +9,10 @@
 <body>
 <h1>{{ course }}</h1>
 {{ message }}
+<h2>Course Details</h2>
+<p><strong>Description:</strong> {{ course_info.description }}</p>
+<p><strong>Number of Sections:</strong> {{ course_info.num_of_sections }}</p>
+<p><strong>Modality:</strong> {{ course_info.modality }}</p>
 <table>
     {% if not assignedEmpty %}
     <tr><th colspan="2">Assigned Users</th></tr>

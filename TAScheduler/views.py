@@ -199,18 +199,19 @@ class CourseManagement(View):
             except Exception as e:
                 return render(request, "courseManagement/course_management.html",
                               {"message": str(e), "courses": courses})
-        else:
-            usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
+        elif request.POST.get("details") is not None:
+            course_id = int(course.split(": ", 1)[0])
+            course_instance = Course.objects.get(course_id=course_id)
+            course_obj = CourseObj(course_instance)  # Wrap the course instance
+            course_info = course_obj.getCrseInfo()
             usersCurrentlyAssigned = currentlyAssignedUsers(course_id)
-            noneAssigned = False
-            if len(usersCurrentlyAssigned) == 0:
-                noneAssigned = True
-            noneAvailable = False
-            if len(usersAvailableToAssign) == 0:
-                noneAvailable = True
+            noneAssigned = len(usersCurrentlyAssigned) == 0
+            usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
+            noneAvailable = len(usersAvailableToAssign) == 0
             return render(request, "courseManagement/course_user_assignments.html",
-                          {"course": course, "assignedEmpty": noneAssigned, "unassignedEmpty": noneAvailable,
-                           "assigned": usersCurrentlyAssigned, "unassigned": usersAvailableToAssign})
+                          {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
+                           "unassignedEmpty": noneAvailable, "assigned": usersCurrentlyAssigned,
+                           "unassigned": usersAvailableToAssign})
 
 
 class CreateCourse(View):
