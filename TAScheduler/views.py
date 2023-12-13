@@ -671,3 +671,21 @@ class Forgot_Password(View):
                 del request.session["current_edit"]
                 return render(request, "forgot_password.html", {"message": e,
                                                                 "recievedUser": False})
+
+
+class ViewTAAssignments(View):
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+
+        # Logic to fetch TA assignments
+        ta_assignments = [] # Replace with actual logic to fetch assignments
+        for ta in TA.objects.all():
+            for course in TAToCourse.objects.filter(ta=ta):
+                ta_assignments.append({
+                    'ta_name': ta.getName(),
+                    'course_name': course.course.name,
+                    'section_id': course.course.section_id
+                })
+
+        return render(request, 'ta_assignments.html', {'ta_assignments': ta_assignments})

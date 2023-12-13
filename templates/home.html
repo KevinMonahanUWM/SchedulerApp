@@ -36,6 +36,19 @@
 
     </nav>
     {% endif %}
+
+      <!-- Additional button for Instructors and TAs -->
+    {% if role_instructor or role_ta %}
+    <nav>
+        <table>
+            <tr>
+                <td>
+                    <a href="{{ view_ta_assignments }}">View TA Course Assignments</a>
+                </td>
+            </tr>
+        </table>
+    </nav>
+    {% endif %}
     <section>
         <h2>Welcome, {{ username }}!</h2>
     </section>
