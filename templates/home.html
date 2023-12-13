@@ -10,7 +10,7 @@
     <header>
         <h1>{{ role_name }} Home</h1>
     </header>
-    {% if role_admin %}
+    {% if role == "Admin" %}
     <nav>
         <table>
             <tr>
@@ -38,7 +38,7 @@
     {% endif %}
 
       <!-- Additional button for Instructors and TAs -->
-    {% if role_instructor or role_ta %}
+    {% if role == "Instructor" or role == "TA" %}
     <nav>
         <table>
             <tr>

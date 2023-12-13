@@ -65,7 +65,8 @@ def currentlyAssignedUsers(course_id):
     for instrc in assignments.get("instructors"):
         users.append(str(instrc.instructor))
     for ta in assignments.get("tas"):
-        users.append(str(ta.ta))
+        if ta.ta.grader_status:
+            users.append(str(ta.ta))
     return users
 
 
@@ -73,7 +74,8 @@ def currentlyAssignedUsersLab(course_id):
     assignments = CourseObj(Course.objects.get(course_id=course_id)).getAsgmtsForCrse()
     users = []
     for ta in assignments.get("tas"):
-        users.append(str(ta.ta))
+        if not ta.ta.grader_status:
+            users.append(str(ta.ta))
     return users
 
 
@@ -132,9 +134,7 @@ class Home(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        admin = False
-        if determineUser(request.session["user"]).getRole() is "Admin":
-            admin = True
+        role = determineUser(request.session["user"]).getRole()
         username = determineUser(request.session["user"]).getUsername()
         # Render the admin home page with context for navigation
         courseExist = True
@@ -146,7 +146,7 @@ class Home(View):
             'manage_accounts': '/home/manageaccount',
             'manage_courses': '/home/managecourse',
             'manage_sections': '/home/managesection',
-            'role_admin': admin,
+            'role': role,
             'courses_exists': courseExist
         }
         return render(request, 'home.html', context)
