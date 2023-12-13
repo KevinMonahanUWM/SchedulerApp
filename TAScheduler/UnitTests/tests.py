@@ -3248,8 +3248,48 @@ class TestLectureRemoveTA(TestCase):  # Joe
         self.lecture.removeTA()
         self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
 
+class UserEditMyContactInfoTest(TestCase):
 
-class TestInstructorAssignMyTA(TestCase):
+    def setUp(self):
+        # Create a User object
+        self.user = User.objects.create(
+            email_address='test@example.com',
+            password='safe_password',
+            first_name='Test',
+            last_name='User',
+            home_address='123 Main St',
+            phone_number=1234567890
+        )
+        # Create a TA or Administrator object and associate it with the User
+        self.ta = TA.objects.create(user=self.user, grader_status=True, max_assignments=3)
+
+    def test_edit_contact_info(self):
+        ta_obj = TAObj(self.ta)
+        ta_obj.editContactInfo(first_name='UpdatedName')
+
+        updated_user = User.objects.get(id=self.ta.user.id)
+        self.assertEqual(updated_user.first_name, 'UpdatedName')
+
+    def test_duplicate_email_update(self):
+        User.objects.create(
+            email_address='other@example.com',
+            password='safe_password',
+            first_name='Other',
+            last_name='User',
+            home_address='456 Main St',
+            phone_number=9876543210
+        )
+        ta_obj = TAObj(self.ta)
+        with self.assertRaises(RuntimeError):
+            ta_obj.editContactInfo(email_address='other@example.com')
+
+    def test_invalid_phone_number_update(self):
+        ta_obj = TAObj(self.ta)
+        with self.assertRaises(ValueError):
+            ta_obj.editContactInfo(phone_number='invalid_phone')
+
+
+class UserGetContactInfoTest(TestCase):
 
     def setUp(self):
         # Creating user and TA objects
@@ -3270,44 +3310,22 @@ class TestInstructorAssignMyTA(TestCase):
         self.section = Section.objects.create(section_id=456, course=self.course, location="Room 101",
                                               meeting_time="2023-09-01 09:00")
 
-        # Assign instructor to course
-        InstructorToCourse.objects.create(instructor=self.instructor, course=self.course)
-        # This line should be in the setUp method.
-        TAToCourse.objects.create(ta=self.ta, course=self.course)
-
-    def test_assign_ta_to_section(self):
-        lab_obj = LabObj(Lab.objects.create(section=self.section))
-        self.ta.grader_status = False
-        self.ta.save()
+    def test_get_contact_info(self):
+        # Create a TAObj instance using the TA instance
         ta_obj = TAObj(self.ta)
 
-        ta_obj.assignTALab(lab_obj)
+        # Use TAObj's get_contact_info method to retrieve contact info
+        contact_info = ta_obj.getContactInfo()
 
-        lab_obj.database.refresh_from_db()
-        self.assertEqual(lab_obj.getLabTAAsgmt(), self.ta, "TA was not correctly assigned to the lab")
-
-    def test_assign_ta_not_in_instructor_course(self):
-        other_user = User.objects.create(email_address="other_ta@example.com", password="password789",
-                                         first_name="OtherTAFirstName", last_name="OtherTALastName",
-                                         home_address="Other TA Address", phone_number=1122334455)
-        other_ta = TA.objects.create(user=other_user, grader_status=True, max_assignments=3)
-
-        # Create a new course and section
-        other_course = Course.objects.create(course_id=124, semester="Spring", name="Other Course",
-                                             description="Another course", num_of_sections=1, modality="In-Person")
-        other_section = Section.objects.create(section_id=457, course=other_course, location="Room 202",
-                                               meeting_time="2023-09-01 10:00")
-        lecture_obj = LectureObj(Lecture.objects.create(section=other_section))
-
-        ta_obj = TAObj(other_ta)
-
-        # Expecting ValueError because the TA is not in the instructor's course
-        with self.assertRaises(ValueError):
-            ta_obj.assignTALecture(lecture_obj)
+        # Assert the retrieved contact information is as expected
+        self.assertEqual(contact_info['first_name'], self.ta.user.first_name)
+        self.assertEqual(contact_info['last_name'], self.ta.user.last_name)
+        self.assertEqual(contact_info['email_address'], self.ta.user.email_address)
+        self.assertEqual(contact_info['home_address'], self.ta.user.home_address)
+        self.assertEqual(contact_info['phone_number'], self.ta.user.phone_number)
 
 
-class TestInstructorGetInstrTAAssignment(TestCase):
-
+class GetAllUserAssignmentsTest(TestCase):
     def setUp(self):
         # Creating instructor user and object
         self.instructor_user = User.objects.create(email_address="instructor@example.com", password="password456",
