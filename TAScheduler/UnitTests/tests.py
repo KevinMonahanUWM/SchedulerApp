@@ -716,6 +716,272 @@ class TestAdminCourseTAAssignment(TestCase):  # Kevin
             self.admin.courseTAAsmgt(temp_ta, self.tempCourse)
 
 
+class TestAdminCourseUserAsgmt(TestCase):
+    tempCourse = None
+    tempInstr = None
+    tempTA = None
+    admin = None
+    hold_course = None
+    hold_instr = None
+
+    def setUp(self):
+        hold_user = User.objects.create(
+            email_address='ta@example.com',
+            password='ta_password',
+            first_name='ta',
+            last_name='ta',
+            home_address='123 ta St',
+            phone_number=1234667890
+        )
+        hold_user.save()
+        self.hold_ta = TA.objects.create(user=hold_user, grader_status=True)
+        self.tempTA = TAObj(self.hold_ta)
+
+        hold_user = User.objects.create(
+            email_address='instr@example.com',
+            password='instr_password',
+            first_name='instr',
+            last_name='instr',
+            home_address='123 instr St',
+            phone_number=1234667890
+        )
+        hold_user.save()
+        self.hold_instr = Instructor.objects.create(user=hold_user)
+        self.tempInstr = InstructorObj(self.hold_instr)
+
+        self.hold_course = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        self.tempCourse = CourseObj(self.hold_course)
+        hold_user = User(
+            email_address='admin@example.com',
+            password='admin_password',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number=1234567890
+        )
+        hold_user.save()
+        hold_admin = Administrator(user=hold_user)
+        hold_admin.save()
+        self.admin = AdminObj(hold_admin)
+
+    def test_success_intructor(self):
+        self.admin.courseUserAsgmt(self.hold_instr, self.hold_course)
+        self.assertIsNotNone(InstructorToCourse.objects.get(instructor=self.hold_instr, course=self.hold_course),
+                             "Instructor to Course object not made in AdminCourseUserAsgmt")
+
+    def test_success_ta(self):
+        self.admin.courseUserAsgmt(self.hold_ta, self.hold_course)
+        self.assertIsNotNone(TAToCourse.objects.get(ta=self.hold_ta, course=self.hold_course),
+                             "TA to Course object not made in AdminCourseUserAsgmt")
+
+    def test_bad_user_input(self):
+        with self.assertRaises(TypeError, msg="AdminCourseUserAsgmt Does not raise TYPEERROR for bad user"):
+            self.admin.courseUserAsgmt("STRING!", self.hold_course)
+
+    def test_bad_course_input_instr(self):
+        with self.assertRaises(TypeError,
+                               msg="AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when instructor"):
+            self.admin.courseUserAsgmt(self.hold_instr, "STRING!")
+
+    def test_bad_course_input_ta(self):
+        with self.assertRaises(TypeError, msg="AdminCourseUserAsgmt Does not raise TYPEERROR for bad course when TA"):
+            self.admin.courseUserAsgmt(self.hold_ta, "STRING!")
+
+
+class TestSecTAAsgmt(TestCase):
+    admin = None
+    ta = None
+    section = None
+
+    def setUp(self):
+        hold_user = User(
+            email_address='admin@example.com',
+            password='admin_password',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number=1234567890
+        )
+        hold_user.save()
+        hold_admin = Administrator(user=hold_user)
+        hold_admin.save()
+        self.admin = AdminObj(hold_admin)
+
+        tempcourse = Course.objects.create(
+            course_id=101,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        tempcourse.save()
+
+        self.section = Section.objects.create(
+            section_id=800,
+            course=tempcourse,
+            location="East Lane",
+            meeting_time=datetime(2023, 1, 1, 12, 0, 0)
+        )
+        self.section.save()
+
+        tmpuser = User.objects.create(
+            email_address='ta@example.com',
+            password='password',
+            first_name='Ta',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number=1234567890
+        )
+        self.ta = TA.objects.create(
+            user=tmpuser,
+            grader_status=False
+        )
+
+    def test_success_lab(self):
+        laboratory = Lab.objects.create(
+            section=self.section
+        )
+        labobj = LabObj(laboratory)
+        self.admin.sectionTAAsmgt(self.ta, labobj)
+        self.assertEquals(labobj.getLabTAAsgmt(), self.ta, "Did not assign correct laboratory")
+
+    def test_success_lec(self):
+        lecture = Lecture.objects.create(
+            section=self.section
+        )
+        lecobj = LectureObj(lecture)
+        tmpuser = User.objects.create(
+            email_address='ta@example.com',
+            password='password',
+            first_name='Ta',
+            last_name='User',
+            home_address='123 TA St',
+            phone_number=1234567890
+        )
+        tmpta = TA.objects.create(
+            user=tmpuser,
+            grader_status=True
+        )
+        tmpta.save()
+        self.admin.sectionTAAsmgt(tmpta, lecobj)
+        self.assertEquals(lecobj.getLectureTAAsgmt(), tmpta, "Did not assign correct lecture")
+
+    def test_bad_ta(self):
+        laboratory = Lab.objects.create(
+            section=self.section
+        )
+        labobj = LabObj(laboratory)
+        with self.assertRaises(TypeError, msg="Does not raise typerror for bad TA"):
+            self.admin.sectionTAAsmgt("String!", labobj)
+
+    def test_bad_section(self):
+        with self.assertRaises(TypeError, msg="Does not raise typerror for bad Section"):
+            self.admin.sectionTAAsmgt(self.ta, "STRING!")
+
+
+class TestGetAllCrseAsgmts(TestCase):
+    admin = None
+    course1 = None
+    course2 = None
+    ta1 = None
+    ta2 = None
+    instr1 = None
+    instr2 = None
+
+    def setUp(self):
+        hold_user = User(
+            email_address='admin@example.com',
+            password='admin_password',
+            first_name='Admin',
+            last_name='User',
+            home_address='123 Admin St',
+            phone_number=1234567890
+        )
+        hold_user.save()
+        hold_admin = Administrator(user=hold_user)
+        hold_admin.save()
+        self.admin = AdminObj(hold_admin)
+        self.course1 = Course.objects.create(
+            course_id=104,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        self.course1.save()
+        tempUser = User.objects.create(email_address='ta1@example.com',
+                                       password='user_password',
+                                       first_name='user',
+                                       last_name='User',
+                                       home_address='123 user1 St',
+                                       phone_number='1234567890')
+        self.ta1 = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
+        self.ta1.save()
+        TAToCourse.objects.create(ta=self.ta1, course=self.course1)
+
+        tempUser = User.objects.create(email_address='instr1@example.com',
+                                       password='instr_password',
+                                       first_name='instr',
+                                       last_name='instr',
+                                       home_address='123 instr1 St',
+                                       phone_number='1234567890')
+        self.instr1 = Instructor.objects.create(user=tempUser, max_assignments=5)
+        self.instr1.save()
+        InstructorToCourse.objects.create(instructor=self.instr1, course=self.course1)
+
+        self.course2 = Course.objects.create(
+            course_id=102,
+            semester='Fall 2023',
+            name='Introduction to Testing',
+            description='A course about writing tests in Django.',
+            num_of_sections=3,
+            modality='Online'
+        )
+        self.course2.save()
+        tempUser = User.objects.create(email_address='ta2@example.com',
+                                       password='user_password',
+                                       first_name='user',
+                                       last_name='User',
+                                       home_address='123 user1 St',
+                                       phone_number='1234567890')
+        self.ta2 = TA.objects.create(user=tempUser, grader_status=False, max_assignments=5)
+        self.ta2.save()
+        TAToCourse.objects.create(ta=self.ta2, course=self.course2)
+
+        tempUser = User.objects.create(email_address='instr2@example.com',
+                                       password='instr_password',
+                                       first_name='instr',
+                                       last_name='instr',
+                                       home_address='123 instr1 St',
+                                       phone_number='1234567890')
+        self.instr2 = Instructor.objects.create(user=tempUser, max_assignments=5)
+        self.instr2.save()
+        InstructorToCourse.objects.create(instructor=self.instr2, course=self.course2)
+
+    def test_successful(self):
+        self.assertEquals(TAToCourse.objects.count(), 2, "Did not make the correct amount of links")
+        self.assertEquals(InstructorToCourse.objects.count(), 2, "Did not make the correct amount of links")
+        self.assertIsInstance(self.admin.getAllCrseAsgmts(), dict, "Does not return dictionary")
+        self.assertEquals(self.admin.getAllCrseAsgmts().get(104), ('instr1@example.com', 'ta1@example.com'), "Course 104 does not do")
+        self.assertEquals(self.admin.getAllCrseAsgmts().get(102), ('instr2@example.com', 'ta2@example.com'), "Course 102 does not do")
+        # IDK what I want it to output as
+
+    def test_no_courses(self):
+        TAToCourse.objects.all().delete()
+        InstructorToCourse.objects.all().delete()
+        with self.assertRaises(RuntimeError, msg="Code does not produce RuntimeError when no crse assignments"):
+            self.admin.getAllCrseAsgmts()
+
+
 class TestAdminGetAllSecAsgmt(TestCase):  # Kiran
     adminObj = None
 

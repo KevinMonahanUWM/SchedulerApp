@@ -404,6 +404,34 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
+    def sectionTAAsmgt(self, active_ta, active_section):
+        if not isinstance(active_ta, TA):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not TA")
+        if not isinstance(active_section, LabObj) and not isinstance(active_section, LectureObj):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not Lab or Lecture")
+        active_section.addTA(active_ta)
+
+    def getAllCrseAsgmts(self):
+        outputdict = {}
+        if not InstructorToCourse.objects.exists() and not TAToCourse.objects.exists():
+            raise RuntimeError("No course links exist")
+        for i in InstructorToCourse.objects.all():
+            outputdict[i.course.course_id] = i.instructor.user.email_address
+        for i in TAToCourse.objects.all():
+            outputdict.setdefault(i.course.course_id, []).append(i.ta.user.email_address)
+        return outputdict
+
+    def courseUserAsgmt(self, active_user, active_course):
+        if not isinstance(active_course, CourseObj):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not Course")
+        if isinstance(active_user, InstructorObj):
+            InstructorToCourse.objects.create(instructor=active_user.database, course=active_course.database)
+        if isinstance(active_user, TAObj):
+            TAToCourse.objects.create(ta=active_user.database, course=active_course.database)
+        # Do .get method for a taToCourse or instructorToCourse
+        if not isinstance(active_user, InstructorObj) and not isinstance(active_user, TAObj):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
+
     def getAllSecAsgmt(self):
         qs = Section.objects.all()  # returns empty qs if no sections
         if qs.count() > 0:
