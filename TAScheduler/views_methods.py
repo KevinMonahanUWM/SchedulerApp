@@ -414,26 +414,23 @@ class AdminObj(UserObj):
 
     def getAllCrseAsgmts(self):
         outputdict = {}
-        if InstructorToCourse.objects.all().count() + TAToCourse.objects.all().count() == 0:
+        if not InstructorToCourse.objects.exists() and not TAToCourse.objects.exists():
             raise RuntimeError("No course links exist")
         for i in InstructorToCourse.objects.all():
             outputdict[i.course.course_id] = i.instructor.user.email_address
         for i in TAToCourse.objects.all():
-            if i.course.course_id in outputdict:
-                outputdict[i.course.course_id] = (outputdict[i.course.course_id], i.ta.user.email_address)
-            else:
-                outputdict[i.course.course_id] = i.ta
+            outputdict.setdefault(i.course.course_id, []).append(i.ta.user.email_address)
         return outputdict
 
     def courseUserAsgmt(self, active_user, active_course):
-        if not isinstance(active_course, Course):
+        if not isinstance(active_course, CourseObj):
             raise TypeError("Input passed to admin.courseUserAsgmt is not Course")
-        if isinstance(active_user, Instructor):
-            InstructorToCourse.objects.create(instructor=active_user, course=active_course)
-        if isinstance(active_user, TA):
-            TAToCourse.objects.create(ta=active_user, course=active_course)
+        if isinstance(active_user, InstructorObj):
+            InstructorToCourse.objects.create(instructor=active_user.database, course=active_course.database)
+        if isinstance(active_user, TAObj):
+            TAToCourse.objects.create(ta=active_user.database, course=active_course.database)
         # Do .get method for a taToCourse or instructorToCourse
-        if not isinstance(active_user, Instructor) and not isinstance(active_user, TA):
+        if not isinstance(active_user, InstructorObj) and not isinstance(active_user, TAObj):
             raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
 
 
