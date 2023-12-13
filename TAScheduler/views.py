@@ -253,6 +253,7 @@ class CreateCourse(View):
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e)})
 
+
 class EditCourse(View):
 
     def get(self, request):
@@ -329,25 +330,23 @@ class CourseUserAssignments(View):
                               {"message": str(e), "courses": courses})
 
 
-
 class AccountManagement(View):
 
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
         users = allUsers()
         return render(request, "accountManagement/account_management.html",
-                      {"users": users, "current_user": request.session.get("user")})
+                      {"users": users, "current_user": request.session.get("user"), "role":
+                          determineUser(request.session["user"]).getRole()})
 
     def post(self, request):
         if request.POST.get("edit") is not None:
             role = determineUser(request.POST.get("user")).getRole()
             request.session["current_edit"] = request.POST["user"]
             user = determineUser(request.POST.get("user")).database
-            return render(request, "accountManagement/edit_account.html", {"users": None,
-                                                                           "role": role, "user": user})
+            return render(request, "accountManagement/edit_account.html", {"role": role, "user": user,
+                                                        "user_role": determineUser(request.session["user"]).getRole()})
         else:
             try:
                 determineUser(request.session["user"]).removeUser(determineUser(request.POST.get("user")))
@@ -373,6 +372,7 @@ class CreateAccount(View):
         return render(request, "accountManagement/create_account.html", {"roles": roles})
 
     def post(self, request):
+        role = determineUser(request.session["user"]).getRole()
         if request.POST["phone_number"] == "":
             number = 0
         else:
@@ -391,12 +391,11 @@ class CreateAccount(View):
             users = allUsers()
             return render(request, "accountManagement/account_management.html",
                           {"users": users, "current_user": request.session.get("user"),
-                           "message": "Successfully created account"})
+                           "message": "Successfully created account", "role": role})
         except Exception as e:
-            users = allUsers()
-            return render(request, "accountManagement/account_management.html",
-                          {"users": users, "current_user": request.session.get("user"),
-                           "message": str(e)})
+            roles = ["Admin", "Instructor", "TA"]
+            return render(request, "accountManagement/create_account.html",
+                          {"message": str(e), "roles": roles})
 
 
 class EditAccount(View):
@@ -404,8 +403,6 @@ class EditAccount(View):
     def get(self, request):
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
         return redirect("/home/manageaccount")
 
     def post(self, request):
@@ -431,8 +428,29 @@ class EditAccount(View):
             "max_assignments": max
         }
         try:
-            determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
-                                                            account_info)
+            role = determineUser(request.session["current_edit"]).getRole()
+            if determineUser(request.session["user"]).getRole() != "Admin":
+                admin_user_info = User.objects.create(
+                    email_address="admin@exampledontuse.com",
+                    password="admin_pass",
+                    first_name="Admin",
+                    last_name="User",
+                    home_address="123 Admin Street",
+                    phone_number=1234567890
+                )
+                admin_model = Administrator.objects.create(user=admin_user_info)
+                adminObj = AdminObj(admin_model)
+                adminObj.editUser(determineUser(request.session["current_edit"]), account_info)
+                request.session["user"] = str(determineUser(request.session["user"]).database)
+                del request.session["current_edit"]
+                User.delete(admin_model)
+                users = allUsers()
+                return render(request, "accountManagement/account_management.html",
+                              {"users": users, "current_user": request.session.get("user"),
+                               "message": "User successfully edited", "role": role})
+            else:
+                determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
+                                                                account_info)
 
             if request.session["current_edit"] == request.session["user"] and request.POST.get(
                     "email_address") is not None:
@@ -445,12 +463,12 @@ class EditAccount(View):
             users = allUsers()
             return render(request, "accountManagement/account_management.html",
                           {"users": users, "current_user": request.session.get("user"),
-                           "message": "User successfully edited"})
+                           "message": "User successfully edited", "role": role})
         except Exception as e:
-            role = determineUser(request.session["current_edit"]).getRole()
             user = determineUser(request.session["current_edit"]).database
             return render(request, "accountManagement/edit_account.html",
-                          {"message": e, "role": role, "user": user})
+                          {"message": e, "role": role, "user": user,
+                           "user_role": determineUser(request.session["user"]).getRole()})
 
 
 class SectionManagement(View):
@@ -518,7 +536,7 @@ class CreateSection(View):
         courses = Course.objects.all()
         return render(request, "sectionManagement/create_section.html", {"secs": secs, "courses": courses})
 
-    def post(self, request): #
+    def post(self, request):  #
         # Next sprint will require us to search for the user in the DB: current user may not be an admin
         curUserObj = determineUser(request.session["user"])
         course_id = request.POST.get('course_id')
@@ -673,7 +691,7 @@ class ViewTAAssignments(View):
             return redirect("/")
 
         # Logic to fetch TA assignments
-        ta_assignments = [] # Replace with actual logic to fetch assignments
+        ta_assignments = []  # Replace with actual logic to fetch assignments
         for ta in TA.objects.all():
             for course in TAToCourse.objects.filter(ta=ta):
                 ta_assignments.append({
