@@ -103,6 +103,13 @@ def usersInCourseNotSec(courseUsers, sectionUsers):
     return unattached
 
 
+def allUsers():
+    users = list(map(str, Administrator.objects.all()))
+    users.extend(list(map(str, Instructor.objects.all())))
+    users.extend(list(map(str, TA.objects.all())))
+    return users
+
+
 class Login(View):
     def get(self, request):
         return render(request, "login.html")
@@ -330,9 +337,7 @@ class AccountManagement(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        users = list(map(str, Administrator.objects.all()))
-        users.extend(list(map(str, Instructor.objects.all())))
-        users.extend(list(map(str, TA.objects.all())))
+        users = allUsers()
         return render(request, "accountManagement/account_management.html",
                       {"users": users, "current_user": request.session.get("user")})
 
@@ -346,16 +351,12 @@ class AccountManagement(View):
         else:
             try:
                 determineUser(request.session["user"]).removeUser(determineUser(request.POST.get("user")))
-                users = list(map(str, Administrator.objects.all()))
-                users.extend(list(map(str, Instructor.objects.all())))
-                users.extend(list(map(str, TA.objects.all())))
+                users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
                                "message": "User successfully deleted"})
             except Exception as e:
-                users = list(map(str, Administrator.objects.all()))
-                users.extend(list(map(str, Instructor.objects.all())))
-                users.extend(list(map(str, TA.objects.all())))
+                users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
                                "message": e})
@@ -387,16 +388,12 @@ class CreateAccount(View):
         print(request.session["user"])
         try:
             determineUser(request.session["user"]).createUser(account_info, role=request.POST["role"])
-            users = list(map(str, Administrator.objects.all()))
-            users.extend(list(map(str, Instructor.objects.all())))
-            users.extend(list(map(str, TA.objects.all())))
+            users = allUsers()
             return render(request, "accountManagement/account_management.html",
                           {"users": users, "current_user": request.session.get("user"),
                            "message": "Successfully created account"})
         except Exception as e:
-            users = list(map(str, Administrator.objects.all()))
-            users.extend(list(map(str, Instructor.objects.all())))
-            users.extend(list(map(str, TA.objects.all())))
+            users = allUsers()
             return render(request, "accountManagement/account_management.html",
                           {"users": users, "current_user": request.session.get("user"),
                            "message": str(e)})
@@ -445,9 +442,7 @@ class EditAccount(View):
                 request.session["user"] = str(Administrator.objects.get(
                     user__email_address=determineUser(request.session["user"]).getUsername()))
             del request.session["current_edit"]
-            users = list(map(str, Administrator.objects.all()))
-            users.extend(list(map(str, Instructor.objects.all())))
-            users.extend(list(map(str, TA.objects.all())))
+            users = allUsers()
             return render(request, "accountManagement/account_management.html",
                           {"users": users, "current_user": request.session.get("user"),
                            "message": "User successfully edited"})
