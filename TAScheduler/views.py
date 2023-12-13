@@ -146,7 +146,6 @@ class Home(View):
             'manage_accounts': '/home/manageaccount',
             'manage_courses': '/home/managecourse',
             'manage_sections': '/home/managesection',
-            'role': role,
             'courses_exists': courseExist
         }
         return render(request, 'home.html', context)

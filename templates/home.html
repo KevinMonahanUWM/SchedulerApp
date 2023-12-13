@@ -10,7 +10,6 @@
     <header>
         <h1>{{ role_name }} Home</h1>
     </header>
-    {% if role == "Admin" %}
     <nav>
         <table>
             <tr>
@@ -31,24 +30,7 @@
             </tr>
             {% endif %}
         </table>
-
-
-
     </nav>
-    {% endif %}
-
-      <!-- Additional button for Instructors and TAs -->
-    {% if role == "Instructor" or role == "TA" %}
-    <nav>
-        <table>
-            <tr>
-                <td>
-                    <a href="{{ view_ta_assignments }}">View TA Course Assignments</a>
-                </td>
-            </tr>
-        </table>
-    </nav>
-    {% endif %}
     <section>
         <h2>Welcome, {{ username }}!</h2>
     </section>
