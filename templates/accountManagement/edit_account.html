@@ -38,6 +38,12 @@
         <td><label for="phone_number">Phone Number:</label></td>
         <td><input id="phone_number" type="number" name="phone_number" value="{{ user.user.phone_number }}"></td>
     </tr>
+    {% if user_role == "TA" %}
+    <tr>
+            <label for="skills">Skills:</label>
+            <textarea id="skills" name="skills">{{ user.skills }}</textarea><br>
+    </tr>
+    {% endif %}
     {% if role == "TA" or role == "Instructor"%}
         {% if user_role == "Admin" %}
         <tr>
