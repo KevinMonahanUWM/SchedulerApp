@@ -772,12 +772,12 @@ class TestAdminCourseUserAsgmt(TestCase):
         self.admin = AdminObj(hold_admin)
 
     def test_success_intructor(self):
-        self.admin.courseUserAsgmt(self.hold_instr, self.hold_course)
+        self.admin.courseUserAsgmt(self.tempInstr, self.tempCourse)
         self.assertIsNotNone(InstructorToCourse.objects.get(instructor=self.hold_instr, course=self.hold_course),
                              "Instructor to Course object not made in AdminCourseUserAsgmt")
 
     def test_success_ta(self):
-        self.admin.courseUserAsgmt(self.hold_ta, self.hold_course)
+        self.admin.courseUserAsgmt(self.tempTA, self.tempCourse)
         self.assertIsNotNone(TAToCourse.objects.get(ta=self.hold_ta, course=self.hold_course),
                              "TA to Course object not made in AdminCourseUserAsgmt")
 

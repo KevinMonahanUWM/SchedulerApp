@@ -428,7 +428,7 @@ class AdminObj(UserObj):
 
     def courseUserAsgmt(self, active_user, active_course):
         if not isinstance(active_course, CourseObj):
-            raise TypeError("Input passed to admin.courseUserAsgmt is not Course")
+            raise TypeError("Input passed to admin.courseUserAsgmt is not CourseObj")
         if isinstance(active_user, InstructorObj):
             InstructorToCourse.objects.create(instructor=active_user.database, course=active_course.database)
         if isinstance(active_user, TAObj):
