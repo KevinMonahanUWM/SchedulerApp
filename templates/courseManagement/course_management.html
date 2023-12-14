@@ -27,7 +27,9 @@
     {% endfor %}
     <tr>
         <td colspan="4">
+            {% if role == "Admin" %}
             <a href="/home/managecourse/create">Create Course</a>
+            {% endif %}
         </td>
     </tr>
     <tr>
