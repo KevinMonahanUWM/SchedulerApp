@@ -17,8 +17,10 @@
         <tr>
             <td>{{ course.course }}</td> <!-- Display course name -->
             <input type="hidden" name="course" value="{{ course.course }}">
+            {% if role == "Admin" %}
             <td><input type="submit" name="edit" value="Edit"></td> <!-- Edit button -->
             <td><input type="submit" name="delete" value="Delete"></td> <!-- Delete button -->
+            {% endif %}
             <td><input type="submit" name="details" value="Details"></td>
         </tr>
     </form>

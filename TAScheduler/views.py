@@ -181,9 +181,8 @@ class CourseManagement(View):
         courseWithUsers = coursesAddAssignments()
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        return render(request, "courseManagement/course_management.html", {"courses": courseWithUsers})
+        return render(request, "courseManagement/course_management.html", {"courses": courseWithUsers,  "role":
+                          determineUser(request.session["user"]).getRole()})
 
     def post(self, request):
         courses = coursesAddAssignments()
@@ -217,7 +216,8 @@ class CourseManagement(View):
             return render(request, "courseManagement/course_user_assignments.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
                            "unassignedEmpty": noneAvailable, "assigned": usersCurrentlyAssigned,
-                           "unassigned": usersAvailableToAssign})
+                           "unassigned": usersAvailableToAssign, "role":
+                          determineUser(request.session["user"]).getRole()})
 
 
 class CreateCourse(View):
@@ -311,11 +311,11 @@ class CourseUserAssignments(View):
                 courseobj.removeAssignment(selecteduser)
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": "Successfully removed assignment", "courses": courses})
+                              {"message": "Successfully removed assignment", "courses": courses, "role": selecteduser.getRole()})
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses})
+                              {"message": str(e), "courses": courses, "role": selecteduser.getRole()})
         else:
             try:
                 if selecteduser.getRole() == 'TA':
@@ -324,11 +324,11 @@ class CourseUserAssignments(View):
                     courseobj.addInstructor(selecteduser)
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": "Successfully assigned user to course", "courses": courses})
+                              {"message": "Successfully assigned user to course", "courses": courses, "role": selecteduser.getRole()})
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses})
+                              {"message": str(e), "courses": courses, "role": selecteduser.getRole()})
 
 
 class AccountManagement(View):
