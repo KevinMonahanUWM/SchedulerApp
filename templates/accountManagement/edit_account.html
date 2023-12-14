@@ -40,8 +40,11 @@
     </tr>
     {% if user_role == "TA" %}
     <tr>
-            <label for="skills">Skills:</label>
-            <textarea id="skills" name="skills">{{ user.skills }}</textarea><br>
+            <td>
+                <label for="skills">Skills:</label>
+            </td>
+            <td><textarea id="skills" name="skills">{{ user.skills }}</textarea></td>
+
     </tr>
     {% endif %}
     {% if role == "TA" or role == "Instructor"%}
