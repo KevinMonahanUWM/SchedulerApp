@@ -20,7 +20,7 @@ from django.urls import path
 
 from TAScheduler.views import Home, CourseManagement, CreateCourse, EditCourse, CourseUserAssignments, \
     Login, AccountManagement, CreateAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
-    SectionUserAssignment, Forgot_Password
+    SectionUserAssignment, Forgot_Password, ViewTAAssignments
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -37,7 +37,8 @@ urlpatterns = [
     path('home/managesection/create/', CreateSection.as_view()),
     path('home/managesection/edit/', EditSection.as_view()),
     path('home/managesection/assignuser/', SectionUserAssignment.as_view()),
-    path('forgot_password/', Forgot_Password.as_view())
+    path('forgot_password/', Forgot_Password.as_view()),
+    path('home/view_ta_assignments/', ViewTAAssignments.as_view()),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
