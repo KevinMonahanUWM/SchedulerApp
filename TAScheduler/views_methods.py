@@ -418,12 +418,15 @@ class AdminObj(UserObj):
 
     def getAllCrseAsgmts(self):
         outputdict = {}
-        if not InstructorToCourse.objects.exists() and not TAToCourse.objects.exists():
+        if InstructorToCourse.objects.all().count() + TAToCourse.objects.all().count() == 0:
             raise RuntimeError("No course links exist")
         for i in InstructorToCourse.objects.all():
             outputdict[i.course.course_id] = i.instructor.user.email_address
         for i in TAToCourse.objects.all():
-            outputdict.setdefault(i.course.course_id, []).append(i.ta.user.email_address)
+            if i.course.course_id in outputdict:
+                outputdict[i.course.course_id] = (outputdict[i.course.course_id], i.ta.user.email_address)
+            else:
+                outputdict[i.course.course_id] = i.ta
         return outputdict
 
     def courseUserAsgmt(self, active_user, active_course):

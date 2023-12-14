@@ -851,7 +851,7 @@ class TestSecTAAsgmt(TestCase):
         )
         labobj = LabObj(laboratory)
         self.admin.sectionTAAsmgt(self.ta, labobj)
-        self.assertEquals(labobj.getLabTAAsgmt(), self.ta, "Did not assign correct laboratory")
+        self.assertEqual(labobj.getLabTAAsgmt(), self.ta, "Did not assign correct laboratory")
 
     def test_success_lec(self):
         lecture = Lecture.objects.create(
@@ -872,7 +872,7 @@ class TestSecTAAsgmt(TestCase):
         )
         tmpta.save()
         self.admin.sectionTAAsmgt(tmpta, lecobj)
-        self.assertEquals(lecobj.getLectureTAAsgmt(), tmpta, "Did not assign correct lecture")
+        self.assertEqual(lecobj.getLectureTAAsgmt(), tmpta, "Did not assign correct lecture")
 
     def test_bad_ta(self):
         laboratory = Lab.objects.create(
@@ -968,11 +968,11 @@ class TestGetAllCrseAsgmts(TestCase):
         InstructorToCourse.objects.create(instructor=self.instr2, course=self.course2)
 
     def test_successful(self):
-        self.assertEquals(TAToCourse.objects.count(), 2, "Did not make the correct amount of links")
-        self.assertEquals(InstructorToCourse.objects.count(), 2, "Did not make the correct amount of links")
+        self.assertEqual(TAToCourse.objects.count(), 2, "Did not make the correct amount of links")
+        self.assertEqual(InstructorToCourse.objects.count(), 2, "Did not make the correct amount of links")
         self.assertIsInstance(self.admin.getAllCrseAsgmts(), dict, "Does not return dictionary")
-        self.assertEquals(self.admin.getAllCrseAsgmts().get(104), ('instr1@example.com', 'ta1@example.com'), "Course 104 does not do")
-        self.assertEquals(self.admin.getAllCrseAsgmts().get(102), ('instr2@example.com', 'ta2@example.com'), "Course 102 does not do")
+        self.assertEqual(self.admin.getAllCrseAsgmts().get(104), ('instr1@example.com', 'ta1@example.com'), "Course 104 does not do")
+        self.assertEqual(self.admin.getAllCrseAsgmts().get(102), ('instr2@example.com', 'ta2@example.com'), "Course 102 does not do")
         # IDK what I want it to output as
 
     def test_no_courses(self):
@@ -1795,7 +1795,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
 
     # [2] 0 assignment
     def test_0Assignment(self):
-        self.assertEquals(self.instrObj.getInstrCrseAsgmts().count(), 0, msg="should be 0 assignments")
+        self.assertEqual(self.instrObj.getInstrCrseAsgmts().count(), 0, msg="should be 0 assignments")
 
 
 class TestInstructorGetInstrCourseAssignments(TestCase):  # Kiran
@@ -2454,7 +2454,7 @@ class TestSectionGetID(TestCase):  # Joe
         self.lab = LabObj(Lab(section=tmp_section))
 
     def test_get_id(self):
-        self.assertEquals(self.lab.getID(), 1011, "getID() did not retrieve correct section_id")
+        self.assertEqual(self.lab.getID(), 1011, "getID() did not retrieve correct section_id")
 
 
 class TestSectionGetParentCourse(TestCase):  # Joe
@@ -2504,7 +2504,7 @@ class TestSectionGetParentCourse(TestCase):  # Joe
         self.lab = LabObj(tmp_lab)
 
     def test_get_parent_course(self):
-        self.assertEquals(self.lab.getParentCourse(), self.course,
+        self.assertEqual(self.lab.getParentCourse(), self.course,
                           "getParentCourse() did not retrieve correct course")
 
 
@@ -2608,7 +2608,7 @@ class TestLabGetLabTAAssignment(TestCase):  # Joe
 
         self.labObj = LabObj(self.lab)  # Form lab after adding TA manually
 
-        self.assertEquals(
+        self.assertEqual(
             self.ta,
             self.labObj.getLabTAAsgmt(),
             "getLabTAAssignment() does not retrieve correct ta; Test may also be accepting wrong object")
@@ -2669,7 +2669,7 @@ class TestLabAddTA(TestCase):  # Joe
     def test_add_ta(self):
         self.lab.addTA(self.ta)
         # Gives error for TAObj having no 'user' but I think that's because __init__ not implemented in my branch
-        self.assertEquals(self.ta, self.lab.getLabTAAsgmt(),
+        self.assertEqual(self.ta, self.lab.getLabTAAsgmt(),
                           "addTA() does not add TA to lab")
 
     def test_add_ta_but_full(self):
@@ -2872,7 +2872,7 @@ class TestLectureGetLecInstrAssignment(TestCase):  # Joe
 
     def test_get_instructor(self):
         self.lecture.addInstr(self.instructor)
-        self.assertEquals(self.instructor, self.lecture.getLecInstrAsmgt(),
+        self.assertEqual(self.instructor, self.lecture.getLecInstrAsmgt(),
                           "getLecInstrAssignment() does not return correct")
 
     def test_get_with_no_instructor(self):
@@ -2936,7 +2936,7 @@ class TestLectureAddInstructor(TestCase):  # Joe
 
     def test_add(self):
         self.lecture.addInstr(self.instructor)
-        self.assertEquals(
+        self.assertEqual(
             self.lecture.getLecInstrAsmgt(),
             self.instructor,
             "getLecInstrAssignment() Did not add instructor to lecture"
@@ -3082,7 +3082,7 @@ class TestLectureGetLecTAAssignment(TestCase):  # Joe
         self.lecture = LectureObj(tmp_lec)
 
     def test_get_ta_assignment(self):
-        self.assertEquals(
+        self.assertEqual(
             self.lecture.getLectureTAAsgmt(),
             self.ta,
             "getLectureTAAssignment() Retrieved incorrect TA from lecture"
@@ -3162,7 +3162,7 @@ class TestLectureAddTA(TestCase):  # Joe
 
     def test_add(self):
         self.lecture.addTA(self.ta)
-        self.assertEquals(self.lecture.getLectureTAAsgmt(), self.ta, "addTA() did not add correct TA to lecture")
+        self.assertEqual(self.lecture.getLectureTAAsgmt(), self.ta, "addTA() did not add correct TA to lecture")
 
     def test_add_but_full(self):
         self.lecture.addTA(self.ta)
