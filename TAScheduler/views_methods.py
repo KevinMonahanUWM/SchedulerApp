@@ -727,7 +727,7 @@ class LectureObj(SectionObj):
 
     def addTA(self, active_ta):  # new
         if type(active_ta) is not TA:
-            raise TypeError("Data passed to addTA method is not a TA")
+            raise TypeError("Data passed fto addTA method is not a TA")
         elif not TA.objects.filter(user=active_ta.user).exists():
             raise RuntimeError("The TA object does not exist in the database")
         elif self.database.ta is not None:
