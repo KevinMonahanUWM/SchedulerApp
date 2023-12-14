@@ -303,7 +303,7 @@ class InstructorAssignTaToSection(View):
 
     def post(self, request):
         selecteduser = determineUser(request.POST.get("ta"))
-        selectedsection = determineUser(request.POST.get("sections"))
+        selectedsection = determineSec(request.POST.get("section"))
         if selecteduser is None or selecteduser == '':
             tas = list(map(str, TA.objects.all()))
             sections = list(map(str, Lab.objects.all()))
@@ -318,6 +318,13 @@ class InstructorAssignTaToSection(View):
             return render(request,
                           "sectionManagement/instructor_assign_ta_to_section.html",
                           {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
+        if isinstance(selectedsection, LabObj):
+            selecteduser.assignTALab(selectedsection)
+        if isinstance(selectedsection, LectureObj):
+            selecteduser.assignTALecture(selectedsection)
+        return render(request,
+                      "success.html",
+                      {"message": "Successfully assigned TA to section", "previous_url": "/home/managesection/"})
 
 
 
