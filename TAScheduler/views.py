@@ -65,6 +65,16 @@ def currentlyAssignedUsers(course_id):
     for instrc in assignments.get("instructors"):
         users.append(str(instrc.instructor))
     for ta in assignments.get("tas"):
+        users.append(str(ta.ta))
+    return users
+
+
+def currentlyAssignedUsersLec(course_id):
+    assignments = CourseObj(Course.objects.get(course_id=course_id)).getAsgmtsForCrse()
+    users = []
+    for instrc in assignments.get("instructors"):
+        users.append(str(instrc.instructor))
+    for ta in assignments.get("tas"):
         if ta.ta.grader_status:
             users.append(str(ta.ta))
     return users
@@ -181,9 +191,8 @@ class CourseManagement(View):
         courseWithUsers = coursesAddAssignments()
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        return render(request, "courseManagement/course_management.html", {"courses": courseWithUsers})
+        return render(request, "courseManagement/course_management.html", {"courses": courseWithUsers, "role":
+            determineUser(request.session["user"]).getRole()})
 
     def post(self, request):
         courses = coursesAddAssignments()
@@ -201,10 +210,12 @@ class CourseManagement(View):
                 curUserObj.removeCourse(course_to_delete)
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": "Successfully deleted course", "courses": courses})
+                              {"message": "Successfully deleted course", "courses": courses, "role":
+                                  determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses})
+                              {"message": str(e), "courses": courses, "role":
+                                  determineUser(request.session["user"]).getRole()})
         elif request.POST.get("details") is not None:
             course_id = int(course.split(": ", 1)[0])
             course_instance = Course.objects.get(course_id=course_id)
@@ -217,7 +228,8 @@ class CourseManagement(View):
             return render(request, "courseManagement/course_user_assignments.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
                            "unassignedEmpty": noneAvailable, "assigned": usersCurrentlyAssigned,
-                           "unassigned": usersAvailableToAssign})
+                           "unassigned": usersAvailableToAssign, "role":
+                               determineUser(request.session["user"]).getRole()})
 
 
 class CreateCourse(View):
@@ -252,7 +264,8 @@ class CreateCourse(View):
                           {"message": "Successfully created course", "courses": courses})
         except Exception as e:
             return render(request, "courseManagement/create_course.html",
-                          {"message": str(e)})
+                          {"message": str(e), "role":
+                              determineUser(request.session["user"]).getRole()})
 
 
 class EditCourse(View):
@@ -282,15 +295,19 @@ class EditCourse(View):
             admin_obj.editCourse(CourseObj(course_to_edit), new_info)
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html", {"message": "Successfully editted course",
-                                                                               "courses": courses})
+                                                                               "courses": courses, "role":
+                                                                                   determineUser(request.session[
+                                                                                                     "user"]).getRole()})
         except Course.DoesNotExist:
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
-                          {"message": "Course not found", "courses": courses})
+                          {"message": "Course not found", "courses": courses, "role":
+                              determineUser(request.session["user"]).getRole()})
         except Exception as e:
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
-                          {"message": str(e), "courses": courses})
+                          {"message": str(e), "courses": courses, "role":
+                              determineUser(request.session["user"]).getRole()})
 
 
 class CourseUserAssignments(View):
@@ -300,7 +317,7 @@ class CourseUserAssignments(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        return redirect("/home/managecourse")
+        return redirect("/home/managecourse/")
 
     def post(self, request):
         selecteduser = determineUser(request.POST.get("user"))
@@ -311,11 +328,12 @@ class CourseUserAssignments(View):
                 courseobj.removeAssignment(selecteduser)
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": "Successfully removed assignment", "courses": courses})
+                              {"message": "Successfully removed assignment", "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses})
+                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
         else:
             try:
                 if selecteduser.getRole() == 'TA':
@@ -324,11 +342,12 @@ class CourseUserAssignments(View):
                     courseobj.addInstructor(selecteduser)
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": "Successfully assigned user to course", "courses": courses})
+                              {"message": "Successfully assigned user to course", "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses})
+                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
 
 
 class AccountManagement(View):
@@ -347,7 +366,8 @@ class AccountManagement(View):
             request.session["current_edit"] = request.POST["user"]
             user = determineUser(request.POST.get("user")).database
             return render(request, "accountManagement/edit_account.html", {"role": role, "user": user,
-                                                        "user_role": determineUser(request.session["user"]).getRole()})
+                                                                           "user_role": determineUser(
+                                                                               request.session["user"]).getRole()})
         else:
             try:
                 determineUser(request.session["user"]).removeUser(determineUser(request.POST.get("user")))
@@ -511,7 +531,7 @@ class SectionManagement(View):
             if isinstance(secObj, LabObj):
                 usersInCourse = currentlyAssignedUsersLab(courseObj.getCrseInfo().get("course_id"))
             else:
-                usersInCourse = currentlyAssignedUsers(courseObj.getCrseInfo().get("course_id"))
+                usersInCourse = currentlyAssignedUsersLec(courseObj.getCrseInfo().get("course_id"))
             attachedUsers = usersInSection(secObj)
             unattachedUsers = usersInCourseNotSec(usersInCourse, attachedUsers)
             noneAssigned = False
