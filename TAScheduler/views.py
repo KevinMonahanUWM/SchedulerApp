@@ -388,6 +388,8 @@ class CreateAccount(View):
         }
         print(request.session["user"])
         try:
+            if determineUser(request.session["user"]).getRole() == "TA":
+                determineUser(request.session["user"]).setSkills(request.POST["skills"])
             determineUser(request.session["user"]).createUser(account_info, role=request.POST["role"])
             users = list(map(str, Administrator.objects.all()))
             users.extend(list(map(str, Instructor.objects.all())))
