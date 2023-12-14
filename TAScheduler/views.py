@@ -261,7 +261,7 @@ class CreateCourse(View):
             admin_obj.createCourse(course_info)
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
-                          {"message": "Successfully created course", "courses": courses})
+                          {"message": "Successfully created course", "courses": courses, "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e), "role":
