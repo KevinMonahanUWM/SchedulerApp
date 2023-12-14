@@ -7,14 +7,21 @@
     <link rel="stylesheet" href= {% static 'css/style.css' %}>
 </head>
 <body>
-<h1>{{ course }}</h1>
-{{ message }}
-<h2>Course Details</h2>
-<p><strong>Description:</strong> {{ course_info.description }}</p>
-<p><strong>Number of Sections:</strong> {{ course_info.num_of_sections }}</p>
-<p><strong>Modality:</strong> {{ course_info.modality }}</p>
-<table>
-    {% if not assignedEmpty %}
+<div class="content-container">
+    <!-- Left Column for Course Details -->
+    <div class="column">
+        <h1>{{ course }}</h1>
+        {{ message }}
+        <h2 class="left-aligned-header" >Course Details</h2>
+        <div class="details"><strong>Description:</strong> {{ course_info.description }}</div>
+        <div class="details"><strong>Number of Sections:</strong> {{ course_info.num_of_sections }}</div>
+        <div class="details"><strong>Modality:</strong> {{ course_info.modality }}</div>
+    </div>
+
+    <!-- Right Column for User Assignment -->
+    <div class="column">
+        <table>
+             {% if not assignedEmpty %}
     <tr><th colspan="2">Assigned Users</th></tr>
     {% for user in assigned %}
        <form id="unassign" action="/home/managecourse/assignuser/" method="post">
@@ -47,7 +54,8 @@
     <tr><td>No users available to assign and no users currently assigned</td></tr>
     {% endif %}
     <tr><td colspan="2"><a href="/home/managecourse/">Cancel</a></td></tr>
-</table>
-
+        </table>
+    </div>
+</div>
 </body>
 </html>
