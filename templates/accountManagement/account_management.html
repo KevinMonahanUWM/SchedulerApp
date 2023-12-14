@@ -16,18 +16,22 @@
     <tr>
         <td>{{ user }}</td>
         <input type="hidden" name="user" value="{{ user }}">
+        {% if role == "Admin" or user == current_user %}
         <td><input id="edit" type="submit" name="edit" value="Edit"></td>
         {% if user != current_user %}
         <td><input id="delete" type="submit" name="delete" value="Delete"></td>
         {% endif %}
+        {% endif %}
     </tr>
     </form>
     {% endfor %}
+    {% if role == "Admin" %}
     <tr>
         <td colspan="3">
             <a href="/home/manageaccount/create/">Create Account</a>
         </td>
     </tr>
+    {% endif %}
     <tr>
         <td colspan="3">
             <a href="/home/">Home</a>
