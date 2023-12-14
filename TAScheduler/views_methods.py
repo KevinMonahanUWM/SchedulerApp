@@ -131,10 +131,10 @@ class AdminObj(UserObj):
             raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        if not Course.objects.filter(course_id=section_info.get("course_id")).exists():
+        if not Course.objects.filter(course_id=section_info.get("course").course_id).exists():
             raise RuntimeError("Course ID is not existing course cant create section")
 
-        courseDB = Course.objects.get(course_id=section_info.get("course_id"))
+        courseDB = Course.objects.get(course_id=section_info.get("course").course_id)
         fields = {"section_id": section_info["section_id"],
                   "course": courseDB,
                   "location": section_info["location"],
@@ -268,7 +268,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError: #Something
+        except KeyError:  # Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -409,6 +409,37 @@ class AdminObj(UserObj):
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
 
+    def sectionTAAsmgt(self, active_ta, active_section):
+        if not isinstance(active_ta, TA):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not TA")
+        if not isinstance(active_section, LabObj) and not isinstance(active_section, LectureObj):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not Lab or Lecture")
+        active_section.addTA(active_ta)
+
+    def getAllCrseAsgmts(self):
+        outputdict = {}
+        if InstructorToCourse.objects.all().count() + TAToCourse.objects.all().count() == 0:
+            raise RuntimeError("No course links exist")
+        for i in InstructorToCourse.objects.all():
+            outputdict[i.course.course_id] = i.instructor.user.email_address
+        for i in TAToCourse.objects.all():
+            if i.course.course_id in outputdict:
+                outputdict[i.course.course_id] = (outputdict[i.course.course_id], i.ta.user.email_address)
+            else:
+                outputdict[i.course.course_id] = i.ta
+        return outputdict
+
+    def courseUserAsgmt(self, active_user, active_course):
+        if not isinstance(active_course, CourseObj):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not CourseObj")
+        if isinstance(active_user, InstructorObj):
+            InstructorToCourse.objects.create(instructor=active_user.database, course=active_course.database)
+        if isinstance(active_user, TAObj):
+            TAToCourse.objects.create(ta=active_user.database, course=active_course.database)
+        # Do .get method for a taToCourse or instructorToCourse
+        if not isinstance(active_user, InstructorObj) and not isinstance(active_user, TAObj):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
+
     def editContactInfo(self, **kwargs):
         user = self.database.user  # Accessing the User object
 
@@ -525,13 +556,13 @@ class TAObj(UserObj):
 
     def assignTALecture(self, active_lecture):  # new
         # Ensure that the TA is linked to the course of the lecture
-        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
-            raise ValueError("TA is not assigned to the course of the lecture")
-
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
             raise RuntimeError("Can't assign TA a lec without grader status")
+
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
 
         argLecDB = active_lecture.database
         if argLecDB.section is None:  # SHOULD BE IMPOSSIBLE*
@@ -609,7 +640,7 @@ class TAObj(UserObj):
         return formatted_assignments
 
     def setSkills(self, skills):
-        if (skills != "" and isinstance(skills,str)):
+        if (skills != "" and isinstance(skills, str)):
             self.database.skills = skills
             self.database.save()
         else:
