@@ -268,7 +268,7 @@ class AdminObj(UserObj):
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError: #Something
+        except KeyError:  # Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -556,13 +556,13 @@ class TAObj(UserObj):
 
     def assignTALecture(self, active_lecture):  # new
         # Ensure that the TA is linked to the course of the lecture
-        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
-            raise ValueError("TA is not assigned to the course of the lecture")
-
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
             raise RuntimeError("Can't assign TA a lec without grader status")
+
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
 
         argLecDB = active_lecture.database
         if argLecDB.section is None:  # SHOULD BE IMPOSSIBLE*
@@ -640,7 +640,7 @@ class TAObj(UserObj):
         return formatted_assignments
 
     def setSkills(self, skills):
-        if (skills != "" and isinstance(skills,str)):
+        if (skills != "" and isinstance(skills, str)):
             self.database.skills = skills
             self.database.save()
         else:

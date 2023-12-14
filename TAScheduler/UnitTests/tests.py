@@ -1430,14 +1430,16 @@ class TestAssignTALec(TestCase):  # Kiran
         self.taDB = TA.objects.create(user=self.user, grader_status=True, max_assignments=1)  # max 1 assignment!
         self.taObj = TAObj(self.taDB)  # creating TA object using TA in database.
         for i in [1, 2, 3]:
-            self.courseDBList.append(Course.objects.create(
+            tmp = Course.objects.create(
                 course_id=100 + i,
                 semester='Fall 2023',
                 name='Introduction to Testing',
                 description='A course about writing tests in Django.',
                 num_of_sections=3,
                 modality='Online'
-            ))
+            )
+            self.courseDBList.append(tmp)
+            TAToCourse.objects.create(ta=self.taDB, course=tmp)
         for i in [1, 2, 3]:  # section
             self.sectionDBList.append(Section.objects.create(
                 section_id=100 + i,
@@ -1499,6 +1501,7 @@ class TestAssignTALec(TestCase):  # Kiran
                                         phone_number='1234567890')  # HOPEFULLY DON'T NEED ALL FIELDS?
         tempTa = TA.objects.create(user=temp_user, max_assignments=2, grader_status=False)  # w/o GraderStatus
         tempTAObj = TAObj(tempTa)  # reassigning instance variable
+        TAToCourse.objects.create(ta=tempTa, course=self.lecList[0].getParentCourse())
         with self.assertRaises(RuntimeError, msg="TA can't assign to lec when grader"):
             tempTAObj.assignTALecture(self.lecList[0])
 
@@ -1538,6 +1541,7 @@ class TestTAGetTALecAssignments(TestCase):  # Kiran
             num_of_sections=3,
             modality='Online'
         )
+        TAToCourse.objects.create(ta=self.taDB, course=self.courseDB)
         # Section
         self.sectionDB = Section.objects.create(
             section_id=100 + 1,
