@@ -72,6 +72,7 @@ def currentlyAssignedUsers(course_id):
         users.append(str(ta.ta))
     return users
 
+
 class Login(View):
     def get(self, request):
         return render(request, "login.html")
@@ -214,6 +215,7 @@ class CreateCourse(View):
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e)})
 
+
 class EditCourse(View):
 
     def post(self, request):
@@ -275,6 +277,47 @@ class UserAssignments(View):
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
                               {"message": str(e), "courses": courses})
+
+
+class InstructorAssignTaToSection(View):
+
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Instructor":
+            return redirect("/home/")
+        tas = list(map(str, TA.objects.all()))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
+        if len(tas) == 0:
+            return render(request,
+                          "error.html",
+                          {"message": "No TAs to display", "previous_url": "/home/managesection/"})
+        if len(sections) == 0:
+            return render(request,
+                          "error.html",
+                          {"message": "No Sections to display", "previous_url": "/home/managesection/"})
+
+        return render(request, "sectionManagement/instructor_assign_ta_to_section.html",
+                      {"tas": tas, "sections": sections, "message": "Please select a ta to assign to a section"})
+
+    def post(self, request):
+        selecteduser = determineUser(request.POST.get("ta"))
+        selectedsection = determineUser(request.POST.get("sections"))
+        if selecteduser is None or selecteduser == '':
+            tas = list(map(str, TA.objects.all()))
+            sections = list(map(str, Lab.objects.all()))
+            sections.extend(list(map(str, Lecture.objects.all())))
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"tas": tas, "sections": sections, "message": "Please select a ta to assign"})
+        if selectedsection is None or selectedsection == '':
+            tas = list(map(str, TA.objects.all()))
+            sections = list(map(str, Lab.objects.all()))
+            sections.extend(list(map(str, Lecture.objects.all())))
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
 
 
 
@@ -378,7 +421,8 @@ class EditAccount(View):
             determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
                                                             account_info)
 
-            if request.session["current_edit"] == request.session["user"] and request.POST.get("email_address") is not None:
+            if request.session["current_edit"] == request.session["user"] and request.POST.get(
+                    "email_address") is not None:
                 request.session["user"] = str(Administrator.objects.get(
                     user__email_address=request.POST.get("email_address")))
             elif request.session["current_edit"] == request.session["user"]:
