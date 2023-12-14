@@ -319,9 +319,20 @@ class InstructorAssignTaToSection(View):
                           "sectionManagement/instructor_assign_ta_to_section.html",
                           {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
         if isinstance(selectedsection, LabObj):
-            selecteduser.assignTALab(selectedsection)
+            try:
+                selecteduser.assignTALab(selectedsection)
+            except Exception as e:
+                return render(request,
+                              "error.html",
+                              {"message": str(e), "previous_url": "/home/managesection/"})
+
         if isinstance(selectedsection, LectureObj):
-            selecteduser.assignTALecture(selectedsection)
+            try:
+                selecteduser.assignTALecture(selectedsection)
+            except Exception as e:
+                return render(request,
+                              "error.html",
+                              {"message": str(e), "previous_url": "/home/managesection/"})
         return render(request,
                       "success.html",
                       {"message": "Successfully assigned TA to section", "previous_url": "/home/managesection/"})
