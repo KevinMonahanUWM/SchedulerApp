@@ -17,14 +17,16 @@
            {% csrf_token %}
        <tr>
            <td>{{ user }}</td>
+           {% if role != "TA" %}
            <input type="hidden" name="section" value="{{ section }}">
            <input type="hidden" name="user" value="{{ user }}">
            <td><input type="submit" name="unassign" value="Unassign"></td>
+           {% endif %}
        </tr>
        </form>
     {% endfor %}
     {% endif %}
-    {% if not unassignedEmpty %}
+    {% if not unassignedEmpty and role != "TA" %}
     <tr><th colspan="2">Available Users to Assign</th></tr>
     {% for user in unassigned %}
        <form id="assign" action="/home/managesection/assignuser/" method="post">
