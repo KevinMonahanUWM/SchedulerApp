@@ -887,7 +887,7 @@ class TestSecTAAsgmt(TestCase):
             self.admin.sectionTAAsmgt(self.ta, "STRING!")
 
 
-class TestGetAllCrseAsgmts(TestCase):
+class TestAdminGetAllCrseAsgmts(TestCase):
     admin = None
     course1 = None
     course2 = None
