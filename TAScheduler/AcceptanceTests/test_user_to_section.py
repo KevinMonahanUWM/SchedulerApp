@@ -1,9 +1,8 @@
-from django.db.models import QuerySet
-from django.db.models import QuerySet
 from django.test import TestCase, Client
 
 from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture, Lab, Administrator
-from TAScheduler.views_methods import TAObj, InstructorObj
+from TAScheduler.view_methods.ta_methods import TAObj
+from TAScheduler.view_methods.instructor_methods import InstructorObj
 
 
 class SuccessfulCreation(TestCase):

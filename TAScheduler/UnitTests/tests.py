@@ -3,8 +3,11 @@ from datetime import datetime
 from django.test import TestCase
 from TAScheduler.models import Course, User, TA, Section, Lab, Administrator, InstructorToCourse, TAToCourse, \
     Instructor, Lecture
-from TAScheduler.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj, LectureObj
+from TAScheduler.view_methods.views_methods import CourseObj, AdminObj, TAObj, LabObj, InstructorObj, LectureObj
 from django.core.exceptions import ValidationError
+
+
+# Don't need to fix these imports, will need to change the separated ones
 
 
 # SEE METHOD DESCRIPTIONS FOR GUIDE ON HOW TO WRITE.
@@ -971,8 +974,10 @@ class TestGetAllCrseAsgmts(TestCase):
         self.assertEqual(TAToCourse.objects.count(), 2, "Did not make the correct amount of links")
         self.assertEqual(InstructorToCourse.objects.count(), 2, "Did not make the correct amount of links")
         self.assertIsInstance(self.admin.getAllCrseAsgmts(), dict, "Does not return dictionary")
-        self.assertEqual(self.admin.getAllCrseAsgmts().get(104), ('instr1@example.com', 'ta1@example.com'), "Course 104 does not do")
-        self.assertEqual(self.admin.getAllCrseAsgmts().get(102), ('instr2@example.com', 'ta2@example.com'), "Course 102 does not do")
+        self.assertEqual(self.admin.getAllCrseAsgmts().get(104), ('instr1@example.com', 'ta1@example.com'),
+                         "Course 104 does not do")
+        self.assertEqual(self.admin.getAllCrseAsgmts().get(102), ('instr2@example.com', 'ta2@example.com'),
+                         "Course 102 does not do")
         # IDK what I want it to output as
 
     def test_no_courses(self):
@@ -1602,6 +1607,7 @@ class TestTAGetGraderStatus(TestCase):  # Kiran
     def test_graderStatus(self):
         self.assertEqual(self.taObj2.getGraderStatus(), False, msg="non grader status ta should have false GS field")
 
+
 class TestTASetSkills(TestCase):  # Kiran
     userDB = None
     taDB = None
@@ -1615,7 +1621,7 @@ class TestTASetSkills(TestCase):  # Kiran
             last_name='User',
             home_address='123 TA St',
             phone_number=1234567890,
-            )
+        )
         self.taDB = TA.objects.create(user=userDB, grader_status=True, skills="very good")
         self.taDB.save()
         self.taObj = TAObj(self.taDB)
@@ -2509,7 +2515,7 @@ class TestSectionGetParentCourse(TestCase):  # Joe
 
     def test_get_parent_course(self):
         self.assertEqual(self.lab.getParentCourse(), self.course,
-                          "getParentCourse() did not retrieve correct course")
+                         "getParentCourse() did not retrieve correct course")
 
 
 class TestLabInit(TestCase):
@@ -2674,7 +2680,7 @@ class TestLabAddTA(TestCase):  # Joe
         self.lab.addTA(self.ta)
         # Gives error for TAObj having no 'user' but I think that's because __init__ not implemented in my branch
         self.assertEqual(self.ta, self.lab.getLabTAAsgmt(),
-                          "addTA() does not add TA to lab")
+                         "addTA() does not add TA to lab")
 
     def test_add_ta_but_full(self):
         temp2 = User(email_address="test2@test.com", password="password2", first_name="first2", last_name="last2",
@@ -2877,7 +2883,7 @@ class TestLectureGetLecInstrAssignment(TestCase):  # Joe
     def test_get_instructor(self):
         self.lecture.addInstr(self.instructor)
         self.assertEqual(self.instructor, self.lecture.getLecInstrAsmgt(),
-                          "getLecInstrAssignment() does not return correct")
+                         "getLecInstrAssignment() does not return correct")
 
     def test_get_with_no_instructor(self):
         self.assertIsNone(self.lecture.getLecInstrAsmgt(),
@@ -3252,6 +3258,7 @@ class TestLectureRemoveTA(TestCase):  # Joe
         self.lecture.removeTA()
         self.assertIsNone(self.lecture.getLectureTAAsgmt(), "removeTA() did not remove from lecture")
 
+
 class UserEditMyContactInfoTest(TestCase):
 
     def setUp(self):
@@ -3387,6 +3394,7 @@ class GetAllUserAssignmentsTest(TestCase):
             "courseID": self.course.id
         }
         self.assertIn(expected_assignment, formatted_assignments, "TA assignment not found in instructor assignments")
+
     def test_ta_assigned_to_another_course(self):
         # Create a new course and TA
         other_course = Course.objects.create(course_id=124, semester="Spring", name="Other Course",
