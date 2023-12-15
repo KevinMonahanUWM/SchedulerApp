@@ -207,3 +207,27 @@ nav td {
     text-align: center; /* Center text inside buttons */
     text-decoration: none; /* Remove underline from links */
 }
+
+form#loginForm .form-group {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form#loginForm .form-group label {
+    margin-bottom: 5px;
+}
+
+form#loginForm .form-group a {
+    margin: 10px 0;
+}
+
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+

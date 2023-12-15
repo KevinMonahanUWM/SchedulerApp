@@ -4,52 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Course</title>
-    <link rel="stylesheet" href= {% static 'css/style.css' %}>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-    <header class="header">
-        <h1>Create Course</h1>
-        {{ message }}
-    </header>
-    <table>
-        <form action="/home/managecourse/create/" method="post" class="course-form">
-    {% csrf_token %}
-        <tr><td>
-            <label for="courseId">Course ID:</label>
-            <input type="text" id="courseId" name="course_id">
-        </td></tr>
-        <tr><td>
-            <label for="courseName">Course Name:</label>
-            <input type="text" id="courseName" name="name">
-        </td></tr>
-        <tr><td>
-            <label for="description">Description:</label>
-            <textarea id="description" name="description"></textarea>
-        </td></tr>
-        <tr><td>
-            <label for="sections">Number of Sections:</label>
-            <input type="number" id="sections" name="num_of_sections">
-        </td></tr>
-        <tr><td>
-            <label for="modality">Modality:</label>
-            <select id="modality" name="modality">
-                <option value="Online">Online</option>
-                <option value="In-person">In-person</option>
-                <option value="Hybrid">Hybrid</option>
-            </select>
-        </td></tr>
-        <tr><td>
-             <label for="semester">Semester:</label>
-            <input type="text" id="semester" name="semester">
-        </td></tr>
-
-        <tr><td><input type="submit" value="Create Course"></td></tr>
-    </form>
-        <tr>
-            <td>
-                <a href="/home/managecourse">Cancel</a>
-            </td>
-        </tr>
-    </table>
+    <h1>Create Course</h1>
+    {{ message }}
+    <div class="form-container">
+        <form id="createCourseForm" action="/home/managecourse/create/" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="course_id">Course ID:</label>
+                <input id="course_id" type="text" name="course_id" required>
+            </div>
+            <div class="form-group">
+                <label for="course_name">Course Name:</label>
+                <input id="course_name" type="text" name="course_name" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="number_of_sections">Number of Sections:</label>
+                <input id="number_of_sections" type="number" name="number_of_sections" required>
+            </div>
+            <div class="form-group">
+                <label for="modality">Modality:</label>
+                <select id="modality" name="modality">
+                    <option value="Online">Online</option>
+                    <option value="In-Person">In-Person</option>
+                    <option value="Hybrid">Hybrid</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="semester">Semester:</label>
+                <input id="semester" type="text" name="semester" required>
+            </div>
+            <div class="form-group action-buttons">
+                <input type="submit" value="Create Course" class="nav-button">
+                <a class="nav-button" href="/home/managecourse/">Cancel</a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>
