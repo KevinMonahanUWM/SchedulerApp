@@ -35,6 +35,20 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+# Arg: List[str(User)]
+# Return: [{"str":str(User),"role":role:,"skills":skills},{...},{...}]
+def formatUsersForCrseDetail(usersCurrentlyAssigned):
+    formattedList = []
+    for u in usersCurrentlyAssigned:
+        uObj = determineUser(u)
+        role = uObj.getRole()
+        skills = None
+        if role == "TA":
+            skills = uObj.database.skills
+        formattedList.append({"str":u,"role":role,"skills":skills})
+    return formattedList
+
+
 
 def coursesAddAssignments():
     courseAndUsers = []
@@ -184,7 +198,6 @@ class Home(View):
             # If the action is unrecognized, return to the home page with an error message
             return render(request, 'home.html', {'error': 'Unrecognized action'})
 
-
 class CourseManagement(View):
 
     def get(self, request):
@@ -221,13 +234,15 @@ class CourseManagement(View):
             course_instance = Course.objects.get(course_id=course_id)
             course_obj = CourseObj(course_instance)  # Wrap the course instance
             course_info = course_obj.getCrseInfo()
-            usersCurrentlyAssigned = currentlyAssignedUsers(course_id)
+            usersCurrentlyAssigned = currentlyAssignedUsers(course_id)  # List(str(User))
             noneAssigned = len(usersCurrentlyAssigned) == 0
             usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
             noneAvailable = len(usersAvailableToAssign) == 0
-            return render(request, "courseManagement/course_user_assignments.html",
+            assigned_user_info = formatUsersForCrseDetail(usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
+
+            return render(request, "courseManagement/course_details.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
-                           "unassignedEmpty": noneAvailable, "assigned": usersCurrentlyAssigned,
+                           "unassignedEmpty": noneAvailable, "assigned": assigned_user_info,
                            "unassigned": usersAvailableToAssign, "role":
                                determineUser(request.session["user"]).getRole()})
 
@@ -310,7 +325,7 @@ class EditCourse(View):
                               determineUser(request.session["user"]).getRole()})
 
 
-class CourseUserAssignments(View):
+class CourseDetails(View):
 
     def get(self, request):
         if request.session.get("user") is None:
@@ -333,7 +348,8 @@ class CourseUserAssignments(View):
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                              {"message": str(e), "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
         else:
             try:
                 if selecteduser.getRole() == 'TA':
@@ -347,7 +363,8 @@ class CourseUserAssignments(View):
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                              {"message": str(e), "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
 
 
 class AccountManagement(View):
