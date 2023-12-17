@@ -35,8 +35,9 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+# Converts the values in the str() to variables, and return them so HTML can display skills only for TAs.
 # Arg: List[str(User)]
-# Return: [{"str":str(User),"role":role:,"skills":skills},{...},{...}]
+# Return: [{"user":str(User),"role":role:,"skills":skills},{...},{...}]
 def formatUsersForCrseDetail(usersCurrentlyAssigned):
     formattedList = []
     for u in usersCurrentlyAssigned:
@@ -45,7 +46,7 @@ def formatUsersForCrseDetail(usersCurrentlyAssigned):
         skills = None
         if role == "TA":
             skills = uObj.database.skills
-        formattedList.append({"str":u,"role":role,"skills":skills})
+        formattedList.append({"user":u,"role":role,"skills":skills})
     return formattedList
 
 
@@ -230,7 +231,7 @@ class CourseManagement(View):
                               {"message": str(e), "courses": courses, "role":
                                   determineUser(request.session["user"]).getRole()})
         elif request.POST.get("details") is not None:
-            course_id = int(course.split(": ", 1)[0])
+            course_id = int(course.split(": ", 1)[0]) #this is redundant
             course_instance = Course.objects.get(course_id=course_id)
             course_obj = CourseObj(course_instance)  # Wrap the course instance
             course_info = course_obj.getCrseInfo()
@@ -239,11 +240,13 @@ class CourseManagement(View):
             usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
             noneAvailable = len(usersAvailableToAssign) == 0
             assigned_user_info = formatUsersForCrseDetail(usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
+            unassigned_user_info = formatUsersForCrseDetail(usersAvailableToAssign)
+
 
             return render(request, "courseManagement/course_details.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
                            "unassignedEmpty": noneAvailable, "assigned": assigned_user_info,
-                           "unassigned": usersAvailableToAssign, "role":
+                           "unassigned": unassigned_user_info, "role":
                                determineUser(request.session["user"]).getRole()})
 
 

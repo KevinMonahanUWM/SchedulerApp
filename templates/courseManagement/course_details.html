@@ -22,11 +22,11 @@
             <form id="unassign" action="/home/managecourse/assignuser/" method="post">
                 {% csrf_token %}
                 <tr>
-                    <td>{{ user }}</td>
+                    <td>{{ user.user }}</td> <!--Display "FrstNm LstNm: email@ - role"-->
                     <input type="hidden" name="course" value="{{ course }}">
-                    <input type="hidden" name="user" value="{{ user.str }}"> <!--trying to access value of dict-->
-                    {% if user.role == "TA"%} <!--trying to access value of dict-->
-                        <input type="hidden" name="skills" value="{{ user.skills }}"> <!--trying to access value of dict-->
+                    <input type="hidden" name="user" value="{{ user.user }}">
+                    {% if user.role == "TA"%}
+                        <td>{{ user.skills }}"</td>
                     {% endif %}
                     {% if role == "Admin" %}
                         <td><input type="submit" name="unassign" value="Unassign"></td>
@@ -43,9 +43,12 @@
             <form id="assign" action="/home/managecourse/assignuser/" method="post">
                 {% csrf_token %}
                 <tr>
-                    <td>{{ user }}</td>
+                    <td>{{ user.user }}</td>
                     <input type="hidden" name="course" value="{{ course }}">
-                    <input type="hidden" name="user" value="{{ user }}">
+                    <input type="hidden" name="user" value="{{ user.user }}">
+                      {% if user.role == "TA"%}
+                        <td>{{ user.skills }}"</td>
+                    {% endif %}
                     <td><input type="submit" name="assign" value="Assign"></td>
                 </tr>
             </form>
