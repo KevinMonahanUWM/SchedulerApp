@@ -1,5 +1,4 @@
-from unittest import TestCase
-
+from django.test import TestCase
 from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture
 from TAScheduler.views_methods import LectureObj
 

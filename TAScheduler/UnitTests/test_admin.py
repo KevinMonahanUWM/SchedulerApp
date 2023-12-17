@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest import TestCase
+from django.test import TestCase
 
 from TAScheduler.models import TAToCourse, InstructorToCourse, Administrator, User, Instructor, Course, TA, Section, \
     Lab, Lecture
