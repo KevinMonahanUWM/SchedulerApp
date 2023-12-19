@@ -9,42 +9,46 @@
 <body>
     <h1>Create Course</h1>
     {{ message }}
-    <div class="form-container">
+    <table class="form-table">
         <form id="createCourseForm" action="/home/managecourse/create/" method="post">
             {% csrf_token %}
-            <div class="form-group">
-                <label for="course_id">Course ID:</label>
-                <input id="course_id" type="text" name="course_id" required>
-            </div>
-            <div class="form-group">
-                <label for="course_name">Course Name:</label>
-                <input id="course_name" type="text" name="course_name" required>
-            </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="number_of_sections">Number of Sections:</label>
-                <input id="number_of_sections" type="number" name="number_of_sections" required>
-            </div>
-            <div class="form-group">
-                <label for="modality">Modality:</label>
-                <select id="modality" name="modality">
-                    <option value="Online">Online</option>
-                    <option value="In-Person">In-Person</option>
-                    <option value="Hybrid">Hybrid</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="semester">Semester:</label>
-                <input id="semester" type="text" name="semester" required>
-            </div>
-            <div class="form-group action-buttons">
-                <input type="submit" value="Create Course" class="nav-button">
-                <a class="nav-button" href="/home/managecourse/">Cancel</a>
-            </div>
+            <tr>
+                <td><label for="course_id">Course ID:</label></td>
+                <td><input id="course_id" type="text" name="course_id" required></td>
+            </tr>
+            <tr>
+                <td><label for="course_name">Course Name:</label></td>
+                <td><input id="course_name" type="text" name="course_name" required></td>
+            </tr>
+            <tr>
+                <td><label for="description">Description:</label></td>
+                <td><textarea id="description" name="description" required></textarea></td>
+            </tr>
+            <tr>
+                <td><label for="number_of_sections">Number of Sections:</label></td>
+                <td><input id="number_of_sections" type="number" name="number_of_sections" required></td>
+            </tr>
+            <tr>
+                <td><label for="modality">Modality:</label></td>
+                <td>
+                    <select id="modality" name="modality">
+                        <option value="Online">Online</option>
+                        <option value="In-Person">In-Person</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="semester">Semester:</label></td>
+                <td><input id="semester" type="text" name="semester" required></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="submit" value="Create Course" class="nav-button">
+                    <a class="nav-button" href="/home/managecourse/">Cancel</a>
+                </td>
+            </tr>
         </form>
-    </div>
+    </table>
 </body>
 </html>
