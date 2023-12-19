@@ -627,8 +627,8 @@ class EditSection(View):
         curUserObj = determineUser(request.session["user"])
         secObj = determineSec(request.session.get("current_edit"))  # sending string arg
         editInput = {"section_id": int(request.POST.get("section_id")),
-                     "location": request.POST.get("location", ),
-                     "meeting_time": request.POST.get("meeting_time", )}
+                     "location": request.POST.get("location"),
+                     "meeting_time": request.POST.get("meeting_time")}
         try:
             curUserObj.editSection(secObj, editInput)
             del request.session["current_edit"]
