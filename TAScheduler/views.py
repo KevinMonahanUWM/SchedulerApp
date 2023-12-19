@@ -268,6 +268,7 @@ class CreateCourse(View):
                               determineUser(request.session["user"]).getRole()})
 
 
+
 class EditCourse(View):
 
     def get(self, request):
@@ -348,6 +349,62 @@ class CourseUserAssignments(View):
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
                               {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+
+class InstructorAssignTaToSection(View):
+
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Instructor":
+            return redirect("/home/")
+        tas = list(map(str, TA.objects.all()))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
+        if len(tas) == 0:
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"message": "No TAs to display", "sections": sections})
+        if len(sections) == 0:
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"message": "No Sections to display", "sections": sections})
+
+        return render(request, "sectionManagement/instructor_assign_ta_to_section.html",
+                      {"tas": tas, "sections": sections, "message": "Please select a ta to assign to a section"})
+
+    def post(self, request):
+        selecteduser = determineUser(request.POST.get("ta"))
+        selectedsection = determineSec(request.POST.get("section"))
+        tas = list(map(str, TA.objects.all()))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
+        if selecteduser is None or selecteduser == '':
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"tas": tas, "sections": sections, "message": "Please select a ta to assign"})
+        if selectedsection is None or selectedsection == '':
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
+        if isinstance(selectedsection, LabObj):
+            try:
+                selecteduser.assignTALab(selectedsection)
+            except Exception as e:
+                return render(request,
+                              "sectionManagement/instructor_assign_ta_to_section.html",
+                              {"message": str(e), "tas": tas, "sections": sections})
+
+        if isinstance(selectedsection, LectureObj):
+            try:
+                selecteduser.assignTALecture(selectedsection)
+            except Exception as e:
+                return render(request,
+                              "sectionManagement/instructor_assign_ta_to_section.html",
+                              {"message": str(e), "tas": tas, "sections": sections})
+        return render(request,
+                      "sectionManagement/section_management.html",
+                      {"message": "Successfully assigned TA", "sections": sections})
+
 
 
 class AccountManagement(View):
