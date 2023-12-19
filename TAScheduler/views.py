@@ -476,6 +476,8 @@ class EditAccount(View):
         }
         role = determineUser(request.session["current_edit"]).getRole()
         try:
+            if determineUser(request.session["user"]).getRole() == "TA":
+                determineUser(request.session["user"]).setSkills(request.POST.get("skills"))
             if determineUser(request.session["user"]).getRole() != "Admin":
                 admin_user_info = User.objects.create(
                     email_address="admin@exampledontuse.com",
