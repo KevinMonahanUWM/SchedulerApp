@@ -374,62 +374,6 @@ class CourseDetails(View):
                               {"message": str(e), "courses": courses,
                                "role": determineUser(request.session["user"]).getRole()})
 
-class InstructorAssignTaToSection(View):
-
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Instructor":
-            return redirect("/home/")
-        tas = list(map(str, TA.objects.all()))
-        sections = list(map(str, Lab.objects.all()))
-        sections.extend(list(map(str, Lecture.objects.all())))
-        if len(tas) == 0:
-            return render(request,
-                          "sectionManagement/instructor_assign_ta_to_section.html",
-                          {"message": "No TAs to display", "sections": sections})
-        if len(sections) == 0:
-            return render(request,
-                          "sectionManagement/instructor_assign_ta_to_section.html",
-                          {"message": "No Sections to display", "sections": sections})
-
-        return render(request, "sectionManagement/instructor_assign_ta_to_section.html",
-                      {"tas": tas, "sections": sections, "message": "Please select a ta to assign to a section"})
-
-    def post(self, request):
-        selecteduser = determineUser(request.POST.get("ta"))
-        selectedsection = determineSec(request.POST.get("section"))
-        tas = list(map(str, TA.objects.all()))
-        sections = list(map(str, Lab.objects.all()))
-        sections.extend(list(map(str, Lecture.objects.all())))
-        if selecteduser is None or selecteduser == '':
-            return render(request,
-                          "sectionManagement/instructor_assign_ta_to_section.html",
-                          {"tas": tas, "sections": sections, "message": "Please select a ta to assign"})
-        if selectedsection is None or selectedsection == '':
-            return render(request,
-                          "sectionManagement/instructor_assign_ta_to_section.html",
-                          {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
-        if isinstance(selectedsection, LabObj):
-            try:
-                selecteduser.assignTALab(selectedsection)
-            except Exception as e:
-                return render(request,
-                              "sectionManagement/instructor_assign_ta_to_section.html",
-                              {"message": str(e), "tas": tas, "sections": sections})
-
-        if isinstance(selectedsection, LectureObj):
-            try:
-                selecteduser.assignTALecture(selectedsection)
-            except Exception as e:
-                return render(request,
-                              "sectionManagement/instructor_assign_ta_to_section.html",
-                              {"message": str(e), "tas": tas, "sections": sections})
-        return render(request,
-                      "sectionManagement/section_management.html",
-                      {"message": "Successfully assigned TA", "sections": sections})
-
-
 
 class AccountManagement(View):
 
@@ -530,8 +474,8 @@ class EditAccount(View):
             "grader_status": grader,
             "max_assignments": max
         }
+        role = determineUser(request.session["current_edit"]).getRole()
         try:
-            role = determineUser(request.session["current_edit"]).getRole()
             if determineUser(request.session["user"]).getRole() != "Admin":
                 admin_user_info = User.objects.create(
                     email_address="admin@exampledontuse.com",
@@ -794,21 +738,3 @@ class Forgot_Password(View):
                 del request.session["current_edit"]
                 return render(request, "forgot_password.html", {"message": e,
                                                                 "recievedUser": False})
-
-
-class ViewTAAssignments(View):
-    def get(self, request):
-        if request.session.get("user") is None:
-            return redirect("/")
-
-        # Logic to fetch TA assignments
-        ta_assignments = []  # Replace with actual logic to fetch assignments
-        for ta in TA.objects.all():
-            for course in TAToCourse.objects.filter(ta=ta):
-                ta_assignments.append({
-                    'ta_name': ta.getName(),
-                    'course_name': course.course.name,
-                    'section_id': course.course.section_id
-                })
-
-        return render(request, 'ta_assignments.html', {'ta_assignments': ta_assignments})
