@@ -492,7 +492,7 @@ class EditAccount(View):
                 adminObj.editUser(determineUser(request.session["current_edit"]), account_info)
                 request.session["user"] = str(determineUser(request.session["user"]).database)
                 del request.session["current_edit"]
-                User.delete(admin_model)
+                User.delete(admin_model.user)
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
@@ -733,7 +733,7 @@ class Forgot_Password(View):
                 adminObj = AdminObj(admin_model)
                 adminObj.editUser(determineUser(request.session["current_edit"]), account_info)
                 del request.session["current_edit"]
-                User.delete(admin_model)
+                User.delete(admin_model.user)
                 return render(request, "forgot_password.html", {"message": "Successfully changed password",
                                                                 "recievedUser": False})
             except Exception as e:
