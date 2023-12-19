@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
-from TAScheduler.views import Home, CourseManagement, CreateCourse, EditCourse, UserAssignments, \
+from TAScheduler.views import Home, CourseManagement, CreateCourse, EditCourse, CourseUserAssignments, \
     Login, AccountManagement, CreateAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
-    AddUserToSection, DeleteSection, Error, Success, Forgot_Password, ChooseSectionForUser
+    SectionUserAssignment, Forgot_Password, ViewTAAssignments
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,19 +29,16 @@ urlpatterns = [
     path('home/managecourse/', CourseManagement.as_view()),
     path('home/managecourse/create/', CreateCourse.as_view()),
     path('home/managecourse/edit/', EditCourse.as_view()),
-    path('home/managecourse/assignuser/', UserAssignments.as_view()),
+    path('home/managecourse/assignuser/', CourseUserAssignments.as_view()),
     path('home/manageaccount/', AccountManagement.as_view()),
     path('home/manageaccount/create/', CreateAccount.as_view()),
     path('home/manageaccount/edit/', EditAccount.as_view()),
     path('home/managesection/', SectionManagement.as_view()),
     path('home/managesection/create/', CreateSection.as_view()),
-    path('home/managesection/delete/', DeleteSection.as_view()),
     path('home/managesection/edit/', EditSection.as_view()),
-    path('home/managesection/adduser/', AddUserToSection.as_view()),
-    path('home/managesection/adduser/choosesection/', ChooseSectionForUser.as_view()),
-    path('home/error/', Error.as_view()),
-    path('home/success/', Success.as_view()),
-    path('forgot_password/', Forgot_Password.as_view())
+    path('home/managesection/assignuser/', SectionUserAssignment.as_view()),
+    path('forgot_password/', Forgot_Password.as_view()),
+    path('home/view_ta_assignments/', ViewTAAssignments.as_view()),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

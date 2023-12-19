@@ -30,6 +30,10 @@ class UserObj(abc.ABC):
     def getRole(self):
         pass
 
+    @abc.abstractmethod
+    def editContactInfo(self):
+        pass
+
 
 class AdminObj(UserObj):
     database = None
@@ -127,10 +131,10 @@ class AdminObj(UserObj):
             raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        if not Course.objects.filter(course_id=section_info.get("course_id")).exists():
+        if not Course.objects.filter(course_id=section_info.get("course").course_id).exists():
             raise RuntimeError("Course ID is not existing course cant create section")
 
-        courseDB = Course.objects.get(course_id=section_info.get("course_id"))
+        courseDB = Course.objects.get(course_id=section_info.get("course").course_id)
         fields = {"section_id": section_info["section_id"],
                   "course": courseDB,
                   "location": section_info["location"],
@@ -260,11 +264,11 @@ class AdminObj(UserObj):
             if new_info.get("location") is None:
                 raise KeyError("missing field")
             if type(new_info.get("location")) is not str or len(new_info.get("location")) > 30:
-                raise ValueError("location expects a str")
+                raise ValueError("location expects a str with a max length of 30")
             if new_info.get("location") == '':
                 raise KeyError("missing field")
             active_section.database.section.location = new_info.get("location")
-        except KeyError: #Something
+        except KeyError:  # Something
             active_section.database.section.location = active_section.database.section.location
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
@@ -291,7 +295,8 @@ class AdminObj(UserObj):
                 raise KeyError
             if type(new_info.get("email_address")) is not str or len(new_info.get("email_address")) > 90:
                 raise ValueError("Email address excepts input of a str")
-            if User.objects.filter(email_address=new_info.get("email_address")).exists():
+            if (User.objects.filter(email_address=new_info.get("email_address")).exists() and
+                    active_user.database.user.email_address != new_info.get("email_address")):
                 raise RuntimeError("Can not have multiple users with the same email address")
             if new_info.get("email_address") == "":
                 raise KeyError
@@ -341,9 +346,9 @@ class AdminObj(UserObj):
         try:  # phone number
             if new_info.get("phone_number") is None or new_info.get("phone_number") == 0:
                 raise KeyError
-            if type(new_info.get("phone_number")) is not int or len(str(new_info.get("phone_number"))) != 10:
+            if len(new_info.get("phone_number")) != 10:
                 raise ValueError("phone_number expects an int input with a length of 10")
-            active_user.database.user.phone_number = new_info.get("phone_number")
+            active_user.database.user.phone_number = int(new_info.get("phone_number"))
         except KeyError:
             active_user.database.user.phone_number = active_user.database.user.phone_number
         active_user.database.user.save()
@@ -403,6 +408,72 @@ class AdminObj(UserObj):
         if active_ta.getTACrseAsgmts().count() == active_ta.database.max_assignments:
             raise RuntimeError("Instructor is already assigned to max number of course permitted")
         TAToCourse.objects.create(ta=active_ta.database, course=active_course.database)
+
+    def sectionTAAsmgt(self, active_ta, active_section):
+        if not isinstance(active_ta, TA):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not TA")
+        if not isinstance(active_section, LabObj) and not isinstance(active_section, LectureObj):
+            raise TypeError("Input passed to admin.sectionTAAsmgt is not Lab or Lecture")
+        active_section.addTA(active_ta)
+
+    def getAllCrseAsgmts(self):
+        outputdict = {}
+        if InstructorToCourse.objects.all().count() + TAToCourse.objects.all().count() == 0:
+            raise RuntimeError("No course links exist")
+        for i in InstructorToCourse.objects.all():
+            outputdict[i.course.course_id] = i.instructor.user.email_address
+        for i in TAToCourse.objects.all():
+            if i.course.course_id in outputdict:
+                outputdict[i.course.course_id] = (outputdict[i.course.course_id], i.ta.user.email_address)
+            else:
+                outputdict[i.course.course_id] = i.ta
+        return outputdict
+
+    def courseUserAsgmt(self, active_user, active_course):
+        if not isinstance(active_course, CourseObj):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not CourseObj")
+        if isinstance(active_user, InstructorObj):
+            InstructorToCourse.objects.create(instructor=active_user.database, course=active_course.database)
+        if isinstance(active_user, TAObj):
+            TAToCourse.objects.create(ta=active_user.database, course=active_course.database)
+        # Do .get method for a taToCourse or instructorToCourse
+        if not isinstance(active_user, InstructorObj) and not isinstance(active_user, TAObj):
+            raise TypeError("Input passed to admin.courseUserAsgmt is not InstructorObj or TAObj")
+
+    def editContactInfo(self, **kwargs):
+        user = self.database.user  # Accessing the User object
+
+        # Validate each provided field
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                if key == "email_address":
+                    if not value or User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Invalid or duplicate email address provided")
+                elif key == "password":
+                    if not value:
+                        raise RuntimeError("Password not provided")
+                elif key in ["first_name", "last_name", "home_address"]:
+                    if not value:
+                        raise RuntimeError(f"{key.replace('_', ' ').title()} not provided")
+                elif key == "phone_number":
+                    if not value or len(str(value)) != 10:
+                        raise ValueError("Invalid phone number provided")
+                else:
+                    continue  # Skip if the key is not a valid field
+
+                setattr(user, key, value)
+
+        user.save()
+
+    def getContactInfo(self):
+        user = self.database.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email_address': user.email_address,
+            'home_address': user.home_address,
+            'phone_number': user.phone_number
+        }
 
     def getAllSecAsgmt(self):
         qs = Section.objects.all()  # returns empty qs if no sections
@@ -485,13 +556,13 @@ class TAObj(UserObj):
 
     def assignTALecture(self, active_lecture):  # new
         # Ensure that the TA is linked to the course of the lecture
-        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
-            raise ValueError("TA is not assigned to the course of the lecture")
-
         if not isinstance(active_lecture, LectureObj):
             raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
         if not self.database.grader_status:
             raise RuntimeError("Can't assign TA a lec without grader status")
+
+        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
+            raise ValueError("TA is not assigned to the course of the lecture")
 
         argLecDB = active_lecture.database
         if argLecDB.section is None:  # SHOULD BE IMPOSSIBLE*
@@ -519,8 +590,57 @@ class TAObj(UserObj):
     def getGraderStatus(self):
         return self.database.grader_status
 
+    def editContactInfo(self, **kwargs):
+        user = self.database.user  # Accessing the User object
+
+        # Validate each provided field
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                if key == "email_address":
+                    if not value or User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Invalid or duplicate email address provided")
+                elif key == "password":
+                    if not value:
+                        raise RuntimeError("Password not provided")
+                elif key in ["first_name", "last_name", "home_address"]:
+                    if not value:
+                        raise RuntimeError(f"{key.replace('_', ' ').title()} not provided")
+                elif key == "phone_number":
+                    if not value or len(str(value)) != 10:
+                        raise ValueError("Invalid phone number provided")
+                else:
+                    continue  # Skip if the key is not a valid field
+
+                setattr(user, key, value)
+
+        user.save()
+
+    def getContactInfo(self):
+        user = self.database.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email_address': user.email_address,
+            'home_address': user.home_address,
+            'phone_number': user.phone_number
+        }
+
+    def getAllUserAssignments(self):
+        # Assuming 'CourseAsgmt' and 'SecAsgmt' are the related names for assignments in Course and Section models
+        course_assignments = Course.objects.filter(assigned_to=self.database).values('name', 'assignments')
+        section_assignments = Section.objects.filter(assigned_to=self.database).values('name', 'assignments')
+
+        # Format assignments into the desired structure
+        formatted_assignments = {
+            "Role": self.get_role(),  # This method would need to be implemented to get the user's role
+            "Username": self.getUsername(),
+            "CourseAsgmts": list(course_assignments),
+            "SecAsgmts": list(section_assignments),
+        }
+        return formatted_assignments
+
     def setSkills(self, skills):
-        if (skills != "" and isinstance(skills,str)):
+        if (skills != "" and isinstance(skills, str)):
             self.database.skills = skills
             self.database.save()
         else:
@@ -600,6 +720,62 @@ class InstructorObj(UserObj):
 
     def getInstrLecAsgmts(self):  # new
         return Lecture.objects.filter(instructor=self.database)
+
+    def editContactInfo(self, **kwargs):
+        user = self.database.user  # Accessing the User object
+
+        # Validate each provided field
+        for key, value in kwargs.items():
+            if hasattr(user, key):
+                if key == "email_address":
+                    # Basic email validation
+                    if '@' not in value or '.' not in value:
+                        raise RuntimeError("Invalid email address provided")
+                    at_index = value.index('@')
+                    dot_index = value.rindex('.')
+                    # Ensuring '@' comes before the last '.'
+                    if at_index >= dot_index or at_index == 0 or dot_index == len(value) - 1:
+                        raise RuntimeError("Invalid email address provided")
+                    if User.objects.filter(email_address=value).exists():
+                        raise RuntimeError("Duplicate email address provided")
+                elif key == "password":
+                    if not value:
+                        raise RuntimeError("Password not provided")
+                elif key in ["first_name", "last_name", "home_address"]:
+                    if not value:
+                        raise RuntimeError(f"{key.replace('_', ' ').title()} not provided")
+                elif key == "phone_number":
+                    if not value or len(str(value)) != 10:
+                        raise ValueError("Invalid phone number provided")
+                else:
+                    continue  # Skip if the key is not a valid field
+
+                setattr(user, key, value)
+
+        user.save()
+
+    def getContactInfo(self):
+        user = self.database.user
+        return {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email_address': user.email_address,
+            'home_address': user.home_address,
+            'phone_number': user.phone_number
+        }
+
+    def getAllUserAssignments(self):
+        course_assignments = Course.objects.filter(assigned_to=self.database).values('name', 'assignments')
+        section_assignments = Section.objects.filter(assigned_to=self.database).values('name', 'assignments')
+
+        # Format assignments into the desired structure
+        formatted_assignments = {
+            "Role": self.get_role(),
+            "Username": self.getUsername(),
+            "CourseAsgmts": list(course_assignments),
+            "SecAsgmts": list(section_assignments),
+        }
+        return formatted_assignments
 
 
 class CourseObj:
@@ -738,6 +914,7 @@ class LectureObj(SectionObj):
         elif self.database.ta is not None:
             raise RuntimeError("A TA already exists in lecture")
         self.database.ta = active_ta
+        self.database.save()
 
     def getLecInstrAsmgt(self):
         return self.database.instructor
@@ -750,16 +927,19 @@ class LectureObj(SectionObj):
         elif self.database.instructor is not None:
             raise RuntimeError("An Instructor already exists in lecture")
         self.database.instructor = active_instr
+        self.database.save()
 
     def removeInstr(self):
         if self.database.instructor is None:
             raise RuntimeError("No instructor to remove from lecture")
         self.database.instructor = None
+        self.database.save()
 
     def removeTA(self):  # new
         if self.database.ta is None:
             raise RuntimeError("No TA to remove from lecture")
         self.database.ta = None
+        self.database.save()
 
 
 class LabObj(SectionObj):
@@ -790,8 +970,10 @@ class LabObj(SectionObj):
         elif self.database.ta is not None:
             raise RuntimeError("A TA already exists in lab")
         self.database.ta = active_ta
+        self.database.save()
 
     def removeTA(self):
         if self.database.ta is None:
             raise RuntimeError("No TA to remove from lab")
         self.database.ta = None
+        self.database.save()

@@ -64,7 +64,7 @@ class Section(models.Model):
     meeting_time = models.DateTimeField()
 
     def __str__(self):  # for "determineSection"
-        return str(self.section_id) + "-" + str(self.course.course_id)
+        return str(self.section_id) + "- " + str(self.course)
 
 
 class Lab(models.Model):
