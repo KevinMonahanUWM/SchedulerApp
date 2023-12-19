@@ -1,6 +1,4 @@
 from TAScheduler.models import User, Instructor, Course, Lecture, Section, InstructorToCourse
-from TAScheduler.view_methods.course_methods import CourseObj
-from TAScheduler.view_methods.lecture_methods import LectureObj
 from TAScheduler.view_methods.user_methods import UserObj
 
 
@@ -39,38 +37,6 @@ class InstructorObj(UserObj):
         actualAsgmts = InstructorToCourse.objects.filter(instructor=self.database).count()
         return (actualAsgmts >= maxAsgmts)  # shouldn't ever be ">" but technically true if so (def can't be false)
 
-    def assignInstrCourse(self, active_course):
-        if not isinstance(active_course, CourseObj):
-            raise TypeError("Sent in incorrect course type into the AssignInstrCourse.")
-        courseDB = active_course.database
-        if not Course.objects.filter(course_id=courseDB.course_id).exists():
-            raise ValueError("The provided Course object does not have an equivalent record in the database.")
-        if InstructorToCourse.objects.filter(instructor=self.database, course=courseDB).exists():
-            raise ValueError("Can't assign a course already assigned to this instructor.")
-        if courseDB.num_of_sections == InstructorToCourse.objects.filter(course=courseDB).count():
-            raise ValueError("Can't assign course that has reached it's maximum assignments")
-        if self.hasMaxAsgmts():  # not sure what error this is
-            raise ValueError("Can't assign a course past a instructor's maximum capacity")
-
-        InstructorToCourse(course=courseDB, instructor=self.database).save()
-
-    def assignInstrLecture(self, active_lecture):  # new
-        if not isinstance(active_lecture, LectureObj):
-            raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
-
-        argLecDB = active_lecture.database
-        if argLecDB.section is None:  # SHOULD BE IMPOSSIBLE*
-            raise ValueError("The provided Lab object does not have an equivalent section record in the database.")
-        if not argLecDB.instructor is None:
-            raise ValueError("Can't assign a lec that already have a instr.")
-
-        argSecDB = argLecDB.section
-        qs = Lecture.objects.filter(section=argSecDB, instructor=self.database)
-        if qs.count() > 0:
-            raise ValueError("Can't assign a lecture already assigned to this instructor.")
-
-        argLecDB.instructor = self.database
-        argLecDB.save()  # Assign the lec? Is that it?
 
     def getInstrCrseAsgmts(self):
         return InstructorToCourse.objects.filter(instructor=self.database)

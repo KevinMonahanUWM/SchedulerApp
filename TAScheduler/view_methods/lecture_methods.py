@@ -1,4 +1,3 @@
-
 from TAScheduler.models import TA, Instructor, Lecture, Section
 from TAScheduler.view_methods.section_methods import SectionObj
 

@@ -1,10 +1,4 @@
-import abc
-from dateutil import parser  # KEEP THIS
-
 from TAScheduler.models import User, TA, Course, Lecture, Section, Lab, TAToCourse
-from TAScheduler.view_methods.course_methods import CourseObj
-from TAScheduler.view_methods.lab_methods import LabObj
-from TAScheduler.view_methods.lecture_methods import LectureObj
 from TAScheduler.view_methods.user_methods import UserObj
 
 
@@ -43,65 +37,6 @@ class TAObj(UserObj):
         actualAsgmts = TAToCourse.objects.filter(ta=self.database).count()
         return actualAsgmts >= maxAsgmts  # shouldn't ever be ">" but technically true if so (def can't be false)
 
-    def assignTACourse(self, active_course):  # ADJUSTED TESTS!
-        if not isinstance(active_course, CourseObj):
-            raise TypeError("Sent in incorrect course type into the AssignTACourse.")
-        courseDB = active_course.database
-        if not Course.objects.filter(course_id=courseDB.course_id).exists():
-            raise ValueError("The provided Course object does not have an equivalent record in the database.")
-        if TAToCourse.objects.filter(ta=self.database, course=courseDB).exists():
-            raise ValueError("Can't assign a course already assigned to this TA.")
-        if courseDB.num_of_sections == TAToCourse.objects.filter(course=courseDB).count():
-            raise ValueError("Can't assign course that has reached it's maximum assignments")
-        if self.hasMaxAsgmts():  # not sure what error this is
-            raise ValueError("Can't assign a course past a TA's maximum capacity")
-
-        TAToCourse(course=courseDB, ta=self.database).save()  # Assign the course? Is that it?
-
-    #
-    def assignTALab(self, active_lab):
-        if not isinstance(active_lab, LabObj):
-            raise TypeError("Sent in incorrect lab type into the AssignTALab.")
-        if self.database.grader_status:
-            raise RuntimeError("Can't assign TA a lab with grader status")
-
-        argLabDB = active_lab.database
-        if argLabDB.section is None:  # SHOULD BE IMPOSSIBLE*
-            raise ValueError("The provided Lab object does not have an equivalent section record in the database.")
-        if not argLabDB.ta is None:
-            raise ValueError("Can't assign a lab that already have a TA.")
-
-        secDB = argLabDB.section
-        qs = Lab.objects.filter(section=secDB, ta=self.database)
-        if qs.count() > 0:
-            raise ValueError("Can't assign a lab already assigned to this TA.")
-
-        argLabDB.ta = self.database
-        argLabDB.save()  # Assign the lab? Is that it?
-
-    def assignTALecture(self, active_lecture):  # new
-        # Ensure that the TA is linked to the course of the lecture
-        if not isinstance(active_lecture, LectureObj):
-            raise TypeError("Sent in incorrect lecture type into the AssignTALec.")
-        if not self.database.grader_status:
-            raise RuntimeError("Can't assign TA a lec without grader status")
-
-        if not TAToCourse.objects.filter(ta=self.database, course=active_lecture.getParentCourse()).exists():
-            raise ValueError("TA is not assigned to the course of the lecture")
-
-        argLecDB = active_lecture.database
-        if argLecDB.section is None:  # SHOULD BE IMPOSSIBLE*
-            raise ValueError("The provided Lab object does not have an equivalent section record in the database.")
-        if not argLecDB.ta is None:
-            raise ValueError("Can't assign a lec that already have a TA.")
-
-        argSecDB = argLecDB.section
-        qs = Lecture.objects.filter(section=argSecDB, ta=self.database)
-        if qs.count() > 0:
-            raise ValueError("Can't assign a lecture already assigned to this TA.")
-
-        argLecDB.ta = self.database
-        argLecDB.save()  # Assign the lec? Is that it?
 
     def getTACrseAsgmts(self):
         return TAToCourse.objects.filter(ta=self.database)

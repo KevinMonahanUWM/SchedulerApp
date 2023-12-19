@@ -133,7 +133,6 @@ class Login(View):
         username = request.POST.get('username')
         password = request.POST.get('password')
         try:
-            print(list(map(str, User.objects.all())))
             user_database = User.objects.get(email_address=username, password=password)
             if Administrator.objects.filter(user=user_database).exists():
                 user = AdminObj(Administrator.objects.get(user=user_database))
@@ -411,7 +410,6 @@ class CreateAccount(View):
             "home_address": request.POST["home_address"],
             "phone_number": number,
         }
-        print(request.session["user"])
         try:
             determineUser(request.session["user"]).createUser(account_info, role=request.POST["role"])
             users = allUsers()
