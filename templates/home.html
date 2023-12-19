@@ -10,27 +10,27 @@
     <header>
         <h1>{{ role_name }} Home</h1>
     </header>
-    <nav>
-        <table>
-            <tr>
-                <td>
-                    <a href="{{ manage_accounts }}">Account Management</a>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <a href="{{ manage_courses }}">Course Management</a>
-                </td>
-            </tr>
-            {% if courses_exists %}
-            <tr>
-                <td>
-                    <a href="{{ manage_sections }}">Section Management</a>
-                </td>
-            </tr>
-            {% endif %}
-        </table>
-    </nav>
+   <nav>
+    <table>
+        <tr>
+            <td>
+                <a class="nav-button" href="{{ manage_accounts }}">Account Management</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <a class="nav-button" href="{{ manage_courses }}">Course Management</a>
+            </td>
+        </tr>
+        {% if courses_exists %}
+        <tr>
+            <td>
+                <a class="nav-button" href="{{ manage_sections }}">Section Management</a>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+</nav>
     <section>
         <h2>Welcome, {{ username }}!</h2>
     </section>
