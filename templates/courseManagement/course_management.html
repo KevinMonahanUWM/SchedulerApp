@@ -44,7 +44,7 @@
                 <td></td>
                 {% endif %}
                 <td>
-                    <form action="/home/managecourse/details/" method="post">
+                    <form action="/home/managecourse/" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="course" value="{{ course.course }}">
                         <input class="account-button" type="submit" name="details" value="Details">
