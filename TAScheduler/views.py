@@ -268,7 +268,6 @@ class CreateCourse(View):
                               determineUser(request.session["user"]).getRole()})
 
 
-
 class EditCourse(View):
 
     def get(self, request):
@@ -334,7 +333,8 @@ class CourseUserAssignments(View):
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                              {"message": str(e), "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
         else:
             try:
                 if selecteduser.getRole() == 'TA':
@@ -348,7 +348,9 @@ class CourseUserAssignments(View):
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                              {"message": str(e), "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
+
 
 class InstructorAssignTaToSection(View):
 
@@ -404,7 +406,6 @@ class InstructorAssignTaToSection(View):
         return render(request,
                       "sectionManagement/section_management.html",
                       {"message": "Successfully assigned TA", "sections": sections})
-
 
 
 class AccountManagement(View):
@@ -556,11 +557,20 @@ class SectionManagement(View):
             return redirect("/home/")
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
-        sections = list(map(str, Lecture.objects.all()))
-        sections.extend(list(map(str, Lab.objects.all())))
-        return render(request, "sectionManagement/section_management.html", {"sections": sections})
+        if determineUser(request.session["user"]).getRole() == "Admin":
+            sections = list(map(str, Lecture.objects.all()))
+            sections.extend(list(map(str, Lab.objects.all())))
+            return render(request, "sectionManagement/section_management.html",
+                          {"sections": sections, "role": determineUser(request.session["user"]).getRole()})
+
+        if determineUser(request.session["user"]).getRole() == "Instructor":
+            sections = list()
+            for i in determineUser(request.session["user"]).getInstrCrseAsgmts():
+                for x in Section.objects.filter(course=i.course):
+                    sections.extend(list(map(str, Lecture.objects.filter(section=x))))
+                    sections.extend(list(map(str, Lab.objects.filter(section=x))))
+            return render(request, "sectionManagement/section_management.html", {"sections": sections})
+        return redirect("/home/")
 
     def post(self, request):
         if request.POST.get("edit") is not None:
@@ -589,6 +599,12 @@ class SectionManagement(View):
                 usersInCourse = currentlyAssignedUsersLab(courseObj.getCrseInfo().get("course_id"))
             else:
                 usersInCourse = currentlyAssignedUsersLec(courseObj.getCrseInfo().get("course_id"))
+            if determineUser(request.session["user"]).getRole() == "Instructor":
+                for i in usersInCourse:
+                    email = i.split(": ", 1)[1]
+                    email_role = email.split(" -  ", 1)[1]
+                    if i is not determineUser(request.session["user"]) and email_role != "TA":
+                        usersInCourse.remove(i)
             attachedUsers = usersInSection(secObj)
             unattachedUsers = usersInCourseNotSec(usersInCourse, attachedUsers)
             noneAssigned = False
