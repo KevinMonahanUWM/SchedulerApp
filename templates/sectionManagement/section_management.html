@@ -16,17 +16,21 @@
         <tr>
             <td>{{ section }}</td> <!-- Display section name -->
             <input type="hidden" name="section" value="{{ section }}">
+            {% if role == "Admin" %}
             <td><input type="submit" name="edit" value="Edit"></td> <!-- Edit button -->
             <td><input type="submit" name="delete" value="Delete"></td> <!-- Delete button -->
+            {% endif %}
             <td><input type="submit" name="assignUser" value="User Assignments"></td>
         </tr>
     </form>
     {% endfor %}
+    {% if role == "Admin" %}
     <tr>
         <td colspan="4">
             <a href="/home/managesection/create">Create Section</a>
         </td>
     </tr>
+    {% endif %}
     <tr>
         <td colspan="4">
             <a href="/home">Home</a>
