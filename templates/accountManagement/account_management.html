@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Account Management</title>
-    <link rel="stylesheet" href= {% static 'css/style.css' %}>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 <h1>Account Management</h1>
@@ -13,42 +13,51 @@
     <thead>
         <tr>
             <th>User</th>
-            <th colspan="2">Actions</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-       {% for user in users %}
-        <tr>
-            <td>{{ user }}</td>
-            <td>
-                <form action="/home/manageaccount/" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="user" value="{{ user }}">
-                    <input class="nav-button" type="submit" name="edit" value="Edit">
-                </form>
-            </td>
-            {% if user != current_user %}
-            <td>
-                <form action="/home/manageaccount/" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="user" value="{{ user }}">
-                    <input class="account-button" type="submit" name="delete" value="Delete">
-                </form>
-            </td>
-            {% endif %}
-        </tr>
-        {% endfor %}
+        <!-- If the user is admin, they can see all users except they cannot delete themselves -->
+        {% if role == "Admin" %}
+            {% for user in users %}
+            <tr>
+                <td>{{ user }}</td>
+                <td>
+                    <form action="/home/manageaccount/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="user" value="{{ user }}">
+                        <input class="nav-button" type="submit" name="edit" value="Edit">
+                        {% if user != current_user %}
+                            <!-- Admin can delete users that are not themselves -->
+                            <input class="nav-button" type="submit" name="delete" value="Delete">
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        <!-- Non-admin users can only see and edit their own account -->
+        {% else %}
+            <tr>
+                <td>{{ current_user }}</td>
+                <td>
+                    <form action="/home/manageaccount/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="user" value="{{ current_user }}">
+                        <input class="nav-button" type="submit" name="edit" value="Edit">
+                    </form>
+                </td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>
 
 <div class="footer-buttons">
+    <!-- Only admin can see the 'Create Account' button -->
     {% if role == "Admin" %}
         <a class="nav-button" href="/home/manageaccount/create/">Create Account</a>
     {% endif %}
     <a class="nav-button" href="/home/">Home</a>
 </div>
-</table>
-
 
 </body>
 </html>

@@ -6,8 +6,11 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+   /* Changed from height to min-height to allow for scrolling */
+    min-height: 100vh;
     background-color: white;
+    /* Added overflow-y to allow scrolling on Y-axis if content overflows */
+    overflow-y: auto;
 }
 
 .header {
