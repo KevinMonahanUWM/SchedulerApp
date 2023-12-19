@@ -40,6 +40,21 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+# Converts the values in the str() to variables, and return them so HTML can display skills only for TAs.
+# Arg: List[str(User)]
+# Return: [{"user":str(User),"role":role:,"skills":skills},{...},{...}]
+def formatUsersForCrseDetail(usersCurrentlyAssigned):
+    formattedList = []
+    for u in usersCurrentlyAssigned:
+        uObj = determineUser(u)
+        role = uObj.getRole()
+        skills = None
+        if role == "TA":
+            skills = uObj.database.skills
+        formattedList.append({"user":u,"role":role,"skills":skills})
+    return formattedList
+
+
 
 def coursesAddAssignments():
     courseAndUsers = []
@@ -188,7 +203,6 @@ class Home(View):
             # If the action is unrecognized, return to the home page with an error message
             return render(request, 'home.html', {'error': 'Unrecognized action'})
 
-
 class CourseManagement(View):
 
     def get(self, request):
@@ -221,18 +235,22 @@ class CourseManagement(View):
                               {"message": str(e), "courses": courses, "role":
                                   determineUser(request.session["user"]).getRole()})
         elif request.POST.get("details") is not None:
-            course_id = int(course.split(": ", 1)[0])
+            course_id = int(course.split(": ", 1)[0]) #this is redundant
             course_instance = Course.objects.get(course_id=course_id)
             course_obj = CourseObj(course_instance)  # Wrap the course instance
             course_info = course_obj.getCrseInfo()
-            usersCurrentlyAssigned = currentlyAssignedUsers(course_id)
+            usersCurrentlyAssigned = currentlyAssignedUsers(course_id)  # List(str(User))
             noneAssigned = len(usersCurrentlyAssigned) == 0
             usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
             noneAvailable = len(usersAvailableToAssign) == 0
-            return render(request, "courseManagement/course_user_assignments.html",
+            assigned_user_info = formatUsersForCrseDetail(usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
+            unassigned_user_info = formatUsersForCrseDetail(usersAvailableToAssign)
+
+
+            return render(request, "courseManagement/course_details.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
-                           "unassignedEmpty": noneAvailable, "assigned": usersCurrentlyAssigned,
-                           "unassigned": usersAvailableToAssign, "role":
+                           "unassignedEmpty": noneAvailable, "assigned": assigned_user_info,
+                           "unassigned": unassigned_user_info, "role":
                                determineUser(request.session["user"]).getRole()})
 
 
@@ -265,11 +283,12 @@ class CreateCourse(View):
             admin_obj.createCourse(course_info)
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
-                          {"message": "Successfully created course", "courses": courses})
+                          {"message": "Successfully created course", "courses": courses, "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e), "role":
                               determineUser(request.session["user"]).getRole()})
+
 
 
 class EditCourse(View):
@@ -314,7 +333,7 @@ class EditCourse(View):
                               determineUser(request.session["user"]).getRole()})
 
 
-class CourseUserAssignments(View):
+class CourseDetails(View):
 
     def get(self, request):
         if request.session.get("user") is None:
@@ -337,7 +356,8 @@ class CourseUserAssignments(View):
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                              {"message": str(e), "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
         else:
             try:
                 if selecteduser.getRole() == 'TA':
@@ -351,7 +371,64 @@ class CourseUserAssignments(View):
             except Exception as e:
                 courses = coursesAddAssignments()
                 return render(request, "courseManagement/course_management.html",
-                              {"message": str(e), "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                              {"message": str(e), "courses": courses,
+                               "role": determineUser(request.session["user"]).getRole()})
+
+class InstructorAssignTaToSection(View):
+
+    def get(self, request):
+        if request.session.get("user") is None:
+            return redirect("/")
+        if determineUser(request.session["user"]).getRole() != "Instructor":
+            return redirect("/home/")
+        tas = list(map(str, TA.objects.all()))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
+        if len(tas) == 0:
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"message": "No TAs to display", "sections": sections})
+        if len(sections) == 0:
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"message": "No Sections to display", "sections": sections})
+
+        return render(request, "sectionManagement/instructor_assign_ta_to_section.html",
+                      {"tas": tas, "sections": sections, "message": "Please select a ta to assign to a section"})
+
+    def post(self, request):
+        selecteduser = determineUser(request.POST.get("ta"))
+        selectedsection = determineSec(request.POST.get("section"))
+        tas = list(map(str, TA.objects.all()))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
+        if selecteduser is None or selecteduser == '':
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"tas": tas, "sections": sections, "message": "Please select a ta to assign"})
+        if selectedsection is None or selectedsection == '':
+            return render(request,
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
+        if isinstance(selectedsection, LabObj):
+            try:
+                selecteduser.assignTALab(selectedsection)
+            except Exception as e:
+                return render(request,
+                              "sectionManagement/instructor_assign_ta_to_section.html",
+                              {"message": str(e), "tas": tas, "sections": sections})
+
+        if isinstance(selectedsection, LectureObj):
+            try:
+                selecteduser.assignTALecture(selectedsection)
+            except Exception as e:
+                return render(request,
+                              "sectionManagement/instructor_assign_ta_to_section.html",
+                              {"message": str(e), "tas": tas, "sections": sections})
+        return render(request,
+                      "sectionManagement/section_management.html",
+                      {"message": "Successfully assigned TA", "sections": sections})
+
 
 
 class AccountManagement(View):
@@ -378,12 +455,14 @@ class AccountManagement(View):
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": "User successfully deleted"})
+                               "message": "User successfully deleted",  "role":
+                          determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": e})
+                               "message": e,  "role":
+                          determineUser(request.session["user"]).getRole()})
 
 
 class CreateAccount(View):
@@ -502,11 +581,10 @@ class SectionManagement(View):
             return redirect("/home/")
         if request.session.get("user") is None:
             return redirect("/")
-        if determineUser(request.session["user"]).getRole() != "Admin":
-            return redirect("/home/")
         sections = list(map(str, Lecture.objects.all()))
         sections.extend(list(map(str, Lab.objects.all())))
-        return render(request, "sectionManagement/section_management.html", {"sections": sections})
+        return render(request, "sectionManagement/section_management.html", {"sections": sections,
+                                                                             "role": determineUser(request.session["user"]).getRole()})
 
     def post(self, request):
         if request.POST.get("edit") is not None:
@@ -522,12 +600,14 @@ class SectionManagement(View):
                 sections = list(map(str, Lecture.objects.all()))
                 sections.extend(list(map(str, Lab.objects.all())))
                 return render(request, "sectionManagement/section_management.html",
-                              {"message": "Successfully Deleted Section", "sections": sections})
+                              {"message": "Successfully Deleted Section", "sections": sections,
+                               "role": determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 sections = list(map(str, Lecture.objects.all()))
                 sections.extend(list(map(str, Lab.objects.all())))
                 return render(request, "sectionManagement/section_management.html",
-                              {"message": e, "sections": sections})
+                              {"message": e, "sections": sections,
+                               "role": determineUser(request.session["user"]).getRole()})
         else:
             secObj = determineSec(request.POST.get("section"))
             courseObj = CourseObj(secObj.getParentCourse())
@@ -545,7 +625,8 @@ class SectionManagement(View):
                 noneAvailable = True
             return render(request, "sectionManagement/section_user_assignment.html",
                           {"section": request.POST.get("section"), "assignedEmpty": noneAssigned,
-                           "unassignedEmpty": noneAvailable, "assigned": attachedUsers, "unassigned": unattachedUsers})
+                           "unassignedEmpty": noneAvailable, "assigned": attachedUsers, "unassigned": unattachedUsers,
+                           "role": determineUser(request.session["user"]).getRole()})
 
 
 class CreateSection(View):
@@ -576,7 +657,8 @@ class CreateSection(View):
             sections = list(map(str, Lecture.objects.all()))
             sections.extend(list(map(str, Lab.objects.all())))
             return render(request, "sectionManagement/section_management.html",
-                          {"message": "Successfully Created Section", "sections": sections})
+                          {"message": "Successfully Created Section", "sections": sections,
+                           "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             secs = ["Lab", "Lecture"]  # For dropdown
             courses = Course.objects.all()
@@ -605,7 +687,8 @@ class EditSection(View):
             sections = list(map(str, Lecture.objects.all()))
             sections.extend(list(map(str, Lab.objects.all())))
             return render(request, "sectionManagement/section_management.html",
-                          {"message": "Successfully Editted Section", "sections": sections})
+                          {"message": "Successfully Editted Section", "sections": sections,
+                           "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             return render(request, "sectionManagement/edit_section.html",
                           {"message": e, "selected": True, "section": secObj.database})
@@ -618,7 +701,7 @@ class SectionUserAssignment(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        return redirect("/home/managesection")
+        return redirect("/home/managesection/")
 
     def post(self, request):
         curUserObj = determineUser(request.POST.get("user"))
@@ -636,12 +719,14 @@ class SectionUserAssignment(View):
                 sections = list(map(str, Lecture.objects.all()))
                 sections.extend(list(map(str, Lab.objects.all())))
                 return render(request, "sectionManagement/section_management.html",
-                              {"message": "Successfully removed user", "sections": sections})
+                              {"message": "Successfully removed user", "sections": sections,
+                               "role": determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 sections = list(map(str, Lecture.objects.all()))
                 sections.extend(list(map(str, Lab.objects.all())))
                 return render(request, "sectionManagement/section_management.html",
-                              {"message": str(e), "sections": sections})
+                              {"message": str(e), "sections": sections,
+                               "role": determineUser(request.session["user"]).getRole()})
         else:
             try:
                 if isinstance(secObj, LabObj):
@@ -654,12 +739,14 @@ class SectionUserAssignment(View):
                 sections = list(map(str, Lecture.objects.all()))
                 sections.extend(list(map(str, Lab.objects.all())))
                 return render(request, "sectionManagement/section_management.html",
-                              {"message": "Successfully added user", "sections": sections})
+                              {"message": "Successfully added user", "sections": sections,
+                               "role": determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 sections = list(map(str, Lecture.objects.all()))
                 sections.extend(list(map(str, Lab.objects.all())))
                 return render(request, "sectionManagement/section_management.html",
-                              {"message": str(e), "sections": sections})
+                              {"message": str(e), "sections": sections,
+                               "role": determineUser(request.session["user"]).getRole()})
 
 
 class Forgot_Password(View):

@@ -69,7 +69,7 @@ class Section(models.Model):
 
 class Lab(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
-    ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL, null=True)
+    ta = models.ForeignKey(TA, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):  # for "determineSection"
         return "Lab:" + self.section.__str__()
@@ -81,8 +81,8 @@ class Lab(models.Model):
 
 class Lecture(models.Model):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=False)
-    instructor = models.ForeignKey(Instructor, unique=True, on_delete=models.SET_NULL, null=True)
-    ta = models.ForeignKey(TA, unique=True, on_delete=models.SET_NULL,
+    instructor = models.ForeignKey(Instructor, on_delete=models.SET_NULL, null=True)
+    ta = models.ForeignKey(TA, on_delete=models.SET_NULL,
                            null=True)  # Graders would be assigned to lecture
 
     def __str__(self):  # for "determineSection"
