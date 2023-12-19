@@ -362,12 +362,12 @@ class InstructorAssignTaToSection(View):
         sections.extend(list(map(str, Lecture.objects.all())))
         if len(tas) == 0:
             return render(request,
-                          "error.html",
-                          {"message": "No TAs to display", "previous_url": "/home/managesection/"})
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"message": "No TAs to display", "sections": sections})
         if len(sections) == 0:
             return render(request,
-                          "error.html",
-                          {"message": "No Sections to display", "previous_url": "/home/managesection/"})
+                          "sectionManagement/instructor_assign_ta_to_section.html",
+                          {"message": "No Sections to display", "sections": sections})
 
         return render(request, "sectionManagement/instructor_assign_ta_to_section.html",
                       {"tas": tas, "sections": sections, "message": "Please select a ta to assign to a section"})
@@ -375,17 +375,14 @@ class InstructorAssignTaToSection(View):
     def post(self, request):
         selecteduser = determineUser(request.POST.get("ta"))
         selectedsection = determineSec(request.POST.get("section"))
+        tas = list(map(str, TA.objects.all()))
+        sections = list(map(str, Lab.objects.all()))
+        sections.extend(list(map(str, Lecture.objects.all())))
         if selecteduser is None or selecteduser == '':
-            tas = list(map(str, TA.objects.all()))
-            sections = list(map(str, Lab.objects.all()))
-            sections.extend(list(map(str, Lecture.objects.all())))
             return render(request,
                           "sectionManagement/instructor_assign_ta_to_section.html",
                           {"tas": tas, "sections": sections, "message": "Please select a ta to assign"})
         if selectedsection is None or selectedsection == '':
-            tas = list(map(str, TA.objects.all()))
-            sections = list(map(str, Lab.objects.all()))
-            sections.extend(list(map(str, Lecture.objects.all())))
             return render(request,
                           "sectionManagement/instructor_assign_ta_to_section.html",
                           {"tas": tas, "sections": sections, "message": "Please select a section to assign"})
@@ -394,19 +391,19 @@ class InstructorAssignTaToSection(View):
                 selecteduser.assignTALab(selectedsection)
             except Exception as e:
                 return render(request,
-                              "error.html",
-                              {"message": str(e), "previous_url": "/home/managesection/"})
+                              "sectionManagement/instructor_assign_ta_to_section.html",
+                              {"message": str(e), "tas": tas, "sections": sections})
 
         if isinstance(selectedsection, LectureObj):
             try:
                 selecteduser.assignTALecture(selectedsection)
             except Exception as e:
                 return render(request,
-                              "error.html",
-                              {"message": str(e), "previous_url": "/home/managesection/"})
+                              "sectionManagement/instructor_assign_ta_to_section.html",
+                              {"message": str(e), "tas": tas, "sections": sections})
         return render(request,
-                      "success.html",
-                      {"message": "Successfully assigned TA to section", "previous_url": "/home/managesection/"})
+                      "sectionManagement/section_management.html",
+                      {"message": "Successfully assigned TA", "sections": sections})
 
 
 
