@@ -27,7 +27,7 @@ class SuccessfulCreate(TestCase):
 
     def test_creation_message(self):
         resp = self.user.post("/home/manageaccount/create/", self.info)
-        self.assertEquals(resp.context["message"], "User successfully created",
+        self.assertEquals(resp.context["message"], "Successfully created account",
                           "Success message should have displayed")
 
 
