@@ -586,7 +586,6 @@ class CreateSection(View):
         return render(request, "sectionManagement/create_section.html", {"secs": secs, "courses": courses})
 
     def post(self, request):  #
-        # Next sprint will require us to search for the user in the DB: current user may not be an admin
         curUserObj = determineUser(request.session["user"])
         if isinstance(request.POST.get('course_id'), str) and request.POST.get('course_id') != "":
             course_id = int(request.POST.get('course_id'))
