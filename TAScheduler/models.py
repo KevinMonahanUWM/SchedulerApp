@@ -61,7 +61,7 @@ class Section(models.Model):
     section_id = models.IntegerField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=False)
     location = models.CharField(max_length=30)
-    meeting_time = models.DateTimeField()
+    meeting_time = models.TextField()
 
     def __str__(self):  # for "determineSection"
         return str(self.section_id) + "- " + str(self.course)

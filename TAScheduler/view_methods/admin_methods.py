@@ -1,5 +1,3 @@
-from dateutil import parser  # KEEP THIS
-
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
 from TAScheduler.view_methods.course_methods import CourseObj
@@ -249,8 +247,8 @@ class AdminObj(UserObj):
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
                 raise KeyError("missing field")
-            parsed_date = parser.parse(new_info.get("meeting_time"))
-            temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
+            if type(new_info.get("meeting_time")) is not str:
+                raise ValueError("meeting_time expects a str")
             if new_info.get("meeting_time") == '':
                 raise KeyError("missing field")
             active_section.database.section.meeting_time = new_info.get("meeting_time")

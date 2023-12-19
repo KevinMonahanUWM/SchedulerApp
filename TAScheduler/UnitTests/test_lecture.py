@@ -1,6 +1,6 @@
 from django.test import TestCase
 from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture
-from TAScheduler.views_methods import LectureObj
+from TAScheduler.view_methods.lecture_methods import LectureObj
 
 
 class TestLectureInit(TestCase):
@@ -137,7 +137,7 @@ class TestLectureGetLecInstrAssignment(TestCase):  # Joe
     def test_get_instructor(self):
         self.lecture.addInstr(self.instructor)
         self.assertEqual(self.instructor, self.lecture.getLecInstrAsmgt(),
-                          "getLecInstrAssignment() does not return correct")
+                         "getLecInstrAssignment() does not return correct")
 
     def test_get_with_no_instructor(self):
         self.assertIsNone(self.lecture.getLecInstrAsmgt(),
