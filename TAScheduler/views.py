@@ -40,6 +40,7 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+
 # Converts the values in the str() to variables, and return them so HTML can display skills only for TAs.
 # Arg: List[str(User)]
 # Return: [{"user":str(User),"role":role:,"skills":skills},{...},{...}]
@@ -51,9 +52,8 @@ def formatUsersForCrseDetail(usersCurrentlyAssigned):
         skills = None
         if role == "TA":
             skills = uObj.database.skills
-        formattedList.append({"user":u,"role":role,"skills":skills})
+        formattedList.append({"user": u, "role": role, "skills": skills})
     return formattedList
-
 
 
 def coursesAddAssignments():
@@ -203,6 +203,7 @@ class Home(View):
             # If the action is unrecognized, return to the home page with an error message
             return render(request, 'home.html', {'error': 'Unrecognized action'})
 
+
 class CourseManagement(View):
 
     def get(self, request):
@@ -235,7 +236,7 @@ class CourseManagement(View):
                               {"message": str(e), "courses": courses, "role":
                                   determineUser(request.session["user"]).getRole()})
         elif request.POST.get("details") is not None:
-            course_id = int(course.split(": ", 1)[0]) #this is redundant
+            course_id = int(course.split(": ", 1)[0])  # this is redundant
             course_instance = Course.objects.get(course_id=course_id)
             course_obj = CourseObj(course_instance)  # Wrap the course instance
             course_info = course_obj.getCrseInfo()
@@ -243,9 +244,9 @@ class CourseManagement(View):
             noneAssigned = len(usersCurrentlyAssigned) == 0
             usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
             noneAvailable = len(usersAvailableToAssign) == 0
-            assigned_user_info = formatUsersForCrseDetail(usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
+            assigned_user_info = formatUsersForCrseDetail(
+                usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
             unassigned_user_info = formatUsersForCrseDetail(usersAvailableToAssign)
-
 
             return render(request, "courseManagement/course_details.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
@@ -283,12 +284,12 @@ class CreateCourse(View):
             admin_obj.createCourse(course_info)
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
-                          {"message": "Successfully created course", "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                          {"message": "Successfully created course", "courses": courses,
+                           "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e), "role":
                               determineUser(request.session["user"]).getRole()})
-
 
 
 class EditCourse(View):
@@ -298,7 +299,7 @@ class EditCourse(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        return redirect("/home/managecourse")
+        return redirect("/home/managecourse/")
 
     def post(self, request):
         admin_obj = determineUser(request.session["user"])
@@ -399,14 +400,14 @@ class AccountManagement(View):
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": "User successfully deleted",  "role":
-                          determineUser(request.session["user"]).getRole()})
+                               "message": "User successfully deleted", "role":
+                                   determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": e,  "role":
-                          determineUser(request.session["user"]).getRole()})
+                               "message": e, "role":
+                                   determineUser(request.session["user"]).getRole()})
 
 
 class CreateAccount(View):
@@ -528,7 +529,8 @@ class SectionManagement(View):
         sections = list(map(str, Lecture.objects.all()))
         sections.extend(list(map(str, Lab.objects.all())))
         return render(request, "sectionManagement/section_management.html", {"sections": sections,
-                                                                             "role": determineUser(request.session["user"]).getRole()})
+                                                                             "role": determineUser(
+                                                                                 request.session["user"]).getRole()})
 
     def post(self, request):
         if request.POST.get("edit") is not None:
