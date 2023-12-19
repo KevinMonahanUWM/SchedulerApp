@@ -344,7 +344,11 @@ class CourseDetails(View):
         return redirect("/home/managecourse/")
 
     def post(self, request):
+        if request.session.get("user") is None or request.session.get("user") == "":
+            raise Exception("Cannot add blank user to course")
         selecteduser = determineUser(request.POST.get("user"))
+        if request.POST.get('course') is None or request.POST.get('course') == "":
+            raise Exception("Cannot add user to null course")
         course_id = int(request.POST.get('course').split(": ", 1)[0])
         courseobj = CourseObj(Course.objects.get(course_id=course_id))
         if request.POST.get("unassign") is not None:
