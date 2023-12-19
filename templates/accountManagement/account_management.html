@@ -9,34 +9,44 @@
 <body>
 <h1>Account Management</h1>
 {{ message }}
-<table>
-    {% for user in users %}
-        <form id="userChange" action="/home/manageaccount/" method="post">
-            {% csrf_token %}
-            <tr>
-                <td>{{ user }}</td>
-                <input type="hidden" name="user" value="{{ user }}">
-                {% if role == "Admin" or user == current_user %}
-                    <td><input id="edit" type="submit" name="edit" value="Edit"></td>
-                    {% if user != current_user %}
-                        <td><input id="delete" type="submit" name="delete" value="Delete"></td>
-                    {% endif %}
-                {% endif %}
-            </tr>
-        </form>
-    {% endfor %}
-    {% if role == "Admin" %}
+<table class="account-table">
+    <thead>
         <tr>
-            <td colspan="3">
-                <a href="/home/manageaccount/create/">Create Account</a>
-            </td>
+            <th>User</th>
+            <th colspan="2">Actions</th>
         </tr>
+    </thead>
+    <tbody>
+       {% for user in users %}
+        <tr>
+            <td>{{ user }}</td>
+            <td>
+                <form action="/home/manageaccount/" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="user" value="{{ user }}">
+                    <input class="nav-button" type="submit" name="edit" value="Edit">
+                </form>
+            </td>
+            {% if user != current_user %}
+            <td>
+                <form action="/home/manageaccount/" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="user" value="{{ user }}">
+                    <input class="account-button" type="submit" name="delete" value="Delete">
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="footer-buttons">
+    {% if role == "Admin" %}
+        <a class="nav-button" href="/home/manageaccount/create/">Create Account</a>
     {% endif %}
-    <tr>
-        <td colspan="3">
-            <a href="/home/">Home</a>
-        </td>
-    </tr>
+    <a class="nav-button" href="/home/">Home</a>
+</div>
 </table>
 
 
