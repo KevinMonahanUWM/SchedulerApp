@@ -23,6 +23,8 @@
             {% for course in courses %}
             <tr>
                 <td>{{ course.course }}</td>
+                <!-- Conditional display based on user role -->
+                {% if role == "Admin" %}
                 <td>
                     <form action="/home/managecourse/" method="post">
                         {% csrf_token %}
@@ -37,8 +39,12 @@
                         <input class="account-button" type="submit" name="delete" value="Delete">
                     </form>
                 </td>
+                {% else %}
+                <td></td>
+                <td></td>
+                {% endif %}
                 <td>
-                    <form action="/home/managecourse/" method="post">
+                    <form action="/home/managecourse/details/" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="course" value="{{ course.course }}">
                         <input class="account-button" type="submit" name="details" value="Details">
@@ -49,8 +55,11 @@
         </tbody>
     </table>
 
+    <!-- Conditional display based on user role -->
     <div class="footer-buttons">
+        {% if role == "Admin" %}
         <a class="nav-button" href="/home/managecourse/create/">Create Course</a>
+        {% endif %}
         <a class="nav-button" href="/home/">Home</a>
     </div>
 </div>
