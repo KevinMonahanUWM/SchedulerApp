@@ -16,7 +16,7 @@ class SuccessfulCreation(TestCase):
     # noinspection DuplicatedCode
     def setUp(self):
         self.user = Client()
-        self.account = Administrator.objects.create(
+        self.account = Instructor.objects.create(
             user=User.objects.create(
                 email_address="test@uwm.edu",
                 password="pass",
@@ -52,5 +52,6 @@ class SuccessfulCreation(TestCase):
         self.lec = Lecture.objects.create(section=tempsection)
 
     def test_success_instr_assign_lab(self):
-        resp = self.client.post("url here", data=self.lecInfo)
-    def test_success_instr_assign_lec(self):
+        resp = self.client.post("home/managesection/assignuser/")
+        self.assertEqual(resp.context["message"], "Successfully added user", "Did not succeed")
+    #  def test_success_instr_assign_lec(self):
