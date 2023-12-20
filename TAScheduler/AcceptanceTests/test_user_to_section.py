@@ -57,12 +57,12 @@ class SuccessfulCreation(TestCase):
         tempta = TA.objects.create(user=temp, grader_status=False)
         tempta.save()
         self.user.post("/home/managesection/assignuser/",
-                       {"section": self.lab, "user": tempta})
+                       {"section": self.lab, "user": str(tempta)})
         self.assertEquals(self.lab.ta, tempta, "Did not assign TA to lab properly")
 
     def test_success_lec(self):
         self.user.post("/home/managesection/assignuser/",
-                       {"section": self.lec, "user": self.TA})
+                       {"section": self.lec, "user": str(self.TA)})
         self.assertEquals(self.lec.ta, self.TA, "Did not assign TA to lec properly")
 
 
