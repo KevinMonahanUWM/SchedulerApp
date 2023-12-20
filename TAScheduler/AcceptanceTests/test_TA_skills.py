@@ -1,42 +1,58 @@
 from django.test import TestCase, Client
-from TAScheduler.models import User, TA, Administrator, Course
+
+from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture, Lab, Administrator
+from TAScheduler.view_methods.ta_methods import TAObj
+from TAScheduler.view_methods.instructor_methods import InstructorObj
 
 
-class TASkillsUpdateSuccess(TestCase):
+class SuccessfulCreation(TestCase):
+    ta = None
+    instructor = None
+    section = None
     user = None
-    account = None
-    info = None
 
     def setUp(self):
-        self.user = Client()
-        temp = User.objects.create(email_address="testadmin@uwm.edu", password="pass", first_name="Test",
-                                   last_name="Test",
-                                   home_address="Random location", phone_number=9990009999)
-        self.account = Administrator.objects.create(user=temp)
-        ses = self.user.session
-        ses["user"] = str(self.account)
-        ses.save()
-        self.info = {"email_address": "paul@uwm.edu", "password": "pass", "first_name": "test", "last_name": "ignore",
-                     "home_address": "3400 N Maryland Ave", "phone_number": 4142292222, "role": "TA",
-                     "grader_status": True}
+        self.client = Client()
 
-        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
-                                            num_of_sections=3, modality="online")
-        self.course.save()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
+        self.ta = TA.objects.create(
+            user=temp,
+            skills="",
+            grader_status=True
+        )
+        self.course = Course.objects.create(
+            course_id=101,
+            semester="Fall",
+            name="Intro to Testing",
+            description="A course about writing tests",
+            num_of_sections=1,
+            modality="Online"
+        )
 
     def test_ta_updates_skills_successfully(self):
-        response = self.client.post('/ta/update_skills/', {'skills': 'Python, Teaching'})
-        self.assertRedirects(response, '/some_success_page/')
+        # TA updates their skills
+        response = self.client.post('/home/manageaccount/edit/', {
+            'skills': 'Python, Teaching'
+        })
+
+        # Verify that the TA's skills were updated
         self.ta.refresh_from_db()
         self.assertEqual(self.ta.skills, 'Python, Teaching')
+        # Assuming that the success message is part of the response context
         self.assertContains(response, "successfully updated your skills")
 
-    def test_ta_updates_skills_unsuccessfully(self):
-        response = self.client.post('/ta/update_skills/', {'skills': ''})
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Can't assign no skills")
+        # Verify that the TA's skills are displayed on the course details page
+        response = self.client.get(f'/home/managecourse/{self.course.course_id}/details/')
+        self.assertContains(response, self.ta.skills)
 
-    def test_ta_skills_displayed_on_course_details(self):
-        # Assume setup for course and TA assignment is done
-        response = self.client.get('/course/details/')
-        self.assertContains(response, 'Python, Teaching')  # TA's skills should be part of the response
+    def test_ta_updates_skills_unsuccessfully(self):
+        # TA attempts to list no skills
+        response = self.client.post('/home/manageaccount/edit/', {
+
+            'skills': ''
+        })
+
+        # Verify that an error message is displayed
+        self.assertContains(response, "Can't assign no skills")
