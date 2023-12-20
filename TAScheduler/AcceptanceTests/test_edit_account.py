@@ -33,8 +33,31 @@ class SuccessfulEdit(TestCase):
                                                     "grader_status": "",
                                                     "max_assignments": ""})
         print(User.objects.all())
-        self.assertEquals("Paul", User.objects.get(email_address=self.tempUser.user.email_address).first_name,
+        self.assertEqual("Paul", User.objects.get(email_address=self.tempUser.user.email_address).first_name,
                           "Did not successfully edit account")
+
+    def test_success_change_skills(self):
+        # Ensure the user is on the edit page for the specific TA
+        self.user.post("/home/manageaccount/", {"user": str(self.tempUser), "edit": "Edit"}, follow=True)
+
+        # Simulate posting new skills to the TA's profile
+        response = self.user.post("/home/manageaccount/edit/", {
+            "email_address": self.tempUser.user.email_address,
+            "password": "newpass",
+            "first_name": self.tempUser.user.first_name,
+            "last_name": self.tempUser.user.last_name,
+            "home_address": self.tempUser.user.home_address,
+            "phone_number": self.tempUser.user.phone_number,
+            "grader_status": self.tempUser.grader_status,
+            "skills": "Python, Teaching"
+        })
+
+        # Fetch the updated TA from the database
+        updated_ta = TA.objects.get(user__email_address=self.tempUser.user.email_address)
+
+        # Assert that the skills were updated correctly
+        self.assertEqual(updated_ta.skills, "Python, Teaching", "Skills were not successfully updated")
+        self.assertContains(response, "User successfully edited")
 
 
 class InvalidFormatting(TestCase):
@@ -66,7 +89,7 @@ class InvalidFormatting(TestCase):
                                                            "phone_number": "414",
                                                            "grader_status": "",
                                                            "max_assignments": ""})
-        self.assertEquals(str(resp.context["message"]), "phone_number expects an int input with a length of 10",
+        self.assertEqual(str(resp.context["message"]), "phone_number expects an int input with a length of 10",
                           "Changed phone number to value that does not match standard format")
 
     def test_formatting_error_ensure_no_change(self):
