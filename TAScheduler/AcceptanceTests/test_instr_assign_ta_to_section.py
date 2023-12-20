@@ -43,7 +43,7 @@ class SuccessfulCreation(TestCase):
         tempcourse = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
                                            num_of_sections=3, modality="online")
         tempcourse.save()
-
+        InstructorToCourse.objects.create(instructor=self.user, course=tempcourse)
         tempsection = Section.objects.create(section_id=800, course=tempcourse, location="Behind you",
                                              meeting_time=datetime.datetime(2023, 12, 19, 15, 30, 0))
         tempsection.save()
