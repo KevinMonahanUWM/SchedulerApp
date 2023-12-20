@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 
-from TAScheduler.views import Home, CourseManagement, CreateCourse, EditCourse, CourseUserAssignments, \
+from TAScheduler.views import Home, CourseManagement, CreateCourse, EditCourse, \
     Login, AccountManagement, CreateAccount, EditAccount, SectionManagement, CreateSection, EditSection, \
-    SectionUserAssignment, Forgot_Password, ViewTAAssignments
+    SectionUserAssignment, Forgot_Password, CourseDetails
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,7 +29,7 @@ urlpatterns = [
     path('home/managecourse/', CourseManagement.as_view()),
     path('home/managecourse/create/', CreateCourse.as_view()),
     path('home/managecourse/edit/', EditCourse.as_view()),
-    path('home/managecourse/assignuser/', CourseUserAssignments.as_view()),
+    path('home/managecourse/assignuser/', CourseDetails.as_view()),
     path('home/manageaccount/', AccountManagement.as_view()),
     path('home/manageaccount/create/', CreateAccount.as_view()),
     path('home/manageaccount/edit/', EditAccount.as_view()),
@@ -37,8 +37,7 @@ urlpatterns = [
     path('home/managesection/create/', CreateSection.as_view()),
     path('home/managesection/edit/', EditSection.as_view()),
     path('home/managesection/assignuser/', SectionUserAssignment.as_view()),
-    path('forgot_password/', Forgot_Password.as_view()),
-    path('home/view_ta_assignments/', ViewTAAssignments.as_view()),
+    path('forgot_password/', Forgot_Password.as_view())
 ]
 
 urlpatterns += staticfiles_urlpatterns()

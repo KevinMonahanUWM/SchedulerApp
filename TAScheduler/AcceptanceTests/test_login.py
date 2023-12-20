@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from TAScheduler.models import User, Administrator
-from TAScheduler.views_methods import AdminObj
+from TAScheduler.view_methods.admin_methods import AdminObj
 
 
 class SuccessfulLogin(TestCase):

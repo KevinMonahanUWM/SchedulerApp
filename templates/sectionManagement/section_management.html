@@ -24,11 +24,13 @@
         </tr>
     </form>
     {% endfor %}
+    {% if role == "Admin" %}
     <tr>
         <td colspan="4">
             <a href="/home/managesection/create">Create Section</a>
         </td>
     </tr>
+    {% endif %}
     <tr>
         <td colspan="4">
             <a href="/home">Home</a>
