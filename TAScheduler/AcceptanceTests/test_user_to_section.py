@@ -3,7 +3,6 @@ import datetime
 from django.test import TestCase, Client
 
 from TAScheduler.models import User, TA, Course, TAToCourse, Administrator, Instructor, Section, Lab, Lecture
-from TAScheduler.views_methods import LabObj, SectionObj
 
 
 class SuccessfulCreation(TestCase):
