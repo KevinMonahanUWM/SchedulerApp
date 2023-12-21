@@ -17,8 +17,6 @@
         </tr>
     </thead>
     <tbody>
-        <!-- If the user is admin, they can see all users except they cannot delete themselves -->
-        {% if role == "Admin" %}
             {% for user in users %}
             <tr>
                 <td>{{ user }}</td>
@@ -26,28 +24,17 @@
                     <form action="/home/manageaccount/" method="post">
                         {% csrf_token %}
                         <input type="hidden" name="user" value="{{ user }}">
+                        {% if role == "Admin" or user == current_user %}
                         <input class="nav-button" type="submit" name="edit" value="Edit">
                         {% if user != current_user %}
                             <!-- Admin can delete users that are not themselves -->
                             <input class="nav-button" type="submit" name="delete" value="Delete">
                         {% endif %}
+                        {% endif %}
                     </form>
                 </td>
             </tr>
             {% endfor %}
-        <!-- Non-admin users can only see and edit their own account -->
-        {% else %}
-            <tr>
-                <td>{{ current_user }}</td>
-                <td>
-                    <form action="/home/manageaccount/" method="post">
-                        {% csrf_token %}
-                        <input type="hidden" name="user" value="{{ current_user }}">
-                        <input class="nav-button" type="submit" name="edit" value="Edit">
-                    </form>
-                </td>
-            </tr>
-        {% endif %}
     </tbody>
 </table>
 
