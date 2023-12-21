@@ -1,16 +1,19 @@
+import datetime
+
 from django.test import TestCase, Client
 
-from TAScheduler.models import User, Instructor, Course, TA, Section, Lecture, Lab, Administrator
-from TAScheduler.view_methods.ta_methods import TAObj
-from TAScheduler.view_methods.instructor_methods import InstructorObj
+from TAScheduler.models import User, TA, Course, TAToCourse, Administrator, Instructor, Section, Lab, Lecture
 
 
 class SuccessfulCreation(TestCase):
-    ta = None
-    instructor = None
-    section = None
     user = None
+    TA = None
+    course = None
+    section = None
+    lab = None
+    lec = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
         self.user = Client()
         self.account = Administrator.objects.create(
@@ -23,115 +26,58 @@ class SuccessfulCreation(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
 
-        temp_user = User(
-            email_address="test@ta.com",
-            password="password",
-            first_name="first",
-            last_name="last",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user.save()
+        self.TA = TA.objects.create(user=temp, grader_status=True)
+        self.TA.save()
 
-        self.ta = TA.objects.create(
-            user=temp_user,
-            grader_status=True
-        )
-        self.ta.save()
+        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
+                                            num_of_sections=3, modality="online")
+        self.course.save()
+        TAToCourse.objects.create(ta=self.TA, course=self.course)
 
-        temp_user2 = User(
-            email_address="test@instructor.com",
-            password="password",
-            first_name="first_in",
-            last_name="last_in",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user2.save()
+        self.section = Section.objects.create(section_id=800, course=self.course, location="Maybe",
+                                              meeting_time=datetime.datetime(2023, 12, 19, 15, 30, 0))
 
-        self.instructor = Instructor.objects.create(
-            user=temp_user2
-        )
-        self.instructor.save()
+        self.lab = Lab.objects.create(section=self.section)
+        self.lab.save()
+        self.lec = Lecture.objects.create(section=self.section)
+        self.lec.save()
 
-        tmp_course = Course.objects.create(
-            course_id=100,
-            semester="fall 2023",
-            name="testCourse",
-            description="test",
-            num_of_sections=3,
-            modality="online"
-        )
-        tmp_course.save()
+    def test_success_lab(self):
+        temp = User(email_address="test1@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
+        tempta = TA.objects.create(user=temp, grader_status=False)
+        tempta.save()
+        self.user.post("/home/managesection/assignuser/",
+                       {"section": self.lab, "user": tempta, "assign": "Assign"})
+        lab = Lab.objects.get(section=self.lab.section)
+        self.assertEquals(lab.ta, tempta, "Did not assign TA to lab properly")
 
-        self.section = Section.objects.create(
-            section_id=1011,
-            course=tmp_course,
-            location="Cool place",
-            meeting_time="2000-1-1 12:00:00"
-        )
-        self.section.save()
+    def test_success_lec(self):
+        self.user.post("/home/managesection/assignuser/",
+                       {"section": self.lec, "user": self.TA})
+        lec = Lecture.objects.get(section=self.lec.section)
+        self.assertEquals(lec.ta, self.TA, "Did not assign TA to lec properly")
 
-    def test_ta_to_lab(self):
-        temp_user = User(
-            email_address="test@ta.com",
-            password="password",
-            first_name="first",
-            last_name="last",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user.save()
 
-        tmp_ta = TA.objects.create(
-            user=temp_user,
-            grader_status=False
-        )
-        tmp_ta.save()
-
-        tmp_lab = Lab.objects.create(
-            section=self.section,
-            ta=tmp_ta
-        )
-        tmp_lab.save()
-
-        self.user.post("/home/managecourse/adduser/", {"user": str(self.ta)}, follow=True)
-        response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
-        self.assertEqual(TAObj(tmp_ta).getTALabAsgmts().first(), tmp_lab, "TA to lab link was not made")
-
-    def test_ta_to_lec(self):
-        tmp_lec = Lecture.objects.create(
-            section=self.section,
-            ta=self.ta,
-            instructor=self.instructor
-        )
-        tmp_lec.save()
-        self.user.post("/home/managecourse/adduser/", {"user": str(self.ta)}, follow=True)
-        response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
-        self.assertEqual(TAObj(self.ta).getTALecAsgmts().first(), tmp_lec, "TA to lab link was not made")
-
-    def test_instructor_to_lec(self):
-        tmp_lec = Lecture.objects.create(
-            section=self.section,
-            ta=self.ta,
-            instructor=self.instructor
-        )
-        tmp_lec.save()
-        self.user.post("/home/managecourse/adduser/", {"user": str(self.instructor)}, follow=True)
-        response = self.user.post("/home/managesection/adduser/choosesection/", {"course": self.section})
-        self.assertEqual(InstructorObj(self.instructor).getInstrLecAsgmts().first(), tmp_lec, "TA to lab link was not made")
-
-class NoUsers(TestCase):
-    section = None
+class MissingCourseOrUser(TestCase):
     user = None
+    TA = None
+    section = None
+    lab = None
+    lec = None
 
+    # noinspection DuplicatedCode
     def setUp(self):
         self.user = Client()
-        self.account = Administrator.objects.create(
+        self.account = Instructor.objects.create(
             user=User.objects.create(
                 email_address="test@uwm.edu",
                 password="pass",
@@ -141,195 +87,33 @@ class NoUsers(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
+        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
+                    home_address="Your mom's house", phone_number=1234567890)
+        temp.save()
 
-        tmp_course = Course.objects.create(
-            course_id=100,
-            semester="fall 2023",
-            name="testCourse",
-            description="test",
-            num_of_sections=3,
-            modality="online"
-        )
-        tmp_course.save()
+        self.TA = TA.objects.create(user=temp, grader_status=True)
+        self.TA.save()
 
-        self.section = Section.objects.create(
-            section_id=1011,
-            course=tmp_course,
-            location="Cool place",
-            meeting_time="2000-1-1 12:00:00"
-        )
-        self.section.save()
+        self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
+                                            num_of_sections=3, modality="online")
+        self.course.save()
+        TAToCourse.objects.create(ta=self.TA, course=self.course)
+
+        self.section = Section.objects.create(section_id=800, course=self.course, location="Maybe",
+                                              meeting_time=datetime.datetime(2023, 12, 19, 15, 30, 0))
+
+        self.lab = Lab.objects.create(section=self.section)
+        self.lab.save()
+        self.lec = Lecture.objects.create(section=self.section)
+        self.lec.save()
 
     def test_no_users(self):
-        pass
+        with self.assertRaises(Exception):
+            self.user.post("/home/managesection/assignuser/", {"user": "", "section": self.lec})
 
-
-class NoSections(TestCase):
-    ta = None
-    instructor = None
-    section = None
-    user = None
-
-    def setUp(self):
-        self.user = Client()
-        self.account = Administrator.objects.create(
-            user=User.objects.create(
-                email_address="test@uwm.edu",
-                password="pass",
-                first_name="test",
-                last_name="test",
-                home_address="home",
-                phone_number=1234567890
-            )
-        )
-        ses = self.client.session
-        ses["user"] = self.account.__str__()  # should be done at login
-        ses.save()
-
-        temp_user = User(
-            email_address="test@ta.com",
-            password="password",
-            first_name="first",
-            last_name="last",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user.save()
-
-        self.ta = TA.objects.create(
-            user=temp_user,
-            grader_status=True
-        )
-        self.ta.save()
-
-        temp_user2 = User(
-            email_address="test@instructor.com",
-            password="password",
-            first_name="first_in",
-            last_name="last_in",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user2.save()
-
-        self.instructor = Instructor.objects.create(
-            user=temp_user2
-        )
-        self.instructor.save()
-
-    def test_no_courses(self):
-        pass
-
-
-class FullSections(TestCase):
-    taT = None
-    taF = None
-    instructor = None
-    section = None
-    user = None
-    lab = None
-    lecture = None
-
-    def setUp(self):
-        self.user = Client()
-        self.account = Administrator.objects.create(
-            user=User.objects.create(
-                email_address="test@uwm.edu",
-                password="pass",
-                first_name="test",
-                last_name="test",
-                home_address="home",
-                phone_number=1234567890
-            )
-        )
-        ses = self.client.session
-        ses["user"] = self.account.__str__()  # should be done at login
-        ses.save()
-
-        temp_user = User(
-            email_address="test@ta.com",
-            password="password",
-            first_name="first",
-            last_name="last",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user.save()
-
-        self.taT = TA.objects.create(
-            user=temp_user,
-            grader_status=True
-        )
-        self.taT.save()
-
-        temp_user = User(
-            email_address="test2@ta.com",
-            password="password",
-            first_name="first",
-            last_name="last",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user.save()
-
-        self.taF = TA.objects.create(
-            user=temp_user,
-            grader_status=False
-        )
-        self.taF.save()
-
-        temp_user2 = User(
-            email_address="test@instructor.com",
-            password="password",
-            first_name="first_in",
-            last_name="last_in",
-            home_address="Your mom's house",
-            phone_number=1234567890
-        )
-        temp_user2.save()
-
-        self.instructor = Instructor.objects.create(
-            user=temp_user2
-        )
-        self.instructor.save()
-
-        tmp_course = Course.objects.create(
-            course_id=100,
-            semester="fall 2023",
-            name="testCourse",
-            description="test",
-            num_of_sections=3,
-            modality="online"
-        )
-        tmp_course.save()
-
-        self.section = Section.objects.create(
-            section_id=1011,
-            course=tmp_course,
-            location="Cool place",
-            meeting_time="2000-1-1 12:00:00"
-        )
-        self.section.save()
-
-        self.lab = Lab.objects.create(
-            section=self.section,
-            ta=self.taF
-        )
-
-        self.lecture = Lecture.objects.create(
-            section=self.section,
-            ta=self.taT,
-            instructor=self.instructor
-        )
-
-    def test_add_full_instr(self):
-        pass
-
-    def test_add_ta_full_lab(self):
-        pass
-
-    def test_add_ta_full_lec(self):
-        pass
+    def test_no_sections(self):
+        with self.assertRaises(Exception):
+            self.user.post("/home/managesection/assignuser/", {"user": "", "section": ""})

@@ -3,7 +3,9 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 
 from TAScheduler.models import TAToCourse, InstructorToCourse, User, Instructor, Course, TA, Section
-from TAScheduler.views_methods import CourseObj, InstructorObj, TAObj
+from TAScheduler.view_methods.course_methods import CourseObj
+from TAScheduler.view_methods.instructor_methods import InstructorObj
+from TAScheduler.view_methods.ta_methods import TAObj
 
 
 class TestCourseAddInstructor(TestCase):  # Randall
@@ -392,12 +394,12 @@ class TestCourseGetSectionsForCourse(TestCase):  # Randall
         self.section1 = Section.objects.create(
             section_id=201,
             course=self.hold_course,
-            meeting_time='2024-01-15 09:00:00'  # Example datetime format
+            meeting_time='Random loc'
         )
         self.section2 = Section.objects.create(
             section_id=202,
             course=self.hold_course,
-            meeting_time='2024-01-15 11:00:00'  # Example datetime format
+            meeting_time='Random loc'
         )
 
     def test_get_sections_for_course(self):

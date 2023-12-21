@@ -40,6 +40,7 @@ def determineSec(section):  # Take "formatted str", return lab/lec obj.
     except:
         raise RuntimeError("Section does not exist in Database")
 
+
 # Converts the values in the str() to variables, and return them so HTML can display skills only for TAs.
 # Arg: List[str(User)]
 # Return: [{"user":str(User),"role":role:,"skills":skills},{...},{...}]
@@ -51,9 +52,8 @@ def formatUsersForCrseDetail(usersCurrentlyAssigned):
         skills = None
         if role == "TA":
             skills = uObj.database.skills
-        formattedList.append({"user":u,"role":role,"skills":skills})
+        formattedList.append({"user": u, "role": role, "skills": skills})
     return formattedList
-
 
 
 def coursesAddAssignments():
@@ -203,6 +203,7 @@ class Home(View):
             # If the action is unrecognized, return to the home page with an error message
             return render(request, 'home.html', {'error': 'Unrecognized action'})
 
+
 class CourseManagement(View):
 
     def get(self, request):
@@ -235,7 +236,7 @@ class CourseManagement(View):
                               {"message": str(e), "courses": courses, "role":
                                   determineUser(request.session["user"]).getRole()})
         elif request.POST.get("details") is not None:
-            course_id = int(course.split(": ", 1)[0]) #this is redundant
+            course_id = int(course.split(": ", 1)[0])  # this is redundant
             course_instance = Course.objects.get(course_id=course_id)
             course_obj = CourseObj(course_instance)  # Wrap the course instance
             course_info = course_obj.getCrseInfo()
@@ -243,9 +244,9 @@ class CourseManagement(View):
             noneAssigned = len(usersCurrentlyAssigned) == 0
             usersAvailableToAssign = usersCurrentlyAvailable(coursesAddAssignments(), course)
             noneAvailable = len(usersAvailableToAssign) == 0
-            assigned_user_info = formatUsersForCrseDetail(usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
+            assigned_user_info = formatUsersForCrseDetail(
+                usersCurrentlyAssigned)  # [{"str":str(User),"role":role:,"skills"},{...},{...}]
             unassigned_user_info = formatUsersForCrseDetail(usersAvailableToAssign)
-
 
             return render(request, "courseManagement/course_details.html",
                           {"course": course, "course_info": course_info, "assignedEmpty": noneAssigned,
@@ -283,12 +284,12 @@ class CreateCourse(View):
             admin_obj.createCourse(course_info)
             courses = coursesAddAssignments()
             return render(request, "courseManagement/course_management.html",
-                          {"message": "Successfully created course", "courses": courses, "role": determineUser(request.session["user"]).getRole()})
+                          {"message": "Successfully created course", "courses": courses,
+                           "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             return render(request, "courseManagement/create_course.html",
                           {"message": str(e), "role":
                               determineUser(request.session["user"]).getRole()})
-
 
 
 class EditCourse(View):
@@ -298,7 +299,7 @@ class EditCourse(View):
             return redirect("/")
         if determineUser(request.session["user"]).getRole() != "Admin":
             return redirect("/home/")
-        return redirect("/home/managecourse")
+        return redirect("/home/managecourse/")
 
     def post(self, request):
         admin_obj = determineUser(request.session["user"])
@@ -343,7 +344,11 @@ class CourseDetails(View):
         return redirect("/home/managecourse/")
 
     def post(self, request):
+        if request.POST.get("user") is None or request.session.get("user") == "":
+            raise Exception("Cannot add blank user to course")
         selecteduser = determineUser(request.POST.get("user"))
+        if request.POST.get('course') is None or request.POST.get('course') == "":
+            raise Exception("Cannot add user to null course")
         course_id = int(request.POST.get('course').split(": ", 1)[0])
         courseobj = CourseObj(Course.objects.get(course_id=course_id))
         if request.POST.get("unassign") is not None:
@@ -375,6 +380,7 @@ class CourseDetails(View):
                                "role": determineUser(request.session["user"]).getRole()})
 
 
+
 class AccountManagement(View):
 
     def get(self, request):
@@ -399,14 +405,14 @@ class AccountManagement(View):
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": "User successfully deleted",  "role":
-                          determineUser(request.session["user"]).getRole()})
+                               "message": "User successfully deleted", "role":
+                                   determineUser(request.session["user"]).getRole()})
             except Exception as e:
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": e,  "role":
-                          determineUser(request.session["user"]).getRole()})
+                               "message": e, "role":
+                                   determineUser(request.session["user"]).getRole()})
 
 
 class CreateAccount(View):
@@ -492,7 +498,7 @@ class EditAccount(View):
                 adminObj.editUser(determineUser(request.session["current_edit"]), account_info)
                 request.session["user"] = str(determineUser(request.session["user"]).database)
                 del request.session["current_edit"]
-                User.delete(admin_model)
+                User.delete(admin_model.user)
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
@@ -530,7 +536,8 @@ class SectionManagement(View):
         sections = list(map(str, Lecture.objects.all()))
         sections.extend(list(map(str, Lab.objects.all())))
         return render(request, "sectionManagement/section_management.html", {"sections": sections,
-                                                                             "role": determineUser(request.session["user"]).getRole()})
+                                                                             "role": determineUser(
+                                                                                 request.session["user"]).getRole()})
 
     def post(self, request):
         if request.POST.get("edit") is not None:
@@ -561,6 +568,12 @@ class SectionManagement(View):
                 usersInCourse = currentlyAssignedUsersLab(courseObj.getCrseInfo().get("course_id"))
             else:
                 usersInCourse = currentlyAssignedUsersLec(courseObj.getCrseInfo().get("course_id"))
+            if determineUser(request.session["user"]).getRole() == "Instructor":
+                for i in usersInCourse:
+                    email = i.split(": ", 1)[1]
+                    email_role = email.split(" -  ", 1)[1]
+                    if i is not determineUser(request.session["user"]) and email_role != "TA":
+                        usersInCourse.remove(i)
             attachedUsers = usersInSection(secObj)
             unattachedUsers = usersInCourseNotSec(usersInCourse, attachedUsers)
             noneAssigned = False
@@ -588,9 +601,11 @@ class CreateSection(View):
         return render(request, "sectionManagement/create_section.html", {"secs": secs, "courses": courses})
 
     def post(self, request):  #
-        # Next sprint will require us to search for the user in the DB: current user may not be an admin
         curUserObj = determineUser(request.session["user"])
-        course_id = request.POST.get('course_id')
+        if isinstance(request.POST.get('course_id'), str) and request.POST.get('course_id') != "":
+            course_id = int(request.POST.get('course_id'))
+        else:
+            course_id = 0
         section_id = request.POST.get('section_id')
         section_type = request.POST.get('section_type')
         meeting_time = request.POST.get('meeting_time')
@@ -625,8 +640,8 @@ class EditSection(View):
         curUserObj = determineUser(request.session["user"])
         secObj = determineSec(request.session.get("current_edit"))  # sending string arg
         editInput = {"section_id": int(request.POST.get("section_id")),
-                     "location": request.POST.get("location", ),
-                     "meeting_time": request.POST.get("meeting_time", )}
+                     "location": request.POST.get("location"),
+                     "meeting_time": request.POST.get("meeting_time")}
         try:
             curUserObj.editSection(secObj, editInput)
             del request.session["current_edit"]
@@ -650,6 +665,10 @@ class SectionUserAssignment(View):
         return redirect("/home/managesection/")
 
     def post(self, request):
+        if request.POST.get("user") is None or request.session.get("user") == "":
+            raise Exception("Cannot add blank user to course")
+        if request.POST.get('section') is None or request.POST.get('section') == "":
+            raise Exception("Cannot add user to null section")
         curUserObj = determineUser(request.POST.get("user"))
         role = curUserObj.getRole()
         secObj = determineSec(request.POST.get("section"))
@@ -733,7 +752,7 @@ class Forgot_Password(View):
                 adminObj = AdminObj(admin_model)
                 adminObj.editUser(determineUser(request.session["current_edit"]), account_info)
                 del request.session["current_edit"]
-                User.delete(admin_model)
+                User.delete(admin_model.user)
                 return render(request, "forgot_password.html", {"message": "Successfully changed password",
                                                                 "recievedUser": False})
             except Exception as e:

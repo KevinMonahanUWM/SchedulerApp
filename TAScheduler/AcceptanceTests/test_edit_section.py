@@ -35,29 +35,22 @@ class SuccessEdit(TestCase):
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
             self.secList.append(testSection)
-        self.lec1 = Lecture(section=self.secList[0]).save()  # Course1: Lecture
-        self.lec2 = Lecture(section=self.secList[1]).save()  # Course2: Lecture
-        self.lab2 = Lab(section=self.secList[2]).save()  # Course3: Lab
-        self.secPostList.append(  # This is what the value of each post is
-            "Lecture- Section ID:" + str(self.secList[0].section_id) + ", Course ID:" + str(self.secList[0].course_id))
-        self.secPostList.append(
-            "Lecture- Section ID:" + str(self.secList[1].section_id) + ", Course ID:" + str(self.secList[1].course_id))
-        self.secPostList.append(
-            "Lab- Section ID:" + str(self.secList[2].section_id) + ", Course ID:" + str(self.secList[2].course_id))
+        self.lec1 = Lecture.objects.create(section=self.secList[0])  # Course1: Lecture
+        self.lec2 = Lecture.objects.create(section=self.secList[1])  # Course2: Lecture
+        self.lab2 = Lab.objects.create(section=self.secList[2])  # Course3: Lab
+        self.secPostList.append(str(self.lec1))
+        self.secPostList.append(str(self.lec2))
+        self.secPostList.append(str(self.lab2))
+        ses["current_edit"] = self.secPostList[0]
+        ses.save()
 
     # [1] Database reflects our input
     def test_DatabaseEditChange(self):
-        self.client.get("/home/managesection/edit/")
-        id = int(self.secList[0].section_id)
+        print(self.client.session["current_edit"])
         resp = self.client.post("/home/managesection/edit/",
-                                {"sections": self.secPostList[0],
-                                      "section_id": id,
+                                {"section_id": str(self.secList[0].section_id),
                                       "location": "Naboo",
                                       "meeting_time": self.secList[0].meeting_time})
-        resp = self.client.post("/home/managesection/edit/",
-                                {"section_id": id,
-                                 "location": "Naboo",
-                                 "meeting_time": self.secList[0].meeting_time})
         dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
         self.assertEqual(dbEditedSect.location, "Naboo")
 
@@ -91,23 +84,20 @@ class UnSuccessEdit(TestCase):
                                   meeting_time=datetime(2023, 1, 1, 1, 1, 1))
             testSection.save()
             self.secList.append(testSection)
-        self.lec1 = Lecture(section=self.secList[0]).save()  # Course1: Lecture
-        self.lec2 = Lecture(section=self.secList[1]).save()  # Course2: Lecture
-        self.lab2 = Lab(section=self.secList[2]).save()  # Course3: Lab
-        self.secPostList.append(  # This is what the value of each post is
-            "Lecture- Section ID:" + str(self.secList[0].section_id) + ", Course ID:" + str(self.secList[0].course_id))
-        self.secPostList.append(
-            "Lecture- Section ID:" + str(self.secList[1].section_id) + ", Course ID:" + str(self.secList[1].course_id))
-        self.secPostList.append(
-            "Lab- Section ID:" + str(self.secList[2].section_id) + ", Course ID:" + str(self.secList[2].course_id))
+        self.lec1 = Lecture.objects.create(section=self.secList[0])  # Course1: Lecture
+        self.lec2 = Lecture.objects.create(section=self.secList[1])  # Course2: Lecture
+        self.lab2 = Lab.objects.create(section=self.secList[2])  # Course3: Lab
+        self.secPostList.append(str(self.lec1))
+        self.secPostList.append(str(self.lec2))
+        self.secPostList.append(str(self.lab2))
+        ses["current_edit"] = self.secPostList[0]
+        ses.save()
 
     # [1] Ensure "no change" doesn't change the DB.
     def test_DatabaseEditChange(self):
-        self.client.get("/home/managesection/edit/")
-        id = int(self.secList[0].section_id)
+
         resp = self.client.post("/home/managesection/edit/",
-                                data={"sections": self.secPostList[0],
-                                      "section_id": id,
+                                data={"section_id": str(self.secList[0].section_id),
                                       "meeting_time": self.secList[0].meeting_time})
         dbEditedSect = Section.objects.filter(section_id=self.secList[0].section_id)[0]
         self.assertEqual(dbEditedSect.location, "location1")
