@@ -1,6 +1,7 @@
 from django.test import TestCase
 from TAScheduler.models import Administrator, User, Section, Course, Instructor, TA
-from TAScheduler.views_methods import AdminObj, TAObj
+from TAScheduler.view_methods.admin_methods import AdminObj
+from TAScheduler.view_methods.ta_methods import TAObj
 
 
 class TestUserLogin(TestCase):  # Alec

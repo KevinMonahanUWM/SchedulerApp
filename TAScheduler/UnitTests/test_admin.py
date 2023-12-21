@@ -1,9 +1,12 @@
-from datetime import datetime
 from django.test import TestCase
 
 from TAScheduler.models import TAToCourse, InstructorToCourse, Administrator, User, Instructor, Course, TA, Section, \
     Lab, Lecture
-from TAScheduler.views_methods import AdminObj, CourseObj, InstructorObj, TAObj, LabObj
+from TAScheduler.view_methods.admin_methods import AdminObj
+from TAScheduler.view_methods.course_methods import CourseObj
+from TAScheduler.view_methods.instructor_methods import InstructorObj
+from TAScheduler.view_methods.lab_methods import LabObj
+from TAScheduler.view_methods.ta_methods import TAObj
 
 
 class TestAdminInit(TestCase):  # Alec
@@ -116,14 +119,11 @@ class TestAdminCreateSection(TestCase):
         )
         section_info = {
             'section_id': 201,
-            'course': Course.objects.get(course_id=course.course_id),
+            'course_id': course.course_id,
             'location': 'Room 101',
             'meeting_time': "2000-1-1 12:00:00",
             "section_type": "Lab"
         }
-        print(course)
-        print(course.course_id)
-        print(section_info["course"].course_id)
         self.adminObj.createSection(section_info)
 
         # Check if the section has been successfully saved in the database
@@ -379,7 +379,7 @@ class TestAdminEditSection(TestCase):  # Kevin
     def test_bad_item_info(self):
         info = {"section_id": 1012,
                 "location": "",
-                "meeting_time": "bad date"}
+                "meeting_time": 0}
         with self.assertRaises(ValueError, msg="Should have thrown error with bad input"):
             self.admin.editSection(self.tempLab, info)
 
@@ -800,7 +800,7 @@ class TestAdminGetAllSecAsgmt(TestCase):  # Kiran
             tempSec = Section.objects.create(section_id=i,
                                              course=tempCourse,
                                              location="EAS",
-                                             meeting_time=datetime(2023, 1, 1 + i, 12, 0, 0))
+                                             meeting_time="Meeting loc")
             Lecture.objects.create(section=tempSec, ta=tempTa)
         tempUserDB = User.objects.create(
             email_address='admin@example.com',

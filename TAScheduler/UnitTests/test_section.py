@@ -1,7 +1,8 @@
-from datetime import datetime
 from django.test import TestCase
 from TAScheduler.models import Lab, Lecture, User, TA, Course, Administrator, Section
-from TAScheduler.views_methods import LabObj, LectureObj, AdminObj
+from TAScheduler.view_methods.admin_methods import AdminObj
+from TAScheduler.view_methods.lab_methods import LabObj
+from TAScheduler.view_methods.lecture_methods import LectureObj
 
 
 class TestSecTAAsgmt(TestCase):
@@ -37,7 +38,7 @@ class TestSecTAAsgmt(TestCase):
             section_id=800,
             course=tempcourse,
             location="East Lane",
-            meeting_time=datetime(2023, 1, 1, 12, 0, 0)
+            meeting_time="Random loc"
         )
         self.section.save()
 
