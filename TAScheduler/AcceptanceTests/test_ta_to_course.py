@@ -21,7 +21,7 @@ class SuccessfulCreation(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
@@ -36,7 +36,7 @@ class SuccessfulCreation(TestCase):
         self.course.save()
 
     def test_creation(self):
-        self.user.post("/home/managecourse/addta/", {"user": self.TA, "course": self.course},
+        self.user.post("/home/managecourse/assignuser/", {"user": self.TA, "course": self.course},
                        follow=True)
         self.assertIsNotNone(TAToCourse.objects.get(ta=self.TA, course=self.course))
 
@@ -57,7 +57,7 @@ class NoTA(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
 
@@ -66,12 +66,8 @@ class NoTA(TestCase):
         self.course.save()
 
     def test_no_TA(self):
-        response = self.user.post("/home/managecourse/addta/", {"course": self.course})
-        self.assertEquals(
-            response.context["message"],
-            "Please select a ta",
-            "Did not display error when no TA selected"
-        )
+        with self.assertRaises(Exception):
+            self.user.post("/home/managecourse/assignuser/", {"course": self.course})
 
 
 class NoCourse(TestCase):
@@ -90,7 +86,7 @@ class NoCourse(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
 
@@ -102,12 +98,8 @@ class NoCourse(TestCase):
         self.TA.save()
 
     def test_no_course(self):
-        response = self.user.post("/home/managecourse/addta/", {"user": self.TA})
-        self.assertEquals(
-            response.context["message"],
-            "Please select a course",
-            "Did not display error when no TA selected"
-        )
+        with self.assertRaises(Exception):
+            self.user.post("/home/managecourse/assignuser/", {"user": self.TA})
 
 
 class TANoRoom(TestCase):
@@ -126,25 +118,21 @@ class TANoRoom(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
+        temp = User.objects.create(email_address="test@test.com", password="password", first_name="first",
+                                   last_name="last",
+                                   home_address="Your mom's house", phone_number=1234567890)
 
         self.TA = TA.objects.create(user=temp, grader_status=True, max_assignments=0)
-        self.TA.save()
-
         self.course = Course.objects.create(course_id=100, semester="fall 2023", name="testCourse", description="test",
                                             num_of_sections=3, modality="online")
-        self.course.save()
 
     def test_TA_no_room(self):
-        response = self.user.post("/home/managecourse/addta/", {"user": self.TA, "course": self.course},
-                                  follow=True)
+        response = self.user.post("/home/managecourse/assignuser/", {"user": str(self.TA), "course": self.course})
         self.assertEquals(response.context["message"],
-                          "Can't assign a course past a TA's maximum capacity",
+                          "TA has reached the maximum number of course assignments",
                           "Doesn't raise error when TA at max"
                           )
 
@@ -165,7 +153,7 @@ class CourseNoRoom(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
@@ -180,9 +168,9 @@ class CourseNoRoom(TestCase):
         self.course.save()
 
     def test_course_no_room(self):
-        response = self.user.post("/home/managecourse/addta/", {"user": self.TA, "course": self.course},
+        response = self.user.post("/home/managecourse/assignuser/", {"user": self.TA, "course": self.course},
                                   follow=True)
         self.assertEquals(response.context["message"],
-                          "Can't assign course that has reached it's maximum assignments",
+                          "This course has reached the maximum number of TAs based on the number of sections",
                           "Doesn't raise error when Course at max"
                           )

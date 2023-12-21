@@ -1,5 +1,3 @@
-from dateutil import parser  # KEEP THIS
-
 from TAScheduler.models import Administrator, User, TA, Instructor, Course, Lecture, Section, Lab, InstructorToCourse, \
     TAToCourse
 from TAScheduler.view_methods.course_methods import CourseObj
@@ -107,10 +105,10 @@ class AdminObj(UserObj):
             raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        if not Course.objects.filter(course_id=section_info.get("course").course_id).exists():
+        if not Course.objects.filter(course_id=section_info.get("course_id")).exists():
             raise RuntimeError("Course ID is not existing course cant create section")
 
-        courseDB = Course.objects.get(course_id=section_info.get("course").course_id)
+        courseDB = Course.objects.get(course_id=section_info.get("course_id"))
         fields = {"section_id": section_info["section_id"],
                   "course": courseDB,
                   "location": section_info["location"],
@@ -249,8 +247,8 @@ class AdminObj(UserObj):
         try:  # meeting_time
             if new_info.get("meeting_time") is None:
                 raise KeyError("missing field")
-            parsed_date = parser.parse(new_info.get("meeting_time"))
-            temp = parsed_date.strftime("%Y-%m-%d %H:%M:%S")  # Will throw ValueError if datetime is wrong format
+            if type(new_info.get("meeting_time")) is not str:
+                raise ValueError("meeting_time expects a str")
             if new_info.get("meeting_time") == '':
                 raise KeyError("missing field")
             active_section.database.section.meeting_time = new_info.get("meeting_time")
