@@ -107,10 +107,10 @@ class AdminObj(UserObj):
             raise RuntimeError("No missing section fields allowed")
         if Section.objects.filter(section_id=section_info.get('section_id')).exists():
             raise RuntimeError("Section with this ID already exists")
-        if not Course.objects.filter(course_id=section_info.get("course").course_id).exists():
+        if not Course.objects.filter(course_id=section_info.get("course_id")).exists():
             raise RuntimeError("Course ID is not existing course cant create section")
 
-        courseDB = Course.objects.get(course_id=section_info.get("course").course_id)
+        courseDB = Course.objects.get(course_id=section_info.get("course_id"))
         fields = {"section_id": section_info["section_id"],
                   "course": courseDB,
                   "location": section_info["location"],
