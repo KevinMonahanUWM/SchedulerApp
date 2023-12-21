@@ -56,13 +56,15 @@ class SuccessfulCreation(TestCase):
         tempta = TA.objects.create(user=temp, grader_status=False)
         tempta.save()
         self.user.post("/home/managesection/assignuser/",
-                       {"section": self.lab, "user": str(tempta)})
-        self.assertEquals(self.lab.ta, tempta, "Did not assign TA to lab properly")
+                       {"section": self.lab, "user": tempta, "assign": "Assign"})
+        lab = Lab.objects.get(section=self.lab.section)
+        self.assertEquals(lab.ta, tempta, "Did not assign TA to lab properly")
 
     def test_success_lec(self):
         self.user.post("/home/managesection/assignuser/",
-                       {"section": self.lec, "user": str(self.TA)})
-        self.assertEquals(self.lec.ta, self.TA, "Did not assign TA to lec properly")
+                       {"section": self.lec, "user": self.TA})
+        lec = Lecture.objects.get(section=self.lec.section)
+        self.assertEquals(lec.ta, self.TA, "Did not assign TA to lec properly")
 
 
 class MissingCourseOrUser(TestCase):
@@ -109,11 +111,9 @@ class MissingCourseOrUser(TestCase):
         self.lec.save()
 
     def test_no_users(self):
-        response = self.user.post("/home/managesection/assignuser/", {"section": self.lec})
-        self.assertEquals(response.context["message"],
-                          "No users currently assigned to course and none assigned to selected section",
-                          "Did not provide error message when no users")
+        with self.assertRaises(Exception):
+            self.user.post("/home/managesection/assignuser/", {"user": "", "section": self.lec})
 
     def test_no_sections(self):
-        #  There is no error message for no sections
-        pass
+        with self.assertRaises(Exception):
+            self.user.post("/home/managesection/assignuser/", {"user": "", "section": ""})
