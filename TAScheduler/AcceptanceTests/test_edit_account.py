@@ -38,6 +38,9 @@ class SuccessfulEdit(TestCase):
 
     def test_success_change_skills(self):
         # Ensure the user is on the edit page for the specific TA
+        ses = self.user.session
+        ses["user"] = str(self.tempUser)
+        ses.save()
         self.user.post("/home/manageaccount/", {"user": str(self.tempUser), "edit": "Edit"}, follow=True)
 
         # Simulate posting new skills to the TA's profile
