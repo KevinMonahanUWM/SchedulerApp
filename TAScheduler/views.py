@@ -502,7 +502,7 @@ class EditAccount(View):
                 users = allUsers()
                 return render(request, "accountManagement/account_management.html",
                               {"users": users, "current_user": request.session.get("user"),
-                               "message": "User successfully edited", "role": role})
+                               "message": "User successfully edited", "role": determineUser(request.session["user"]).getRole()})
             else:
                 determineUser(request.session["user"]).editUser(determineUser(request.session["current_edit"]),
                                                                 account_info)
@@ -518,7 +518,7 @@ class EditAccount(View):
             users = allUsers()
             return render(request, "accountManagement/account_management.html",
                           {"users": users, "current_user": request.session.get("user"),
-                           "message": "User successfully edited", "role": role})
+                           "message": "User successfully edited", "role": determineUser(request.session["user"]).getRole()})
         except Exception as e:
             user = determineUser(request.session["current_edit"]).database
             return render(request, "accountManagement/edit_account.html",

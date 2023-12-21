@@ -4,66 +4,83 @@
 <head>
     <meta charset="UTF-8">
     <title>Assign User to {{ course }}</title>
-    <link rel="stylesheet" href= {% static 'css/style.css' %}>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-<h1>{{ course }}</h1>
-{{ message }}
-<h2>Course Details</h2>
-<p><strong>Description:</strong> {{ course_info.description }}</p>
-<p><strong>Number of Sections:</strong> {{ course_info.num_of_sections }}</p>
-<p><strong>Modality:</strong> {{ course_info.modality }}</p>
-<table>
-    {% if not assignedEmpty %}
-        <tr>
-            <th colspan="2">Assigned Users</th>
-        </tr>
-        {% for user in assigned %}
-            <form id="unassign" action="/home/managecourse/assignuser/" method="post">
-                {% csrf_token %}
-                <tr>
-                    <td>{{ user.user }}</td> <!--Display "FrstNm LstNm: email@ - role"-->
-                    <input type="hidden" name="course" value="{{ course }}">
-                    <input type="hidden" name="user" value="{{ user.user }}">
-                    {% if user.role == "TA"%}
-                        <td>{{ user.skills }}"</td>
-                    {% endif %}
-                    {% if role == "Admin" %}
-                        <td><input type="submit" name="unassign" value="Unassign"></td>
-                    {% endif %}
-                </tr>
-            </form>
-        {% endfor %}
-    {% endif %}
-    {% if not unassignedEmpty and role == "Admin" %}
-        <tr>
-            <th colspan="2">Available Users to Assign</th>
-        </tr>
-        {% for user in unassigned %}
-            <form id="assign" action="/home/managecourse/assignuser/" method="post">
-                {% csrf_token %}
-                <tr>
-                    <td>{{ user.user }}</td>
-                    <input type="hidden" name="course" value="{{ course }}">
-                    <input type="hidden" name="user" value="{{ user.user }}">
-                      {% if user.role == "TA"%}
-                        <td>{{ user.skills }}"</td>
-                    {% endif %}
-                    <td><input type="submit" name="assign" value="Assign"></td>
-                </tr>
-            </form>
-        {% endfor %}
-    {% endif %}
+<div class="content-container">
+    <!-- Left Column for Course Details -->
+    <div class="column">
+        <h1>{{ course }}</h1>
+        {{ message }}
+        <h2 class="left-aligned-header">Course Details</h2>
+        <div class="details"><strong>Description:</strong> {{ course_info.description }}</div>
+        <div class="details"><strong>Number of Sections:</strong> {{ course_info.num_of_sections }}</div>
+        <div class="details"><strong>Modality:</strong> {{ course_info.modality }}</div>
+    </div>
 
-    {% if assignedEmpty and unassignedEmpty %}
-        <tr>
-            <td>No users available to assign and no users currently assigned</td>
-        </tr>
-    {% endif %}
-    <tr>
-        <td colspan="2"><a href="/home/managecourse/">Cancel</a></td>
-    </tr>
-</table>
+    <!-- Right Column for User Assignment -->
+    <div class="column">
+        <table class="account-table">
+            {% if not assignedEmpty %}
+                <tr>
+                    <th colspan="3">Assigned Users</th>
+                </tr>
+                {% for user in assigned %}
+                    <form id="unassign" action="/home/managecourse/assignuser/" method="post">
+                        {% csrf_token %}
+                        <tr>
+                            <td>{{ user.user }}</td> <!-- Display "First Name Last Name: email@ - role" -->
+                            {% if user.role == "TA" %}
+                                <td>{{ user.skills }}</td>
+                            {% else %}
+                                <td></td> <!-- Empty cell for non-TA roles -->
+                            {% endif %}
+                            {% if role == "Admin" %}
+                                <td>
+                                    <input type="hidden" name="course" value="{{ course }}">
+                                    <input type="hidden" name="user" value="{{ user.user }}">
+                                    <input type="submit" name="unassign" value="Unassign" class="account-button">
+                                </td>
+                            {% endif %}
+                        </tr>
+                    </form>
+                {% endfor %}
+            {% endif %}
 
+            {% if not unassignedEmpty and role == "Admin" %}
+                <tr>
+                    <th colspan="3">Available Users to Assign</th>
+                </tr>
+                {% for user in unassigned %}
+                    <form id="assign" action="/home/managecourse/assignuser/" method="post">
+                        {% csrf_token %}
+                        <tr>
+                            <td>{{ user.user }}</td>
+                            {% if user.role == "TA" %}
+                                <td>{{ user.skills }}</td>
+                            {% else %}
+                                <td></td> <!-- Empty cell for non-TA roles -->
+                            {% endif %}
+                            <td>
+                                <input type="hidden" name="course" value="{{ course }}">
+                                <input type="hidden" name="user" value="{{ user.user }}">
+                                <input type="submit" name="assign" value="Assign" class="account-button">
+                            </td>
+                        </tr>
+                    </form>
+                {% endfor %}
+            {% endif %}
+
+            {% if assignedEmpty and unassignedEmpty %}
+                <tr>
+                    <td colspan="3">No users available to assign and no users currently assigned</td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td colspan="3"><a class="nav-button" href="/home/managecourse/">Cancel</a></td>
+            </tr>
+        </table>
+    </div>
+</div>
 </body>
 </html>

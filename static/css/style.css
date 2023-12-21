@@ -6,8 +6,11 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+   /* Changed from height to min-height to allow for scrolling */
+    min-height: 100vh;
     background-color: white;
+    /* Added overflow-y to allow scrolling on Y-axis if content overflows */
+    overflow-y: auto;
 }
 
 .header {
@@ -76,6 +79,158 @@ table{
 }
 
 td{
-    text-align: center;
+    text-align: left;
     padding: 8px;
 }
+/* New class for content sections */
+.content-section {
+    width: 100%; /* Adjust as needed */
+    max-width: 768px; /* Adjust as needed for a max-width */
+    margin: 0 auto; /* Center align the content section */
+}
+
+/* Style for all <h2> elements to ensure consistent alignment */
+h2 {
+    text-align: center; /* Center aligns <h2> elements */
+    margin: 20px 0; /* Adds margin above and below */
+}
+
+/* Style for details paragraphs */
+.details {
+    padding: 10px 0; /* Adds padding above and below */
+    margin: 0 20px; /* Adds margin to the sides */
+    border-bottom: 1px solid #ccc; /* Adds a line under each detail for separation */
+}
+
+/* Style for table headers to match other headers */
+table th {
+    text-align: center; /* Ensures header text is centered */
+    background-color: #f4f4f4; /* Light background for headers */
+    padding: 10px 0; /* Padding for table headers */
+}
+
+/* Flex container for two-column layout */
+.content-container {
+    display: flex;
+    justify-content: center;
+    width: 100%; /* Full width */
+    max-width: 1200px; /* Adjust as needed for a max-width */
+    margin: 0 auto; /* Center align the container */
+}
+
+/* Styles for each column */
+.column {
+    flex: 1; /* Each column takes up equal space */
+    padding: 20px; /* Padding inside columns */
+}
+
+/* Additional styles to ensure table doesn't stretch too wide */
+table {
+    width: 100%; /* Make table width responsive within column */
+    max-width: 600px; /* Optional: max-width for table */
+}
+
+/* Style for all <h2> elements within content-section to ensure consistent alignment */
+.content-section h2 {
+    text-align: center; /* Keep as is for headers that need to be centered */
+    margin: 20px 0; /* Adds margin above and below */
+}
+
+/* Specific class for left-aligned headers */
+.left-aligned-header {
+    text-align: left; /* Aligns <h2> elements to the left */
+}
+
+/* Style for navigation buttons */
+.nav-button {
+    display: block; /* Make the link fill the container */
+    margin: 10px auto; /* Center in the cell and add some margin */
+    padding: 5px 15px; /* Padding to make buttons larger */
+    background-color: #ffcc00; /* Yellow background for links */
+    color: #333; /* Text color */
+    border-radius: 20px; /* Rounded corners */
+    text-align: center; /* Center text */
+    width: 100%; /* Set a width for all buttons */
+    max-width: 200px; /* Maximum width for large screens */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.nav-button:hover {
+    background-color: #e6b800; /* Darker yellow on hover */
+}
+
+/* Style for the table to ensure buttons align nicely */
+nav table {
+    width: 100%; /* Full width of the nav section */
+    max-width: 300px; /* Maximum width of the table */
+    margin: 0 auto; /* Center the table */
+}
+
+nav td {
+    padding: 5px; /* Padding inside cells */
+}
+
+/* Style for the account management table */
+.account-table {
+    width: 100%; /* Full width of the content area */
+    max-width: 600px; /* Maximum width of the table */
+    margin: 20px auto; /* Center the table with margin */
+    border-collapse: collapse; /* Collapse the borders for a cleaner look */
+}
+
+.account-table th, .account-table td {
+    padding: 10px; /* Padding for cells */
+    text-align: left; /* Left align text in cells */
+    border-bottom: 1px solid #ccc; /* Horizontal line between rows */
+}
+
+.account-table th {
+    background-color: #f4f4f4; /* Light background for header row */
+}
+
+/* Style for buttons within the account management table */
+.account-button {
+    padding: 5px 15px; /* Padding for buttons */
+    background-color: #4CAF50; /* Green background for buttons */
+    color: white; /* White text */
+    border: none; /* No border */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.account-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+}
+
+/* Additional styles to make all buttons have the same width */
+.account-button, .account-table a {
+    display: inline-block; /* Allow width to be set */
+    width: 100px; /* Set a fixed width for all buttons */
+    text-align: center; /* Center text inside buttons */
+    text-decoration: none; /* Remove underline from links */
+}
+
+form#loginForm .form-group {
+    margin: 10px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form#loginForm .form-group label {
+    margin-bottom: 5px;
+}
+
+form#loginForm .form-group a {
+    margin: 10px 0;
+}
+
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
