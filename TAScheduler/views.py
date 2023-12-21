@@ -380,6 +380,7 @@ class CourseDetails(View):
                                "role": determineUser(request.session["user"]).getRole()})
 
 
+
 class AccountManagement(View):
 
     def get(self, request):
@@ -567,6 +568,12 @@ class SectionManagement(View):
                 usersInCourse = currentlyAssignedUsersLab(courseObj.getCrseInfo().get("course_id"))
             else:
                 usersInCourse = currentlyAssignedUsersLec(courseObj.getCrseInfo().get("course_id"))
+            if determineUser(request.session["user"]).getRole() == "Instructor":
+                for i in usersInCourse:
+                    email = i.split(": ", 1)[1]
+                    email_role = email.split(" -  ", 1)[1]
+                    if i is not determineUser(request.session["user"]) and email_role != "TA":
+                        usersInCourse.remove(i)
             attachedUsers = usersInSection(secObj)
             unattachedUsers = usersInCourseNotSec(usersInCourse, attachedUsers)
             noneAssigned = False
@@ -658,6 +665,10 @@ class SectionUserAssignment(View):
         return redirect("/home/managesection/")
 
     def post(self, request):
+        if request.POST.get("user") is None or request.session.get("user") == "":
+            raise Exception("Cannot add blank user to course")
+        if request.POST.get('section') is None or request.POST.get('section') == "":
+            raise Exception("Cannot add user to null section")
         curUserObj = determineUser(request.POST.get("user"))
         role = curUserObj.getRole()
         secObj = determineSec(request.POST.get("section"))

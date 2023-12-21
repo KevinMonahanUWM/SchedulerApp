@@ -2,7 +2,7 @@ import datetime
 
 from django.test import TestCase, Client
 
-from TAScheduler.models import User, TA, Course, TAToCourse, Administrator, Instructor, Section, Lab, Lecture
+from TAScheduler.models import User, TA, Course, TAToCourse, Instructor, Section, Lab, Lecture
 
 
 class SuccessfulCreation(TestCase):
@@ -16,7 +16,7 @@ class SuccessfulCreation(TestCase):
     # noinspection DuplicatedCode
     def setUp(self):
         self.user = Client()
-        self.account = Administrator.objects.create(
+        self.account = Instructor.objects.create(
             user=User.objects.create(
                 email_address="test@uwm.edu",
                 password="pass",
@@ -66,6 +66,11 @@ class SuccessfulCreation(TestCase):
         lec = Lecture.objects.get(section=self.lec.section)
         self.assertEquals(lec.ta, self.TA, "Did not assign TA to lec properly")
 
+    def test_self_success_lec(self):
+        self.user.post("/home/managesection/assignuser/",
+                       {"section": self.lec, "user": self.account})
+        lec = Lecture.objects.get(section=self.lec.section)
+        self.assertEquals(lec.instructor, self.account, "Did not assign TA to lec properly")
 
 class MissingCourseOrUser(TestCase):
     user = None
@@ -112,7 +117,7 @@ class MissingCourseOrUser(TestCase):
 
     def test_no_users(self):
         with self.assertRaises(Exception):
-            self.user.post("/home/managesection/assignuser/", {"user": "", "section": self.lec})
+            self.user.post("/home/managesection/assignuser/", {"user": "","section": self.lec})
 
     def test_no_sections(self):
         with self.assertRaises(Exception):
