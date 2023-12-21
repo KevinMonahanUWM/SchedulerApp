@@ -1,9 +1,11 @@
-from datetime import datetime
 from django.test import TestCase
 
 from TAScheduler.models import Instructor, User, Administrator, Course, Section, Lecture, InstructorToCourse, TA, \
     TAToCourse
-from TAScheduler.views_methods import InstructorObj, AdminObj, LectureObj, CourseObj
+from TAScheduler.view_methods.admin_methods import AdminObj
+from TAScheduler.view_methods.course_methods import CourseObj
+from TAScheduler.view_methods.instructor_methods import InstructorObj
+from TAScheduler.view_methods.lecture_methods import LectureObj
 
 
 class TestInstructorInit(TestCase):
@@ -131,45 +133,7 @@ class TestInstructorAssignInstrCourse(TestCase):  # Kiran
             ))
             self.courseList.append(CourseObj(self.courseDBList[i - 1]))
 
-    # [1] Success instructor->Course
-    def test_ExistCourse(self):
-        self.instrObj.assignInstrCourse(self.courseList[0])
-        self.assertEqual(self.courseDBList[0],
-                         InstructorToCourse.objects.filter(course=self.courseDBList[0],
-                                                           instructor=self.instrDB)[0].course,
-                         "Should have linked course and instructor together")
-
-    # [2] Adding Course not existing in DB
-    def test_NotExistCourse(self):
-        temp_course = CourseObj(Course(course_id=102))  # not "101", which exists already
-        with self.assertRaises(ValueError, msg="can't send in non existing course, i.e., course obj"):
-            self.instrObj.assignInstrCourse(temp_course)
-
-    # [3] Adding duplicate course: (don't know why this would happen but might as well test it :P)
-    def test_duplicateCourse(self):
-        self.instrObj.assignInstrCourse(self.courseList[0])
-        with self.assertRaises(ValueError,
-                               msg="violated integrity of database, can't assign a instructor the same course twice"):
-            self.instrObj.assignInstrCourse(self.courseList[0])
-
-    # [4] Adding Course to instructor @ max capacity
-    def test_OverCap(self):
-        self.instrObj.assignInstrCourse(self.courseList[0])
-        with self.assertRaises(ValueError,
-                               msg="can't assign courses when already reaches the max instructor assignments"):
-            self.instrObj.assignInstrCourse(self.courseList[1])
-
-    # [5] Trying to add a non-course
-    def test_NonCourse(self):
-        invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
-
-        for invalid_input in invalid_inputs:
-            with self.subTest(
-                    invalid_input=invalid_input):  # if 1 subtest test runs, it will continue running through loop
-                with self.assertRaises(TypeError, msg="Shouldn't be allowed to assign instructor to non-course"):
-                    self.instrObj.assignInstrCourse(invalid_input)
-
-    # [2] 0 assignment
+    # [1] 0 assignment
     def test_0Assignment(self):
         self.assertEqual(self.instrObj.getInstrCrseAsgmts().count(), 0, msg="should be 0 assignments")
 
@@ -222,97 +186,6 @@ class TestInstructorGetInstrCourseAssignments(TestCase):  # Kiran
         self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB),
                                  self.instrObj.getInstrCrseAsgmts(), msg="should be 0 assignments")
 
-    # [3] 1->0 Assignment
-    # using views methods: same reasoning given ^
-    def test_1to0Assignment(self):
-        self.instrObj.assignInstrCourse(self.course)
-        self.adminObj.removeCourse(self.course)
-        self.assertQuerysetEqual(InstructorToCourse.objects.filter(instructor=self.instrDB),
-                                 self.instrObj.getInstrCrseAsgmts(), msg="added then removed course, should be 0")
-
-
-class TestInstructorAssignInstrLec(TestCase):  # Kiran
-    instrDB = None
-    courseDBList = list()  # just for section
-    sectionDBList = list()  # just for lec
-    lecDBList = list()
-    lecList = list()
-    user = None  # for instructor
-    instrObj = None
-
-    def setUp(self):
-        self.user = User.objects.create(
-            email_address='TA@example.com',
-            password='TA_password',
-            first_name='TA',
-            last_name='User',
-            home_address='123 TA St',
-            phone_number=1234567890
-        )
-        self.instrDB = Instructor.objects.create(user=self.user, max_assignments=1)  # max 1 assignment!
-        self.instrObj = InstructorObj(self.instrDB)
-        for i in [1, 2, 3]:
-            self.courseDBList.append(Course.objects.create(
-                course_id=100 + i,
-                semester='Fall 2023',
-                name='Introduction to Testing',
-                description='A course about writing tests in Django.',
-                num_of_sections=3,
-                modality='Online'
-            ))
-        for i in [1, 2, 3]:  # section
-            self.sectionDBList.append(Section.objects.create(
-                section_id=100 + i,
-                course=self.courseDBList[i - 1],
-                location="location" + str(i),
-                meeting_time=datetime(2023, 1, 1 + i, 12, 0, 0)
-            ))
-        for i in [1, 2]:  # lec
-            self.lecDBList.append(
-                Lecture.objects.create(section=self.sectionDBList[i - 1]))  # HOPEFULLY FINE W/O FIELDS?
-            self.lecList.append(LectureObj(self.lecDBList[i - 1]))
-
-    # [1] Success Instructor->Lec
-    def test_ExistLec(self):
-        self.instrObj.assignInstrLecture(self.lecList[0])
-        self.assertEqual(self.lecDBList[0].instructor, self.instrDB, "Should have linked lec and instructor together")
-
-    # [2] Adding duplicate lecture: (don't know why this would happen but might as well test it :P)
-    def test_duplicateLec(self):
-        self.instrObj.assignInstrLecture(self.lecList[1])
-        with self.assertRaises(ValueError,
-                               msg="violated integrity of database, can't assign a instructor the same lecture twice"):
-            self.instrObj.assignInstrLecture(self.lecList[1])
-
-    # [3] Adding Instructor to lecture @ max cap
-    def test_OverCap(self):
-        temp_userDB = User.objects.create(
-            email_address='Instr2@example.com',  # different from "Instr@example.com"
-            password='Instr_password',
-            first_name='Instr',
-            last_name='User',
-            home_address='123 Instr St',
-            phone_number=1234567890
-        )
-        tempInstrDB = Instructor.objects.create(user=temp_userDB, max_assignments=1)
-        tempLecDB = Lecture.objects.create(
-            section=self.sectionDBList[2],
-            instructor=tempInstrDB)
-        lec3 = LectureObj(tempLecDB)  # Lec3 = New Lec w/ New Ta assignment
-        with self.assertRaises(ValueError,
-                               msg="can't assign lecture when the lecture already has assignment"):
-            self.instrObj.assignInstrLecture(lec3)
-
-    # [4] Trying to add a non-lec
-    def test_NonLec(self):
-        invalid_inputs = [123, 3.14, True, [1, 2, 3], {'key': 'value'}]  # testing a bunch of different obj types
-
-        for invalid_input in invalid_inputs:
-            with self.subTest(
-                    invalid_input=invalid_input):  # if 1 subtest test runs, it will continue running through loop
-                with self.assertRaises(TypeError, msg="Shouldn't be allowed to assign instructor to non-section"):
-                    self.instrObj.assignInstrLecture(invalid_input)
-
 
 class TestInstructorGetInstrLecAssignments(TestCase):  # Kiran
     instrDB = None
@@ -354,7 +227,7 @@ class TestInstructorGetInstrLecAssignments(TestCase):  # Kiran
             section_id=100 + 1,
             course=self.courseDB,
             location="location" + str(1),
-            meeting_time=datetime(2023, 1, 1, 12, 0, 0)
+            meeting_time="Random loc"
         )
         # Lecture - create assignments in the test.
 

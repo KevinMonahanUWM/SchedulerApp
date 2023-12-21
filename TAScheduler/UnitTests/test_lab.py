@@ -1,6 +1,6 @@
 from django.test import TestCase
 from TAScheduler.models import User, Course, TA, Section, Lab
-from TAScheduler.views_methods import LabObj
+from TAScheduler.view_methods.lab_methods import LabObj
 
 
 class TestLabInit(TestCase):
