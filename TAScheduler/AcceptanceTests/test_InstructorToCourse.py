@@ -21,7 +21,7 @@ class SuccessfulCreation(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
@@ -37,7 +37,7 @@ class SuccessfulCreation(TestCase):
 
     # /home/managecourse/addinstructor
     def test_creation(self):
-        self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor, "course": self.course},
+        self.user.post("/home/managecourse/assignuser/", {"user": self.instructor, "course": self.course},
                        follow=True)
         self.assertIsNotNone(InstructorToCourse.objects.get(instructor=self.instructor, course=self.course))
 
@@ -58,7 +58,7 @@ class NoInstructor(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
 
@@ -67,12 +67,8 @@ class NoInstructor(TestCase):
         self.course.save()
 
     def test_no_instructor(self):
-        response = self.user.post("/home/managecourse/addinstructor/", {"course": self.course})
-        self.assertEquals(
-            response.context["message"],
-            "Please select an instructor",
-            "Did not display error when no instructor selected"
-        )
+        with self.assertRaises(Exception):
+            response = self.user.post("/home/managecourse/assignuser/", {"user": "", "course": self.course})
 
 
 class NoCourse(TestCase):
@@ -91,7 +87,7 @@ class NoCourse(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
 
@@ -103,12 +99,9 @@ class NoCourse(TestCase):
         self.instructor.save()
 
     def test_no_course(self):
-        response = self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor})
-        self.assertEquals(
-            response.context["message"],
-            "Please select a course",
-            "Did not display error when no instructor selected"
-        )
+        with self.assertRaises(Exception):
+            self.user.post("/home/managecourse/assignuser/", {"user": self.instructor, "course": ""})
+
 
 
 class InstructorNoRoom(TestCase):
@@ -127,7 +120,7 @@ class InstructorNoRoom(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
@@ -142,10 +135,10 @@ class InstructorNoRoom(TestCase):
         self.course.save()
 
     def test_instructor_no_room(self):
-        response = self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor, "course": self.course},
+        response = self.user.post("/home/managecourse/assignuser/", {"user": self.instructor, "course": self.course},
                                   follow=True)
         self.assertEquals(response.context["message"],
-                          "Can't assign a course past a instructor's maximum capacity",
+                          "Instructor has reached the maximum number of course assignments",
                           "Doesn't raise error when instructor at max"
                           )
 
@@ -166,7 +159,7 @@ class CourseNoRoom(TestCase):
                 phone_number=1234567890
             )
         )
-        ses = self.client.session
+        ses = self.user.session
         ses["user"] = self.account.__str__()  # should be done at login
         ses.save()
         temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
@@ -181,40 +174,7 @@ class CourseNoRoom(TestCase):
         self.course.save()
 
     def test_course_no_room(self):
-        response = self.user.post("/home/managecourse/addinstructor/", {"user": self.instructor, "course": self.course},
-                                  follow=True)
+        response = self.user.post("/home/managecourse/assignuser/",
+                                  {"user": self.instructor, "course": self.course})
         self.assertEquals(response.context["message"],
-                          "Can't assign course that has reached it's maximum assignments",
-                          "Doesn't raise error when instructor at max"
-                          )
-
-
-class SuccessfulTransfer(TestCase):
-    user = None
-    instructor = None
-
-    def setUp(self):
-        self.user = Client()
-        self.account = Administrator.objects.create(
-            user=User.objects.create(
-                email_address="test@uwm.edu",
-                password="pass",
-                first_name="test",
-                last_name="test",
-                home_address="home",
-                phone_number=1234567890
-            )
-        )
-        ses = self.client.session
-        ses["user"] = self.account.__str__()  # should be done at login
-        ses.save()
-
-        temp = User(email_address="test@test.com", password="password", first_name="first", last_name="last",
-                    home_address="Your mom's house", phone_number=1234567890)
-        temp.save()
-
-        self.instructor = Instructor.objects.create(user=temp)
-        self.instructor.save()
-
-    def test_instructor_to_next(self):
-        pass
+                          "This course has reached the maximum number of instructors based on the number of sections")
